@@ -482,6 +482,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             } else {
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
+                self.history.values = history.map { $0.rawGlucose }
             }
             return
         }
