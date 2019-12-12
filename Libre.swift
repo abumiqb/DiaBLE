@@ -593,7 +593,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var history: History
     var settings: Settings
 
-
     var host: PlaygroundLiveViewable
 
     var bubble: Bubble?

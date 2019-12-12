@@ -1,36 +1,212 @@
-//
-//  ContentView.swift
-//  DiaBLE
-//
-//  Created by Guido Soranzio on 12/12/2019.
-//  Copyright © 2019 Guido Soranzio. All rights reserved.
-//
-
 import SwiftUI
 
 struct ContentView: View {
-    @State private var selection = 0
- 
+    @EnvironmentObject var app: App
+    @EnvironmentObject var info: Info
+    @EnvironmentObject var log: Log
+    @EnvironmentObject var history: History
+    @EnvironmentObject var settings: Settings
+
+    @State var selectedTab = 0
+
+    #if os(iOS)
+
     var body: some View {
-        TabView(selection: $selection){
-            Text("First View")
-                .font(.title)
+        TabView(selection: $selectedTab) {
+            Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
                 .tabItem {
+                    Image(systemName: "gauge")
+                    Text("Monitor")
+            }.tag(0)
+
+            LogView().environmentObject(log)
+                .tabItem {
+                    Image(systemName: "doc.plaintext")
+                    Text("Log")
+            }.tag(1)
+
+            SettingsView().environmentObject(app).environmentObject(settings)
+                .tabItem {
+                    Image(systemName: "gear")
+                    Text("Settings")
+            }.tag(2)
+        }
+    }
+
+    #else
+
+    // FIXME: Mac playgrounds doesn't display tabs
+    var body: some View {
+        VStack {
+            Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
+            LogView().environmentObject(log)
+            SettingsView().environmentObject(app).environmentObject(settings)
+        }.frame(idealHeight: 400)
+    }
+
+    #endif
+}
+
+struct Monitor: View {
+    @EnvironmentObject var app: App
+    @EnvironmentObject var info: Info
+    @EnvironmentObject var history: History
+
+    @State var showingLog = false
+
+    var body: some View {
+        VStack {
+            HStack {
+                Spacer()
+                VStack {
+                    Text(app.currentGlucose > 0 ? "\(app.currentGlucose)" : "---")
+                        .fontWeight(.black)
+                        .foregroundColor(.black)
+                        .padding(10)
+                        .background(Color.yellow)
+                    Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
+                        .foregroundColor(.yellow)
+                    Text(app.transmitterState)
+                        .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
+                }
+
+                Graph().environmentObject(history).frame(width: 30*5, height: 80)
+
+                HStack {
                     VStack {
-                        Image("first")
-                        Text("First")
+                        if app.batteryLevel > 0 {
+                            Text("Battery: \(app.batteryLevel)%")
+                        }
+                        Text(app.sensorState)
+                            .foregroundColor(app.sensorState == "Ready" ? .green : .red)
+
+                        if app.sensorStart > 0 {
+                            Text("\(app.sensorSerial)")
+                            Text("\(String(format: "%.1f", Double(app.sensorStart)/60/24)) days")
+                        }
+                    }
+                    VStack {
+                        if app.transmitterFirmware.count > 0 {
+                            Text("Firmware\n\(app.transmitterFirmware)")
+                        }
+                        if app.transmitterHardware.count > 0 {
+                            Text("Hardware:\n\(app.transmitterHardware)")
+                        }
                     }
                 }
-                .tag(0)
-            Text("Second View")
-                .font(.title)
-                .tabItem {
-                    VStack {
-                        Image("second")
-                        Text("Second")
+                .font(.footnote)
+                .foregroundColor(.yellow)
+                .multilineTextAlignment(.center)
+
+                Spacer()
+            }
+
+            Text(info.text)
+                .multilineTextAlignment(.center)
+                .font(.footnote)
+                .layoutPriority(2)
+        }
+    }
+}
+
+
+struct Graph: View {
+    @EnvironmentObject var history: History
+    var body: some View {
+        // FIXME: called multiple times (15-40) on the Mac
+        GeometryReader { geometry in
+            Path() { path in
+                let width  = Double(geometry.size.width)
+                let height = Double(geometry.size.height)
+                path.addRoundedRect(in: CGRect(x: 0.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
+                let count = self.history.values.count
+                if count > 0 {
+                    let v = self.history.values
+                    let max = v.max()!
+                    let yScale = (height - 30) / Double(max)
+                    let xScale = width / Double(count - 1)
+                    path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
+                    for i in 1 ..< count {
+                        path.addLine(to: .init(
+                            x: Double(i) * xScale,
+                            y: height - Double(v[count - i - 1]) * yScale)
+                        )
                     }
                 }
-                .tag(1)
+            }.stroke(Color.purple)
+        }
+    }
+}
+
+struct LogView: View {
+    @EnvironmentObject var log: Log
+    var body: some View {
+        HStack {
+            ScrollView(showsIndicators: true) {
+                Text(self.log.text)
+                    .font(.system(.footnote, design: .monospaced))
+                    .frame(idealWidth: 640, alignment: .topLeading)
+                    .background(Color.blue)
+                    .padding(4)
+            }.background(Color.blue)
+
+            VStack(alignment: .center, spacing: 4) {
+
+                #if os(macOS)
+                // FIXME: only works with iPad
+                Button("Copy") { NSPasteboard.general.setString(self.log.text, forType: .string) }
+                #else
+                Button("Copy") { UIPasteboard.general.string = self.log.text }
+                #endif
+
+                Button("Clear") { self.log.text = "" }
+
+                // TODO: scroll to buttom
+                Spacer()
+            }
+        }
+    }
+}
+
+struct SettingsView: View {
+    @EnvironmentObject var app: App
+    @EnvironmentObject var settings: Settings
+
+    // TODO
+    @State var preferredTransmitter = 0
+    @State var frequency = 5
+
+    // FIXME: timer doesn't update
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        VStack {
+            Text("TODO: Settings")
+            HStack {
+
+                Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
+                    Text("none")    .tag(0)
+                    Text("bubble")  .tag(1)
+                    Text("droplet") .tag(2)
+                    Text("limitter").tag(3)
+                    Text("miaomiao").tag(4)
+                }.pickerStyle(SegmentedPickerStyle())
+
+                Button(action:
+                    { let transmitter = self.app.currentTransmitter!
+                        self.app.main.info("\n\nTODO: disconnect \(transmitter.name) and rescan")
+                } // TODO
+                ) { Text("Rescan") }
+            }
+            // FIXME: Stepper doesn't update when in a tabview
+            Stepper(value: $frequency, in: 1 ... 15, label: { Text("Reading frequency: \(frequency)m") })
+
+            Text("\(self.app.nextReading)s")
+                .onReceive(timer) { _ in
+                    if self.app.nextReading > 0 {
+                        self.app.nextReading -= 1
+                    }
+            }
         }
     }
 }
