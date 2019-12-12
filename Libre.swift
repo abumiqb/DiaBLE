@@ -584,7 +584,6 @@ func postToLibreOOP(bytes: Data, patchUid: Data? = nil, patchInfo: Data? = nil, 
     }.resume()
 }
 
-
 public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     var app: App
@@ -592,6 +591,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var info: Info
     var history: History
     var settings: Settings
+
 
     var host: PlaygroundLiveViewable
 
@@ -756,6 +756,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .unauthorized: log("Bluetooth: Unauthorized")
         case .unknown: log("Bluetooth: Unknown")
         case .unsupported: log("Bluetooth: Unsupported")
+        @unknown default:
+            log("Bluetooth: Unknown state")
         }
     }
 
@@ -1192,4 +1194,3 @@ mainDelegate.app.main = mainDelegate
 var host = mainDelegate.host
 PlaygroundPage.current.liveView = host
 PlaygroundPage.current.needsIndefiniteExecution = true
-

@@ -536,6 +536,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .unauthorized: log("Bluetooth: Unauthorized")
         case .unknown: log("Bluetooth: Unknown")
         case .unsupported: log("Bluetooth: Unsupported")
+        @unknown default:
+           log("Bluetooth: Unknown state")
         }
     }
 
