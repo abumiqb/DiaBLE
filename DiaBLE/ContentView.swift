@@ -89,7 +89,8 @@ struct Monitor: View {
                 
                 Spacer()
             }
-            
+
+            Text(" ")
             Text(info.text)
                 .multilineTextAlignment(.center)
                 .font(.footnote)
