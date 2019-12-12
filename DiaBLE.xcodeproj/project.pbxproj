@@ -16,6 +16,7 @@
 		C5E1014923A2774D00678DF6 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5E1014723A2774D00678DF6 /* LaunchScreen.storyboard */; };
 		C5E1015423A2774D00678DF6 /* DiaBLETests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E1015323A2774D00678DF6 /* DiaBLETests.swift */; };
 		C5E1015F23A2774D00678DF6 /* DiaBLEUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E1015E23A2774D00678DF6 /* DiaBLEUITests.swift */; };
+		C5FB2EF323A2794D0046F4F9 /* MainDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5FB2EF223A2794D0046F4F9 /* MainDelegate.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,8 @@
 		C5E1015A23A2774D00678DF6 /* DiaBLEUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DiaBLEUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5E1015E23A2774D00678DF6 /* DiaBLEUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaBLEUITests.swift; sourceTree = "<group>"; };
 		C5E1016023A2774D00678DF6 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C5FB2EF223A2794D0046F4F9 /* MainDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainDelegate.swift; sourceTree = "<group>"; };
+		C5FB2EF423A279CD0046F4F9 /* Libre.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Libre.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +84,7 @@
 		C5E1012D23A2774C00678DF6 = {
 			isa = PBXGroup;
 			children = (
+				C5FB2EF423A279CD0046F4F9 /* Libre.swift */,
 				C5E1013823A2774C00678DF6 /* DiaBLE */,
 				C5E1015223A2774D00678DF6 /* DiaBLETests */,
 				C5E1015D23A2774D00678DF6 /* DiaBLEUITests */,
@@ -109,6 +113,7 @@
 				C5E1014A23A2774D00678DF6 /* Info.plist */,
 				C5E1013D23A2774C00678DF6 /* DiaBLE.xcdatamodeld */,
 				C5E1014423A2774D00678DF6 /* Preview Content */,
+				C5FB2EF223A2794D0046F4F9 /* MainDelegate.swift */,
 			);
 			path = DiaBLE;
 			sourceTree = "<group>";
@@ -273,6 +278,7 @@
 				C5E1013A23A2774C00678DF6 /* AppDelegate.swift in Sources */,
 				C5E1013F23A2774C00678DF6 /* DiaBLE.xcdatamodeld in Sources */,
 				C5E1014123A2774C00678DF6 /* ContentView.swift in Sources */,
+				C5FB2EF323A2794D0046F4F9 /* MainDelegate.swift in Sources */,
 				C5E1013C23A2774C00678DF6 /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
