@@ -967,5 +967,3 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 }
 
-let mainDelegate = MainDelegate()
-mainDelegate.app.main = mainDelegate
