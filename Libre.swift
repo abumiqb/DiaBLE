@@ -217,9 +217,11 @@ struct LogView: View {
 struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
+
     @Binding var selectedTab: Tab
+
+    @State var preferredTransmitter: TransmitterType = .none
     // TODO
-    @State var preferredTransmitter = 0
     @State var frequency = 5
 
     // FIXME: timer doesn't update
@@ -231,20 +233,19 @@ struct SettingsView: View {
             HStack {
 
                 Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
-                    Text("none")    .tag(0)
-                    Text("bubble")  .tag(1)
-                    Text("droplet") .tag(2)
-                    Text("limitter").tag(3)
-                    Text("miaomiao").tag(4)
+                    ForEach(TransmitterType.allCases) { t in
+                        Text(t.rawValue).tag(t)
+                    }
                 }.pickerStyle(SegmentedPickerStyle())
 
-                Button(action:
-                    { let transmitter = self.app.currentTransmitter!
-                        self.app.main.info("\n\nTODO: disconnect \(transmitter.name) and rescan")
-                        // FIXME: crashes in a playground
-
-                        // self.selectedTab = .monitor
-                } // TODO
+                Button(action: {
+                    let transmitter = self.app.currentTransmitter!
+                    // FIXME: crashes in a playground
+                    // self.selectedTab = .monitor
+                    self.app.main.centralManager.cancelPeripheralConnection(transmitter.peripheral!)
+                    self.app.preferredTransmitter = self.preferredTransmitter.rawValue
+                    self.app.main.centralManager.scanForPeripherals(withServices: nil, options: nil)
+                }
                 ) { Text("Rescan") }
             }
             // FIXME: Stepper doesn't update when in a tabview
@@ -272,12 +273,9 @@ extension String {
     var base64Data: Data? { Data(base64Encoded: self) }
 }
 
-enum TransmitterType: String, CaseIterable {
-    case none      = "none"
-    case bubble    = "bubble"
-    case dropplet  = "droplet"
-    case limitter  = "limitter"
-    case miaomiao  = "miaomiao"
+enum TransmitterType: String, CaseIterable, Hashable, Identifiable {
+    case none, bubble, droplet, limitter, miaomiao
+    var id: String { rawValue }
 }
 
 class Transmitter {

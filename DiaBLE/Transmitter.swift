@@ -1,12 +1,9 @@
 import Foundation
 import CoreBluetooth
 
-enum TransmitterType: String, CaseIterable {
-    case none      = "none"
-    case bubble    = "bubble"
-    case dropplet  = "droplet"
-    case limitter  = "limitter"
-    case miaomiao  = "miaomiao"
+enum TransmitterType: String, CaseIterable, Hashable, Identifiable {
+    case none, bubble, droplet, limitter, miaomiao
+    var id: String { rawValue }
 }
 
 class Transmitter {
