@@ -80,7 +80,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
 
     public func log(_ text: String) {
-        log.text.append("\(text)\n")
+        log.text = "\(text)\n\(log.text)"
+        //log.text.append("\(text)\n")
         print("\(text)")
     }
 

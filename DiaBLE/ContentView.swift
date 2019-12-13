@@ -157,7 +157,7 @@ struct LogView: View {
                 
                 Button("Clear") { self.log.text = "" }
                 
-                // TODO: scroll to buttom
+                // TODO: scroll to bottom
                 Spacer()
             }
         }
@@ -172,7 +172,7 @@ struct SettingsView: View {
 
     @State var preferredTransmitter: TransmitterType = .none
     // TODO
-    @State var frequency = 5
+    @State var interval = 5
     
     // FIXME: timer doesn't update
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -180,6 +180,9 @@ struct SettingsView: View {
     var body: some View {
         VStack {
             Text("TODO: Settings")
+
+            Spacer()
+
             HStack {
                 
                 Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
@@ -199,8 +202,9 @@ struct SettingsView: View {
                 }
                 ) { Text("Rescan") }
             }
+
             // FIXME: Stepper doesn't update when in a tabview
-            Stepper(value: $frequency, in: 1 ... 15, label: { Text("Reading frequency: \(frequency)m") })
+            Stepper(value: $interval, in: 1 ... 15, label: { Text("Reading interval: \(interval)m") })
             
             Text("\(self.app.nextReading)s")
                 .onReceive(timer) { _ in
@@ -208,6 +212,8 @@ struct SettingsView: View {
                         self.app.nextReading -= 1
                     }
             }
+
+            Spacer()
         }
     }
 }
