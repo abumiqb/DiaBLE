@@ -84,5 +84,3 @@ func postToLibreOOP(bytes: Data, patchUid: Data? = nil, patchInfo: Data? = nil, 
         }
     }.resume()
 }
-
-

@@ -662,7 +662,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             trend.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
         }
         log("Raw trend: \(trend.map{ $0.rawGlucose })")
-        // info("\n\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
+        // info("\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
 
         for i in 0 ... 31 {
             var j = historyIndex - 1 - i
@@ -700,6 +700,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.info("\nOOP calibrated trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
                 }
             } else {
+                self.info("\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
                 self.history.values = history.map { $0.rawGlucose }
