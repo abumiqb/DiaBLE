@@ -3,8 +3,8 @@ import CoreBluetooth
 
 class App: ObservableObject {
 
-    // Uncomment and select from bubble | droplet | limitter | miaomiao
-    @Published var preferredTransmitter: String? // = "bubble"
+    // Replace the final .none with .bubble | .droplet | .limitter | .miaomiao
+    @Published var preferredTransmitter = TransmitterType.none
     @Published var currentTransmitter: Transmitter!
 
     var main: MainDelegate!
@@ -224,13 +224,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     public func centralManager(_ manager: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData advertisement: [String : Any], rssi: NSNumber) {
         let name = peripheral.name ?? "Unnamed peripheral"
-        let knownTransmitters = ["bubble", "droplet", "limitter", "miaomiao"]
         var found = false
-        for transmitter in knownTransmitters {
-            if name.lowercased().contains(transmitter) {
+        for transmitterType in TransmitterType.allCases {
+            if name.lowercased().contains(transmitterType.rawValue) {
                 found = true
-                if let selected = app.preferredTransmitter {
-                    if selected != transmitter { found = false}
+                if app.preferredTransmitter != .none && transmitterType != app.preferredTransmitter {
+                    found = false
                 }
             }
         }

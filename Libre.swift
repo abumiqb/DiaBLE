@@ -4,8 +4,8 @@ import PlaygroundSupport
 
 class App: ObservableObject {
 
-    // Uncomment and select from bubble | droplet | limitter | miaomiao
-    @Published var preferredTransmitter: String? // = "bubble"
+    // Replace the final .none with .bubble | .droplet | .limitter | .miaomiao
+    @Published var preferredTransmitter = TransmitterType.none
     @Published var currentTransmitter: Transmitter!
 
     var main: MainDelegate!
@@ -239,12 +239,12 @@ struct SettingsView: View {
                 }.pickerStyle(SegmentedPickerStyle())
 
                 Button(action: {
-                    let transmitter = self.app.currentTransmitter!
+                    let transmitter = self.app.currentTransmitter
                     // FIXME: crashes in a playground
                     // self.selectedTab = .monitor
                     let centralManager = self.app.main.centralManager
                     centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
-                    self.app.preferredTransmitter = self.preferredTransmitter.rawValue
+                    self.app.preferredTransmitter = self.preferredTransmitter
                     centralManager.scanForPeripherals(withServices: nil, options: nil)
                 }
                 ) { Text("Rescan") }
@@ -782,11 +782,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         let name = peripheral.name ?? "Unnamed peripheral"
         let knownTransmitters = ["bubble", "droplet", "limitter", "miaomiao"]
         var found = false
-        for transmitter in knownTransmitters {
-            if name.lowercased().contains(transmitter) {
+        for transmitterType in TransmitterType.allCases {
+            if name.lowercased().contains(transmitterType.rawValue) {
                 found = true
-                if let selected = app.preferredTransmitter {
-                    if selected != transmitter { found = false}
+                if app.preferredTransmitter != .none && transmitterType != app.preferredTransmitter {
+                    found = false
                 }
             }
         }
