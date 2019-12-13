@@ -40,6 +40,12 @@ class Settings: ObservableObject {
 }
 
 
+enum Tab: Hashable {
+    case monitor
+    case log
+    case settings
+}
+
 struct ContentView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
@@ -47,7 +53,7 @@ struct ContentView: View {
     @EnvironmentObject var history: History
     @EnvironmentObject var settings: Settings
 
-    @State var selectedTab = 0
+    @State var selectedTab: Tab = .monitor
 
     #if os(iOS)
 
@@ -57,25 +63,25 @@ struct ContentView: View {
                 .tabItem {
                     Image(systemName: "gauge")
                     Text("Monitor")
-            }.tag(0)
+            }.tag(Tab.monitor)
 
             LogView().environmentObject(log)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
-            }.tag(1)
+            }.tag(Tab.log)
 
-            SettingsView().environmentObject(app).environmentObject(settings)
+            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gear")
                     Text("Settings")
-            }.tag(2)
+            }.tag(Tab.settings)
         }
     }
 
     #else
 
-    // FIXME: Mac playgrounds doesn't display tabs
+    // FIXME: Mac playgrounds don't display tabs
     var body: some View {
         VStack {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
@@ -211,7 +217,7 @@ struct LogView: View {
 struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
-
+    @Binding var selectedTab: Tab
     // TODO
     @State var preferredTransmitter = 0
     @State var frequency = 5
@@ -235,6 +241,9 @@ struct SettingsView: View {
                 Button(action:
                     { let transmitter = self.app.currentTransmitter!
                         self.app.main.info("\n\nTODO: disconnect \(transmitter.name) and rescan")
+                        // FIXME: crashes in a playground
+
+                        // self.selectedTab = .monitor
                 } // TODO
                 ) { Text("Rescan") }
             }

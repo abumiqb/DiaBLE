@@ -1,5 +1,11 @@
 import SwiftUI
 
+enum Tab: Hashable {
+    case monitor
+    case log
+    case settings
+}
+
 struct ContentView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
@@ -7,7 +13,7 @@ struct ContentView: View {
     @EnvironmentObject var history: History
     @EnvironmentObject var settings: Settings
     
-    @State var selectedTab = 0
+    @State var selectedTab: Tab = .monitor
     
     var body: some View {
         
@@ -16,7 +22,7 @@ struct ContentView: View {
                 .tabItem {
                     Image(systemName: "gauge")
                     Text("Monitor")
-            }.tag(0)
+            }.tag(Tab.monitor)
             
             LogView().environmentObject(log)
                 .tabItem {
@@ -24,11 +30,11 @@ struct ContentView: View {
                     Text("Log")
             }.tag(1)
             
-            SettingsView().environmentObject(app).environmentObject(settings)
+            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gear")
                     Text("Settings")
-            }.tag(2)
+            }.tag(Tab.log)
         }
     }
 }
@@ -89,7 +95,7 @@ struct Monitor: View {
                 
                 Spacer()
             }
-
+            
             Text(" ")
             Text(info.text)
                 .multilineTextAlignment(.center)
@@ -161,7 +167,7 @@ struct LogView: View {
 struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
-    
+    @Binding var selectedTab: Tab
     // TODO
     @State var preferredTransmitter = 0
     @State var frequency = 5
@@ -182,9 +188,11 @@ struct SettingsView: View {
                     Text("miaomiao").tag(4)
                 }.pickerStyle(SegmentedPickerStyle())
                 
-                Button(action:
-                    { let transmitter = self.app.currentTransmitter!
-                        self.app.main.info("\n\nTODO: disconnect \(transmitter.name) and rescan")
+                Button(action: {
+                    let transmitter = self.app.currentTransmitter!
+                    self.app.main.info("\n\nTODO: disconnect \(transmitter.name) and rescan")
+                    // FIXME: crashes in a playground
+                    self.selectedTab = .monitor
                 } // TODO
                 ) { Text("Rescan") }
             }
