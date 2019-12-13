@@ -86,7 +86,7 @@ struct ContentView: View {
         VStack {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
             LogView().environmentObject(log)
-            SettingsView().environmentObject(app).environmentObject(settings)
+            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
         }.frame(idealHeight: 400)
     }
 
@@ -272,6 +272,13 @@ extension String {
     var base64Data: Data? { Data(base64Encoded: self) }
 }
 
+enum TransmitterType: String, CaseIterable {
+    case none      = "none"
+    case bubble    = "bubble"
+    case dropplet  = "droplet"
+    case limitter  = "limitter"
+    case miaomiao  = "miaomiao"
+}
 
 class Transmitter {
 

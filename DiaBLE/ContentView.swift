@@ -28,13 +28,13 @@ struct ContentView: View {
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
-            }.tag(1)
+            }.tag(Tab.log)
             
             SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gear")
                     Text("Settings")
-            }.tag(Tab.log)
+            }.tag(Tab.settings)
         }
     }
 }

@@ -1,6 +1,14 @@
 import Foundation
 import CoreBluetooth
 
+enum TransmitterType: String, CaseIterable {
+    case none      = "none"
+    case bubble    = "bubble"
+    case dropplet  = "droplet"
+    case limitter  = "limitter"
+    case miaomiao  = "miaomiao"
+}
+
 class Transmitter {
 
     static let deviceInfoServiceUUID = "180A"
