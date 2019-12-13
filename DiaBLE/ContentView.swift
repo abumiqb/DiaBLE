@@ -189,12 +189,13 @@ struct SettingsView: View {
                 }.pickerStyle(SegmentedPickerStyle())
                 
                 Button(action: {
-                    let transmitter = self.app.currentTransmitter!
+                    let transmitter = self.app.currentTransmitter
                     // FIXME: crashes in a playground
                     self.selectedTab = .monitor
-                    self.app.main.centralManager.cancelPeripheralConnection(transmitter.peripheral!)
+                    let centralManager = self.app.main.centralManager
+                    centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     self.app.preferredTransmitter = self.preferredTransmitter.rawValue
-                    self.app.main.centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    centralManager.scanForPeripherals(withServices: nil, options: nil)
                 }
                 ) { Text("Rescan") }
             }
