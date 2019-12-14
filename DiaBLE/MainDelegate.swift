@@ -35,7 +35,8 @@ class History: ObservableObject {
 }
 
 class Settings: ObservableObject {
-    @Published var readingFrequency: Int  = 5
+    @Published var readingInterval: Int  = 5
+    @Published var reversedLog: Bool = true
 }
 
 
@@ -175,12 +176,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.log("LibreOOP Server measurements response: \(json)")
                     if json.contains("errcode") {
                         self.info("\n\(json)")
+                        self.log("LibreOOP measurements failed")
+                        self.info("\nLibreOOP measurements failed")
                     } else {
                         let decoder = JSONDecoder.init()
                         if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
                             let realTimeGlucose = oopData.realTimeGlucose.value
                             self.app.currentGlucose = realTimeGlucose
-                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
+                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.glucoseAlarm = oopData.alarm
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
@@ -197,8 +200,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         }
                     }
                 } else {
-                    self.log("LibreOOP measurements failed")
-                    self.info("\nLibreOOP measurements failed")
+                    self.log("LibreOOP connection failed")
+                    self.info("\nLibreOOP connection failed")
                 }
                 return
             }

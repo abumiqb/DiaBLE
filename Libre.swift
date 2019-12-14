@@ -36,7 +36,8 @@ class History: ObservableObject {
 }
 
 class Settings: ObservableObject {
-    @Published var readingFrequency: Int  = 5
+    @Published var readingInterval: Int  = 5
+    @Published var reversedLog: Bool = true
 }
 
 
@@ -65,7 +66,7 @@ struct ContentView: View {
                     Text("Monitor")
             }.tag(Tab.monitor)
 
-            LogView().environmentObject(log)
+            LogView().environmentObject(log).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
@@ -85,7 +86,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
-            LogView().environmentObject(log)
+            LogView().environmentObject(log).environmentObject(settings)
             SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
         }.frame(idealHeight: 400)
     }
@@ -186,6 +187,8 @@ struct Graph: View {
 
 struct LogView: View {
     @EnvironmentObject var log: Log
+    @EnvironmentObject var settings: Settings
+
     var body: some View {
         HStack {
             ScrollView(showsIndicators: true) {
@@ -207,7 +210,8 @@ struct LogView: View {
 
                 Button("Clear") { self.log.text = "" }
 
-                // TODO: scroll to bottom
+                // TODO: Toggle(isOn: $settings.reversedLog) { Text("") }
+
                 Spacer()
             }
         }
@@ -731,12 +735,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.log("LibreOOP Server measurements response: \(json)")
                     if json.contains("errcode") {
                         self.info("\n\(json)")
+                        self.log("LibreOOP measurements failed")
+                        self.info("\nLibreOOP measurements failed")
                     } else {
                         let decoder = JSONDecoder.init()
                         if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
                             let realTimeGlucose = oopData.realTimeGlucose.value
                             self.app.currentGlucose = realTimeGlucose
-                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
+                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.glucoseAlarm = oopData.alarm
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
@@ -753,8 +759,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         }
                     }
                 } else {
-                    self.log("LibreOOP measurements failed")
-                    self.info("\nLibreOOP measurements failed")
+                    self.log("LibreOOP connection failed")
+                    self.info("\nLibreOOP connection failed")
                 }
                 return
             }

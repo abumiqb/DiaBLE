@@ -24,7 +24,7 @@ struct ContentView: View {
                     Text("Monitor")
             }.tag(Tab.monitor)
             
-            LogView().environmentObject(log)
+            LogView().environmentObject(log).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
@@ -136,6 +136,8 @@ struct Graph: View {
 
 struct LogView: View {
     @EnvironmentObject var log: Log
+    @EnvironmentObject var settings: Settings
+    
     var body: some View {
         HStack {
             ScrollView(showsIndicators: true) {
@@ -146,7 +148,7 @@ struct LogView: View {
                     .padding(4)
             }.background(Color.blue)
             
-            VStack(alignment: .center, spacing: 4) {
+            VStack(alignment: .center, spacing: 8) {
                 
                 #if os(macOS)
                 // FIXME: only works with iPad
@@ -156,8 +158,9 @@ struct LogView: View {
                 #endif
                 
                 Button("Clear") { self.log.text = "" }
-                
-                // TODO: scroll to bottom
+
+                // TODO: Toggle(isOn: $settings.reversedLog) { Text("") }
+
                 Spacer()
             }
         }
