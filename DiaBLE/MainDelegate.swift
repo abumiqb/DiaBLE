@@ -123,7 +123,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             trend.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
         }
         log("Raw trend: \(trend.map{ $0.rawGlucose })")
-        // info("\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
 
         for i in 0 ... 31 {
             var j = historyIndex - 1 - i
@@ -134,11 +133,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         log("Raw history: \(history.map{ $0.rawGlucose })")
-        info("\n\nRaw history: \(history.map{ String($0.glucose) }.joined(separator: " "))")
-        // self.history.values = history.map { $0.glucose }
 
+        var historyValues = history.map{ $0.glucose }
 
+        info("\n\nRaw history: \(historyValues.map{ String($0) }.joined(separator: " "))")
         log("Sending FRAM to a LibreOOP server for calibration...")
+
         postToLibreOOP(bytes: fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
@@ -164,12 +164,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 self.info("\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
-                self.history.values = history.map { $0.rawGlucose }
+                self.history.values = historyValues
             }
             return
         }
+
         if transmitter.patchInfo.count > 0 {
             log("Sending FRAM to a LibreOOP server for measurements...")
+
             postToLibreOOP(bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
                 if let data = data {
                     let json = String(decoding: data, as: UTF8.self)
@@ -188,12 +190,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())
-                            let values = history.map { Int($0.rawGlucose) }
-                            self.log("OOP history: \(values)")
-                            self.info("\nOOP history: \(values.map{ String($0) }.joined(separator: " "))")
-
-                            self.history.values = values
-
+                            historyValues = history.map { Int($0.rawGlucose) }
+                            self.log("OOP history: \(historyValues)")
+                            self.info("\nOOP history: \(historyValues.map{ String($0) }.joined(separator: " "))")
                         } else {
                             self.log("Missing LibreOOP Data")
                             self.info("\nMissing LibreOOP data")
@@ -203,6 +202,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.log("LibreOOP connection failed")
                     self.info("\nLibreOOP connection failed")
                 }
+                self.history.values = historyValues
                 return
             }
         }
@@ -222,7 +222,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .unknown: log("Bluetooth: Unknown")
         case .unsupported: log("Bluetooth: Unsupported")
         @unknown default:
-           log("Bluetooth: Unknown state")
+            log("Bluetooth: Unknown state")
         }
     }
 
