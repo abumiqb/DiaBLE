@@ -296,12 +296,14 @@ class Transmitter {
     static let batteryInfoServiceUUID = "180F"
     static let batteryVoltageCharacteristicUUID = "2A19"
 
-    var peripheral: CBPeripheral?
-    var name: String { "Unnamed peripheral" }
     class var dataServiceUUID: String { "" }
     class var dataReadCharacteristicUUID: String { "" }
     class var dataWriteCharacteristicUUID: String { "" }
 
+    var type: TransmitterType { TransmitterType.none }
+    var name: String { "Unknown" }
+
+    var peripheral: CBPeripheral?
     var readCharacteristic: CBCharacteristic?
     var writeCharacteristic: CBCharacteristic?
 
@@ -321,6 +323,7 @@ class Transmitter {
 }
 
 class Bubble: Transmitter {
+    override var type: TransmitterType { TransmitterType.bubble }
     override var name: String { "Bubble" }
     override class var dataServiceUUID: String { "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" }
     override class var dataReadCharacteristicUUID: String { "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" }
@@ -351,6 +354,7 @@ class Bubble: Transmitter {
 }
 
 class Droplet: Transmitter {
+    override var type: TransmitterType { TransmitterType.droplet }
     override var name: String { "Droplet" }
     override class var dataServiceUUID: String { "C97433F0-BE8F-4DC8-B6F0-5343E6100EB4" }
     override class var dataReadCharacteristicUUID: String { "C97433F1-BE8F-4DC8-B6F0-5343E6100EB4" }
@@ -378,9 +382,11 @@ class Droplet: Transmitter {
 }
 
 class Limitter: Droplet {
+    override var type: TransmitterType { TransmitterType.limitter }
 }
 
 class MiaoMiao: Transmitter {
+    override var type: TransmitterType { TransmitterType.miaomiao }
     override var name: String { "MiaoMiao" }
     override class var dataServiceUUID: String { "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" }
     override class var dataReadCharacteristicUUID: String { "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" }
@@ -406,6 +412,7 @@ class MiaoMiao: Transmitter {
         }
     }
 }
+
 
 enum SensorState: UInt8, CustomStringConvertible {
     case notYetStarted = 0x01
