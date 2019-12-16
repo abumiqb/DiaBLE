@@ -24,7 +24,7 @@ class App: ObservableObject {
 }
 
 class Log: ObservableObject {
-    @Published var text: String = "Log  \(Date ()):\n"
+    @Published var text: String = "Log - \(Date ())\n"
 }
 
 class Info: ObservableObject {
@@ -209,11 +209,16 @@ struct LogView: View {
 
                 Button("Clear") { self.log.text = "" }
 
-                Button(action: { self.settings.reversedLog.toggle() }) {
+                Button(action: { self.settings.reversedLog.toggle()
+                    self.log.text = self.log.text.split(separator:"\n").reversed().joined(separator: "\n")
+                }) {
                     Text(" REV ")
                 }.padding(2)
                     .background(self.settings.reversedLog ? Color.accentColor : Color.clear)
+                    .border(Color.accentColor, width: 3)
+                    .cornerRadius(5)
                     .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
+
                 Spacer()
             }
         }

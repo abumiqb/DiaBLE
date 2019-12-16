@@ -23,7 +23,7 @@ class App: ObservableObject {
 }
 
 class Log: ObservableObject {
-    @Published var text: String = "Log  \(Date ()):\n"
+    @Published var text: String = "Log - \(Date ())\n"
 }
 
 class Info: ObservableObject {
