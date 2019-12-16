@@ -81,8 +81,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
 
     public func log(_ text: String) {
-        log.text = "\(text)\n\(log.text)"
-        //log.text.append("\(text)\n")
+        if self.settings.reversedLog {
+            log.text = "\(text)\n\(log.text)"
+        } else {
+            log.text.append("\(text)\n")
+        }
         print("\(text)")
     }
 
@@ -493,7 +496,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 if response == .noSensor {
                     // TODO: confirm receipt the first time
                     // bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
-                    info("\n\nBubble No sensor")
+                    info("\n\nBubble: No sensor")
 
                 } else if response == .dataInfo {
                     let hardware =  "\(data[2]).0"
@@ -559,7 +562,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 let firstField = fields[0]
                 guard !firstField.hasPrefix("000") else {
                     log("LimiTTer: no sensor data")
-                    info("\n\nLimitter No sensor data")
+                    info("\n\nLimitter: No sensor data")
                     if firstField.hasSuffix("999") {
                         let err = fields[1]
                         log("LimiTTer: error \(err)\n(0001 = low battery, 0002 = badly positioned)")

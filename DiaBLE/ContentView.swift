@@ -105,7 +105,6 @@ struct Monitor: View {
     }
 }
 
-
 struct Graph: View {
     @EnvironmentObject var history: History
     var body: some View {
@@ -159,7 +158,11 @@ struct LogView: View {
                 
                 Button("Clear") { self.log.text = "" }
 
-                // TODO: Toggle(isOn: $settings.reversedLog) { Text("") }
+                Button(action: { self.settings.reversedLog.toggle() }) {
+                    Text(" REV ")
+                }.padding(2)
+                    .background(self.settings.reversedLog ? Color.accentColor : Color.clear)
+                    .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
 
                 Spacer()
             }
