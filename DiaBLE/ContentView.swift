@@ -158,7 +158,8 @@ struct LogView: View {
                 
                 Button("Clear") { self.log.text = "" }
 
-                Button(action: { self.settings.reversedLog.toggle()
+                Button(action: {
+                    self.settings.reversedLog.toggle()
                     self.log.text = self.log.text.split(separator:"\n").reversed().joined(separator: "\n")
                 }) {
                     Text(" REV ")

@@ -209,7 +209,8 @@ struct LogView: View {
 
                 Button("Clear") { self.log.text = "" }
 
-                Button(action: { self.settings.reversedLog.toggle()
+                Button(action: {
+                    self.settings.reversedLog.toggle()
                     self.log.text = self.log.text.split(separator:"\n").reversed().joined(separator: "\n")
                 }) {
                     Text(" REV ")
@@ -555,7 +556,7 @@ struct OOPHistoryData: Codable {
         let gap: TimeInterval = 60 * 15
         var date = date
         var history = historicGlucose
-        if history.first!.id < history.last!.id {
+        if (history.first?.id ?? 0) < (history.last?.id ?? 0) {
             history = history.reversed()
         }
         for g in history {
@@ -804,7 +805,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     public func centralManager(_ manager: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData advertisement: [String : Any], rssi: NSNumber) {
         let name = peripheral.name ?? "Unnamed peripheral"
-        let knownTransmitters = ["bubble", "droplet", "limitter", "miaomiao"]
         var found = false
         for transmitterType in TransmitterType.allCases {
             if name.lowercased().contains(transmitterType.rawValue) {

@@ -23,7 +23,7 @@ struct OOPHistoryData: Codable {
         let gap: TimeInterval = 60 * 15
         var date = date
         var history = historicGlucose
-        if history.first!.id < history.last!.id {
+        if (history.first?.id ?? 0) < (history.last?.id ?? 0) {
             history = history.reversed()
         }
         for g in history {
