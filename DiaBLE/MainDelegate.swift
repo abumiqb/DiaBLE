@@ -139,7 +139,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         var historyValues = history.map{ $0.glucose }
 
-        info("\n\nRaw history: \(historyValues.map{ String($0) }.joined(separator: " "))")
+        info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
         log("Sending FRAM to a LibreOOP server for calibration...")
 
         postToLibreOOP(bytes: fram) { data, errorDescription in
@@ -155,16 +155,16 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         measurement.calibrationParameters = params
                     }
                     self.log("OOP calibrated history: \(history.map{ $0.glucose })")
-                    self.info("\nOOP calibrated history: \(history.map{ String($0.glucose) }.joined(separator: " "))")
+                    self.info("\nOOP calibrated history: [\(history.map{ String($0.glucose) }.joined(separator: " "))]")
 
                     for measurement in trend {
                         measurement.calibrationParameters = params
                     }
                     self.log("OOP calibrated trend: \(trend.map{ $0.glucose })")
-                    self.info("\nOOP calibrated trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
+                    self.info("\nOOP calibrated trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
                 }
             } else {
-                self.info("\nRaw trend: \(trend.map{ String($0.glucose) }.joined(separator: " "))")
+                self.info("\nRaw trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
                 self.history.values = historyValues
@@ -193,9 +193,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())
-                            historyValues = history.map { Int($0.rawGlucose) }
-                            self.log("OOP history: \(historyValues)")
-                            self.info("\nOOP history: \(historyValues.map{ String($0) }.joined(separator: " "))")
+                            let oopHistory = history.map { Int($0.rawGlucose) }
+                            if oopHistory.count > 0 {
+                                historyValues = oopHistory
+                            }
+                            self.log("OOP history: \(oopHistory)")
+                            self.info("\nOOP history: [\(oopHistory.map{ String($0) }.joined(separator: " "))]")
                         } else {
                             self.log("Missing LibreOOP Data")
                             self.info("\nMissing LibreOOP data")
