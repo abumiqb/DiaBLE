@@ -193,7 +193,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())
-                            let oopHistory = history.map { Int($0.rawGlucose) }
+                            let oopHistory = history.map { $0.glucose }
                             if oopHistory.count > 0 {
                                 historyValues = oopHistory
                             }

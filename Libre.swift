@@ -551,7 +551,7 @@ struct OOPHistoryData: Codable {
     var trendArrow: String
 
     func glucoseData(date: Date) -> (GlucoseMeasurement, [GlucoseMeasurement]) {
-        let current = GlucoseMeasurement(rawGlucose: realTimeGlucose.value, date: date)
+        let current = GlucoseMeasurement(rawGlucose: realTimeGlucose.value * 10, date: date)
         var array = [GlucoseMeasurement]()
         let gap: TimeInterval = 60 * 15
         var date = date
@@ -562,7 +562,7 @@ struct OOPHistoryData: Codable {
         for g in history {
             date = date.addingTimeInterval(-gap)
             if g.dataQuality != 0 { continue }
-            let glucose = GlucoseMeasurement(rawGlucose: g.value, minutesCounter: g.id, date: date)
+            let glucose = GlucoseMeasurement(rawGlucose: g.value * 10, minutesCounter: g.id, date: date)
             array.append(glucose)
         }
         return (current, array)
@@ -767,7 +767,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.glucoseTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())
-                            let oopHistory = history.map { Int($0.rawGlucose) }
+                            let oopHistory = history.map { $0.glucose }
                             if oopHistory.count > 0 {
                                 historyValues = oopHistory
                             }
