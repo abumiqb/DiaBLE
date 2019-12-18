@@ -233,8 +233,6 @@ struct SettingsView: View {
     @Binding var selectedTab: Tab
 
     @State var preferredTransmitter: TransmitterType = .none
-    // TODO
-    @State var interval = 5
 
     // FIXME: timer doesn't update
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -257,12 +255,13 @@ struct SettingsView: View {
                     let centralManager = self.app.main.centralManager
                     centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     self.app.preferredTransmitter = self.preferredTransmitter
+                    self.app.nextReading = self.settings.readingInterval * 60
                     centralManager.scanForPeripherals(withServices: nil, options: nil)
                 }
                 ) { Text("Rescan") }
             }
             // FIXME: Stepper doesn't update when in a tabview
-            Stepper(value: $interval, in: 1 ... 15, label: { Text("Reading interval: \(interval)m") })
+            Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
 
             Text("\(self.app.nextReading)s")
                 .onReceive(timer) { _ in
@@ -307,6 +306,8 @@ class Transmitter {
     class var dataServiceUUID: String { "" }
     class var dataReadCharacteristicUUID: String { "" }
     class var dataWriteCharacteristicUUID: String { "" }
+
+    func readCommand(interval: Int = 5) -> [UInt8] { [] }
 
     var type: TransmitterType { TransmitterType.none }
     var name: String { "Unknown" }
@@ -357,6 +358,10 @@ class Bubble: Transmitter {
             case .patchInfo:
                 return "Patch info received"
             }
+        }
+
+        override func readCommand(interval: Int = 5) -> [UInt8] {
+            return [0x00, 0x00, UInt8(interval)]
         }
     }
 }
@@ -953,8 +958,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if peripheralName == "Bubble" && service.uuid.uuidString == Bubble.dataServiceUUID {
-            bubble!.write([0x00, 0x00, 0x05])
-            log("Bubble: writing start reading command 0x000005")
+            bubble!.write(bubble!.readCommand(interval: self.settings.readingInterval))
+            log("Bubble: writing start reading command 0x0000\(self.settings.readingInterval)")
             // bubble!.write([0x00, 0x01, 0x05])
             // log("Bubble: writing reset and send data every 5 minutes command 0x000105")
         }

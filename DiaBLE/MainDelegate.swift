@@ -379,8 +379,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if peripheralName == "Bubble" && service.uuid.uuidString == Bubble.dataServiceUUID {
-            bubble!.write([0x00, 0x00, 0x05])
-            log("Bubble: writing start reading command 0x000005")
+            bubble!.write(bubble!.readCommand(interval: self.settings.readingInterval))
+            log("Bubble: writing start reading command 0x0000\(self.settings.readingInterval)")
             // bubble!.write([0x00, 0x01, 0x05])
             // log("Bubble: writing reset and send data every 5 minutes command 0x000105")
         }

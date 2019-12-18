@@ -23,6 +23,8 @@ class Transmitter {
     class var dataReadCharacteristicUUID: String { "" }
     class var dataWriteCharacteristicUUID: String { "" }
 
+    func readCommand(interval: Int = 5) -> [UInt8] { [] }
+
     var type: TransmitterType { TransmitterType.none }
     var name: String { "Unknown" }
 
@@ -74,7 +76,12 @@ class Bubble: Transmitter {
             }
         }
     }
+
+    override func readCommand(interval: Int = 5) -> [UInt8] {
+        return [0x00, 0x00, UInt8(interval)]
+    }
 }
+
 
 class Droplet: Transmitter {
     override var type: TransmitterType { TransmitterType.droplet }

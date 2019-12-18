@@ -12,24 +12,24 @@ struct ContentView: View {
     @EnvironmentObject var log: Log
     @EnvironmentObject var history: History
     @EnvironmentObject var settings: Settings
-    
+
     @State var selectedTab: Tab = .monitor
-    
+
     var body: some View {
-        
+
         TabView(selection: $selectedTab) {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
                 .tabItem {
                     Image(systemName: "gauge")
                     Text("Monitor")
             }.tag(Tab.monitor)
-            
+
             LogView().environmentObject(log).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
             }.tag(Tab.log)
-            
+
             SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gear")
@@ -43,12 +43,12 @@ struct Monitor: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
-    
+
     @State var showingLog = false
-    
+
     var body: some View {
         VStack {
-            
+
             VStack {
                 Text(app.currentGlucose > 0 ? "\(app.currentGlucose)" : "---")
                     .fontWeight(.black)
@@ -60,12 +60,12 @@ struct Monitor: View {
                 Text(app.transmitterState)
                     .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
             }
-            
+
             Graph().environmentObject(history).frame(width: 30*5, height: 80)
-            
+
             HStack {
                 Spacer()
-                
+
                 HStack {
                     VStack {
                         if app.batteryLevel > 0 {
@@ -73,13 +73,13 @@ struct Monitor: View {
                         }
                         Text(app.sensorState)
                             .foregroundColor(app.sensorState == "Ready" ? .green : .red)
-                        
+
                         if app.sensorStart > 0 {
                             Text("\(app.sensorSerial)")
                             Text("\(String(format: "%.1f", Double(app.sensorStart)/60/24)) days")
                         }
                     }
-                    
+
                     VStack {
                         if app.transmitterFirmware.count > 0 {
                             Text("Firmware\n\(app.transmitterFirmware)")
@@ -92,10 +92,10 @@ struct Monitor: View {
                 .font(.footnote)
                 .foregroundColor(.yellow)
                 .multilineTextAlignment(.center)
-                
+
                 Spacer()
             }
-            
+
             Text(" ")
             Text(info.text)
                 .multilineTextAlignment(.center)
@@ -136,7 +136,7 @@ struct Graph: View {
 struct LogView: View {
     @EnvironmentObject var log: Log
     @EnvironmentObject var settings: Settings
-    
+
     var body: some View {
         HStack {
             ScrollView(showsIndicators: true) {
@@ -146,16 +146,16 @@ struct LogView: View {
                     .background(Color.blue)
                     .padding(4)
             }.background(Color.blue)
-            
+
             VStack(alignment: .center, spacing: 8) {
-                
+
                 #if os(macOS)
                 // FIXME: only works with iPad
                 Button("Copy") { NSPasteboard.general.setString(self.log.text, forType: .string) }
                 #else
                 Button("Copy") { UIPasteboard.general.string = self.log.text }
                 #endif
-                
+
                 Button("Clear") { self.log.text = "" }
 
                 Button(action: {
@@ -168,7 +168,7 @@ struct LogView: View {
                     .border(Color.accentColor, width: 3)
                     .cornerRadius(5)
                     .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
-                
+
                 Spacer()
             }
         }
@@ -182,12 +182,10 @@ struct SettingsView: View {
     @Binding var selectedTab: Tab
 
     @State var preferredTransmitter: TransmitterType = .none
-    // TODO
-    @State var interval = 5
-    
+
     // FIXME: timer doesn't update
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-    
+
     var body: some View {
         VStack {
             Text("TODO: Settings")
@@ -195,13 +193,13 @@ struct SettingsView: View {
             Spacer()
 
             HStack {
-                
+
                 Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
                     ForEach(TransmitterType.allCases) { t in
                         Text(t.rawValue).tag(t)
                     }
                 }.pickerStyle(SegmentedPickerStyle())
-                
+
                 Button(action: {
                     let transmitter = self.app.currentTransmitter
                     // FIXME: crashes in a playground
@@ -210,13 +208,14 @@ struct SettingsView: View {
                     centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     self.app.preferredTransmitter = self.preferredTransmitter
                     centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    self.app.nextReading = self.settings.readingInterval * 60
                 }
                 ) { Text("Rescan") }
             }
 
             // FIXME: Stepper doesn't update when in a tabview
-            Stepper(value: $interval, in: 1 ... 15, label: { Text("Reading interval: \(interval)m") })
-            
+            Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
+
             Text("\(self.app.nextReading)s")
                 .onReceive(timer) { _ in
                     if self.app.nextReading > 0 {
