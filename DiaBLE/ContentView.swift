@@ -149,6 +149,8 @@ struct LogView: View {
 
             VStack(alignment: .center, spacing: 8) {
 
+                Spacer()
+                
                 #if os(macOS)
                 // FIXME: only works with iPad
                 Button("Copy") { NSPasteboard.general.setString(self.log.text, forType: .string) }
@@ -200,21 +202,26 @@ struct SettingsView: View {
                     }
                 }.pickerStyle(SegmentedPickerStyle())
 
-                Button(action: {
-                    let transmitter = self.app.currentTransmitter
-                    // FIXME: crashes in a playground
-                    self.selectedTab = .monitor
-                    let centralManager = self.app.main.centralManager
-                    centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
-                    self.app.preferredTransmitter = self.preferredTransmitter
-                    centralManager.scanForPeripherals(withServices: nil, options: nil)
-                    self.app.nextReading = self.settings.readingInterval * 60
-                }
-                ) { Text("Rescan") }
             }
 
             // FIXME: Stepper doesn't update when in a tabview
             Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
+
+            Spacer()
+
+            Button(action: {
+                let transmitter = self.app.currentTransmitter
+                // FIXME: crashes in a playground
+                self.selectedTab = .monitor
+                let centralManager = self.app.main.centralManager
+                centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                self.app.preferredTransmitter = self.preferredTransmitter
+                centralManager.scanForPeripherals(withServices: nil, options: nil)
+                self.app.nextReading = self.settings.readingInterval * 60
+            }
+            ) { Text("Rescan") }
+
+            Spacer()
 
             Text("\(self.app.nextReading)s")
                 .onReceive(timer) { _ in
