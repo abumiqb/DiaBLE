@@ -190,6 +190,9 @@ struct SettingsView: View {
 
     var body: some View {
         VStack {
+
+            Spacer()
+            
             Text("TODO: Settings")
 
             Spacer()

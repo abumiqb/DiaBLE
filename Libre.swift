@@ -241,6 +241,9 @@ struct SettingsView: View {
 
     var body: some View {
         VStack {
+
+            Spacer()
+            
             Text("TODO: Settings")
 
             Spacer()
@@ -263,7 +266,7 @@ struct SettingsView: View {
             Button(action: {
                 let transmitter = self.app.currentTransmitter
                 // FIXME: crashes in a playground
-                self.selectedTab = .monitor
+                // self.selectedTab = .monitor
                 let centralManager = self.app.main.centralManager
                 centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                 self.app.preferredTransmitter = self.preferredTransmitter
@@ -966,8 +969,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 transmitter.peripheral?.readValue(for: characteristic)
                 log("Reading manifacturer name")
             }
-
-            // TODO: centralManager.cancelPeripheralConnection(peripheral)
         }
 
         if peripheralName == "Bubble" && service.uuid.uuidString == Bubble.dataServiceUUID {
@@ -1182,6 +1183,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             } else if peripheral.name!.contains("miaomiao") {
                 // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java
                 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Bluetooth/MiaoMiaoManager.swift
+                // https://github.com/gshaviv/ninety-two/blob/master/WoofWoof/MiaoMiao.swift
 
                 let response = MiaoMiao.ResponseType(rawValue: data[0])
                 if miaomiao!.buffer.count == 0 {
@@ -1246,7 +1248,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     }
                 }
             }
-            // centralManager.cancelPeripheralConnection(peripheral)
         }
     }
 }
