@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C597AF6B23AB9E3E0012926C /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597AF6A23AB9E3E0012926C /* NFCReader.swift */; };
 		C5A5796E23A2CEE800945F72 /* Transmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A5796D23A2CEE800945F72 /* Transmitter.swift */; };
 		C5A5797023A2CF0700945F72 /* Sensor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A5796F23A2CF0700945F72 /* Sensor.swift */; };
 		C5A5797223A2CF2C00945F72 /* LibreOOP.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A5797123A2CF2C00945F72 /* LibreOOP.swift */; };
@@ -40,6 +41,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C597AF6A23AB9E3E0012926C /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
 		C5A5796D23A2CEE800945F72 /* Transmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transmitter.swift; sourceTree = "<group>"; };
 		C5A5796F23A2CF0700945F72 /* Sensor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sensor.swift; sourceTree = "<group>"; };
 		C5A5797123A2CF2C00945F72 /* LibreOOP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibreOOP.swift; sourceTree = "<group>"; };
@@ -119,6 +121,7 @@
 				C5A5796F23A2CF0700945F72 /* Sensor.swift */,
 				C5A5796D23A2CEE800945F72 /* Transmitter.swift */,
 				C5A5797123A2CF2C00945F72 /* LibreOOP.swift */,
+				C597AF6A23AB9E3E0012926C /* NFCReader.swift */,
 				C5E1014223A2774D00678DF6 /* Assets.xcassets */,
 				C5E1014723A2774D00678DF6 /* LaunchScreen.storyboard */,
 				C5E1014A23A2774D00678DF6 /* Info.plist */,
@@ -286,6 +289,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C597AF6B23AB9E3E0012926C /* NFCReader.swift in Sources */,
 				C5E1013A23A2774C00678DF6 /* AppDelegate.swift in Sources */,
 				C5E1013F23A2774C00678DF6 /* DiaBLE.xcdatamodeld in Sources */,
 				C5E1014123A2774C00678DF6 /* ContentView.swift in Sources */,

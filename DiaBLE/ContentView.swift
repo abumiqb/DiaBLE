@@ -24,7 +24,7 @@ struct ContentView: View {
                     Text("Monitor")
             }.tag(Tab.monitor)
 
-            LogView().environmentObject(log).environmentObject(settings)
+            LogView().environmentObject(app).environmentObject(log).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
@@ -134,6 +134,7 @@ struct Graph: View {
 }
 
 struct LogView: View {
+    @EnvironmentObject var app: App
     @EnvironmentObject var log: Log
     @EnvironmentObject var settings: Settings
 
@@ -148,6 +149,10 @@ struct LogView: View {
             }.background(Color.blue)
 
             VStack(alignment: .center, spacing: 8) {
+
+                Spacer()
+
+                Button("NFC") { self.app.main.nfcReader.startSession() }
 
                 Spacer()
                 

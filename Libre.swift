@@ -66,7 +66,7 @@ struct ContentView: View {
                     Text("Monitor")
             }.tag(Tab.monitor)
 
-            LogView().environmentObject(log).environmentObject(settings)
+            LogView().environmentObject(app).environmentObject(log).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "doc.plaintext")
                     Text("Log")
@@ -86,7 +86,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
-            LogView().environmentObject(log).environmentObject(settings)
+            LogView().environmentObject(app).environmentObject(log).environmentObject(settings)
             SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
         }.frame(idealHeight: 400)
     }
@@ -185,6 +185,7 @@ struct Graph: View {
 }
 
 struct LogView: View {
+    @EnvironmentObject var app: App
     @EnvironmentObject var log: Log
     @EnvironmentObject var settings: Settings
 

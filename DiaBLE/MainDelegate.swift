@@ -66,6 +66,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var miaomiao: MiaoMiao?
 
     var centralManager: CBCentralManager
+    var nfcReader: NFCReader
 
     override init() {
         app = App()
@@ -75,8 +76,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         settings = Settings()
 
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
+        self.nfcReader = NFCReader()
+
         super.init()
+
         self.centralManager.delegate = self
+        self.nfcReader.main = self
+
     }
 
 
