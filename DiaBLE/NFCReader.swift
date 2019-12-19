@@ -7,7 +7,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     var main: MainDelegate!
 
     func startSession() {
-        tagSession = NFCTagReaderSession(pollingOption: [.iso15693], delegate: self)
+        // execute in the .main queue because of main.log
+        tagSession = NFCTagReaderSession(pollingOption: [.iso15693], delegate: self, queue: .main)
         tagSession?.alertMessage = "Hold the top of your iPhone near the Libre sensor"
         tagSession?.begin()
     }
@@ -43,8 +44,16 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     let uidString = iso15693Tag.identifier.hex
                     session.alertMessage = "Tag UID : \(uidString)"
                     self.main.log("IC Identifier: \(uidString)")
-                    self.main.log("IC ManufacturerCode: \(iso15693Tag.icManufacturerCode)")
+
+                    var manufacturer = String(iso15693Tag.icManufacturerCode)
+                    if manufacturer == "7" {
+                        manufacturer.append(" (Texas Instruments)")
+                    }
+                    self.main.log("IC ManufacturerCode: \(manufacturer)")
+                    self.main.log("IC Serial Number: \(iso15693Tag.icSerialNumber.hex)")
+
                     self.main.log(String(format: "IC Reference: 0x%X", icRef))
+
                     self.main.log(String(format: "Block Size: %d", blockSize))
                     self.main.log(String(format: "Memory Size: %d blocks", memorySize))
                 }

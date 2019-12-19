@@ -150,8 +150,6 @@ struct LogView: View {
 
             VStack(alignment: .center, spacing: 8) {
 
-                Spacer()
-
                 Button("NFC") { self.app.main.nfcReader.startSession() }
 
                 Spacer()
