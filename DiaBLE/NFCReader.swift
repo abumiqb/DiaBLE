@@ -18,12 +18,17 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
-        main.log("NFC: \(error.localizedDescription)")
-        // session.invalidate();
+        if let readerError = error as? NFCReaderError {
+            if readerError.code != .readerSessionInvalidationErrorUserCanceled {
+                main.log("NFC: \(error.localizedDescription)")
+            }
+            // session.invalidate();
+        }
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
         main.log("NFC: Did Detect Tags")
+
         guard let tag = tags.first else { return }
 
         if case .iso15693(let iso15693Tag) = tag {
@@ -31,7 +36,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
             session.connect(to: tag) { error in
                 if error != nil {
                     self.main.log(error!.localizedDescription)
-                    session.invalidate(errorMessage: "Connection failure")
+                    session.invalidate(errorMessage: "Connection failure: \(error!.localizedDescription)")
                     return
                 }
 
@@ -58,6 +63,24 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     self.main.log(String(format: "Memory Size: %d blocks", memorySize))
                 }
 
+
+                // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/NFCReaderX.java
+                //TODO: read multiple blocks (0x23 command code): don't work (Tag response error)
+
+                //                iso15693Tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(0...10)) { (dataArray, error) in
+                //                    if error != nil {
+                //                        self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
+                //                        session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
+                //                        return
+                //                    }
+                //                    for (n, data) in dataArray.enumerated() {
+                //                        self.main.log("NFC block #\(String(format:"%02d", n)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
+                //                        if n == 42 { session.invalidate() }
+                //                    }
+                //                }
+
+                // (0x20 command code)
+
                 for b: UInt8 in 0...42 {
                     iso15693Tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: b) { (data, error) in
                         if error != nil {
@@ -69,13 +92,10 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         self.main.log("NFC block #\(String(format:"%02d", b)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
 
                         if b == 42 { session.invalidate() }
-
-                        // TODO: read multiple blocks command
-
-                        // TODO: a func to return FRAM
-
                     }
                 }
+
+                // TODO: a func to return FRAM and the PatchInfo
             }
         }
     }
