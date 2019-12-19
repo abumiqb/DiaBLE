@@ -72,6 +72,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                         // TODO: read multiple blocks command
 
+                        // TODO: a func to return FRAM
+
                     }
                 }
             }

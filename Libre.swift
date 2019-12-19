@@ -199,7 +199,7 @@ struct LogView: View {
                     .padding(4)
             }.background(Color.blue)
 
-            VStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .center, spacing: 12) {
 
                 Spacer()
 

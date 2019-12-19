@@ -148,9 +148,19 @@ struct LogView: View {
                     .padding(4)
             }.background(Color.blue)
 
-            VStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .center, spacing: 12) {
 
-                Button("NFC") { self.app.main.nfcReader.startSession() }
+                Button(action: {
+                    self.app.main.nfcReader.startSession()
+                }) { VStack() {
+                    Image(systemName: "radiowaves.left")
+                        .resizable()
+                        .rotationEffect(Angle(degrees: 90))
+                    .frame(width: 20, height: 40)
+
+                    Text("NFC").bold().offset(y: -18)
+                    }
+                }
 
                 Spacer()
                 
