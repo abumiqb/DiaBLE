@@ -58,16 +58,21 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     self.main.log(String(format: "Memory Size: %d blocks", memorySize))
                 }
 
-                iso15693Tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: 0) { (data, error) in
-                    if error != nil {
-                        self.main.log("Error while reading single block: \(error!.localizedDescription)")
-                        session.invalidate(errorMessage: "Error while reading single block: \(error!.localizedDescription)")
-                        return
+                for b: UInt8 in 0...42 {
+                    iso15693Tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: b) { (data, error) in
+                        if error != nil {
+                            self.main.log("Error while reading single block: \(error!.localizedDescription)")
+                            session.invalidate(errorMessage: "Error while reading single block: \(error!.localizedDescription)")
+                            return
+                        }
+
+                        self.main.log("NFC block #\(String(format:"%02d", b)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
+
+                        if b == 42 { session.invalidate() }
+
+                        // TODO: read multiple blocks command
+
                     }
-
-                    self.main.log("NFC Block 0: \(data.hex)")
-
-                    session.invalidate()
                 }
             }
         }
