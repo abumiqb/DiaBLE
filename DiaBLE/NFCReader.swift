@@ -61,10 +61,21 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
             }
 
+
+            // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/NFCReaderX.java
+
+            tag.customCommand(requestFlags: RequestFlag(rawValue: 0x02), customCommandCode: 0xA1, customRequestParameters: Data([0x07])) { (response: Data, error: Error?) in
+                if error != nil {
+                    session.invalidate(errorMessage: "Error getting PatchInfo: " + error!.localizedDescription)
+                    self.main.log("NFC: \(error!.localizedDescription)")
+                }
+                self.main.app.currentTransmitter.patchInfo = Data(response)
+                self.main.log("NFC: PatchInfo: \(response.hex)")
+            }
+
             var fram = Data()
 
             // https://www.st.com/en/embedded-software/stsw-st25ios001.html#get-software
-            // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/NFCReaderX.java
 
             // FIXME: dooesn't work -> Tap response error
 
