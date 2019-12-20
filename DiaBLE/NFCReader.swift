@@ -107,6 +107,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     if b == 42 {
                         session.invalidate()
                         self.main.app.currentTransmitter.fram = Data(fram)
+                        self.main.parseSensorData(transmitter: self.main.app.currentTransmitter)
                     }
                 }
             }
