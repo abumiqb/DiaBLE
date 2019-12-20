@@ -38,6 +38,8 @@ class History: ObservableObject {
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
     @Published var reversedLog: Bool = true
+    @Published var oopServerSite: String = "http://www.glucose.space/"
+    @Published var oopServerToken: String = "bubble-201907"
 }
 
 
@@ -604,10 +606,9 @@ struct OOPCalibrationResponse: Codable {
 // https://github.com/bubbledevteam/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreOOPClient.swift
 // https://github.com/bubbledevteam/xdripswift/commit/a1779402
 
-func postToLibreOOP(bytes: Data, patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
-    var site = "http://www.glucose.space/"
+func postToLibreOOP(site: String = "http://www.glucose.space/", token: String = "bubble-201907", bytes: Data = Data(), patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
+    var site = site + (patchInfo == nil ? "calibrateSensor" : "libreoop2")
     site += patchInfo == nil ? "calibrateSensor" : "libreoop2"
-    let token = "bubble-201907"
     let date = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
     var json = ["content": "\(bytes.hex)"]
     if let patchInfo = patchInfo {
@@ -736,16 +737,16 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         var historyValues = history.map{ $0.glucose }
 
         info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
-        log("Sending FRAM to a LibreOOP server for calibration...")
+        log("Sending FRAM to \(settings.oopServerSite) for calibration...")
 
-        postToLibreOOP(bytes: fram) { data, errorDescription in
+        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
                 self.log("LibreOOP Server calibration response: \(json))")
                 let decoder = JSONDecoder.init()
                 if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
                     let params = oopCalibration.parameters
-                    self.log("Calibration parameters: \(params)")
+                    self.log("OOP \(params)")
 
                     for measurement in history {
                         measurement.calibrationParameters = params
@@ -769,9 +770,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if transmitter.patchInfo.count > 0 {
-            log("Sending FRAM to a LibreOOP server for measurements...")
+            log("Sending FRAM to \(settings.oopServerSite) for measurements...")
 
-            postToLibreOOP(bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
+            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
                 if let data = data {
                     let json = String(decoding: data, as: UTF8.self)
                     self.log("LibreOOP Server measurements response: \(json)")

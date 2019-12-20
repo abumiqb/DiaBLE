@@ -22,7 +22,6 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
             if readerError.code != .readerSessionInvalidationErrorUserCanceled {
                 main.log("NFC: \(error.localizedDescription)")
             }
-            // session.invalidate();
         }
     }
 
@@ -35,7 +34,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
             session.connect(to: tag) { error in
                 if error != nil {
-                    self.main.log(error!.localizedDescription)
+                    self.main.log("NFC: \(error!.localizedDescription)")
                     session.invalidate(errorMessage: "Connection failure: \(error!.localizedDescription)")
                     return
                 }
@@ -48,19 +47,19 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     }
                     let uidString = iso15693Tag.identifier.hex
                     session.alertMessage = "Tag UID : \(uidString)"
-                    self.main.log("IC Identifier: \(uidString)")
+                    self.main.log("NFC: IC Identifier: \(uidString)")
 
                     var manufacturer = String(iso15693Tag.icManufacturerCode)
                     if manufacturer == "7" {
                         manufacturer.append(" (Texas Instruments)")
                     }
-                    self.main.log("IC ManufacturerCode: \(manufacturer)")
-                    self.main.log("IC Serial Number: \(iso15693Tag.icSerialNumber.hex)")
+                    self.main.log("NFC: IC ManufacturerCode: \(manufacturer)")
+                    self.main.log("NFC: IC Serial Number: \(iso15693Tag.icSerialNumber.hex)")
 
-                    self.main.log(String(format: "IC Reference: 0x%X", icRef))
+                    self.main.log(String(format: "NFC: IC Reference: 0x%X", icRef))
 
-                    self.main.log(String(format: "Block Size: %d", blockSize))
-                    self.main.log(String(format: "Memory Size: %d blocks", memorySize))
+                    self.main.log(String(format: "NFC: Block Size: %d", blockSize))
+                    self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
                 }
 
 
@@ -84,7 +83,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 for b: UInt8 in 0...42 {
                     iso15693Tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: b) { (data, error) in
                         if error != nil {
-                            self.main.log("Error while reading single block: \(error!.localizedDescription)")
+                            self.main.log("NFC: Error while reading single block: \(error!.localizedDescription)")
                             session.invalidate(errorMessage: "Error while reading single block: \(error!.localizedDescription)")
                             return
                         }

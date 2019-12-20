@@ -37,6 +37,8 @@ class History: ObservableObject {
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
     @Published var reversedLog: Bool = true
+    @Published var oopServerSite: String = "http://www.glucose.space/"
+    @Published var oopServerToken: String = "bubble-201907"
 }
 
 
@@ -146,16 +148,16 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         var historyValues = history.map{ $0.glucose }
 
         info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
-        log("Sending FRAM to a LibreOOP server for calibration...")
+        log("Sending FRAM to \(settings.oopServerSite) for calibration...")
 
-        postToLibreOOP(bytes: fram) { data, errorDescription in
+        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken , bytes: fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
                 self.log("LibreOOP Server calibration response: \(json))")
                 let decoder = JSONDecoder.init()
                 if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
                     let params = oopCalibration.parameters
-                    self.log("Calibration parameters: \(params)")
+                    self.log("OOP \(params)")
 
                     for measurement in history {
                         measurement.calibrationParameters = params
@@ -179,9 +181,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if transmitter.patchInfo.count > 0 {
-            log("Sending FRAM to a LibreOOP server for measurements...")
+            log("Sending FRAM to \(settings.oopServerSite) for measurements...")
 
-            postToLibreOOP(bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
+            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
                 if let data = data {
                     let json = String(decoding: data, as: UTF8.self)
                     self.log("LibreOOP Server measurements response: \(json)")

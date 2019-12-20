@@ -49,10 +49,8 @@ struct OOPCalibrationResponse: Codable {
 // https://github.com/bubbledevteam/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreOOPClient.swift
 // https://github.com/bubbledevteam/xdripswift/commit/a1779402
 
-func postToLibreOOP(bytes: Data, patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
-    var site = "http://www.glucose.space/"
-    site += patchInfo == nil ? "calibrateSensor" : "libreoop2"
-    let token = "bubble-201907"
+func postToLibreOOP(site: String = "http://www.glucose.space/", token: String = "bubble-201907", bytes: Data = Data(), patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
+    var site = site + (patchInfo == nil ? "calibrateSensor" : "libreoop2")
     let date = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
     var json = ["content": "\(bytes.hex)"]
     if let patchInfo = patchInfo {
