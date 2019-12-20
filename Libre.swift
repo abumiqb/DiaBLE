@@ -1000,7 +1000,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         if peripheralName == "Limitter" && service.uuid.uuidString == Limitter.dataServiceUUID {
             // limitter!.write([0x31, 0x32, 0x33]); log("Limitter: writing old ping command")
             // limitter!.write([0x34, 0x35, 0x36]); log("Limitter: writing old read command")
-            limitter!.write([0x21]); log("LimiTTer: writing old timer command")
+            limitter!.write([0x21]); log("LimiTTer: writing old timer (1 minute) command")
+            // TODO: varying frequency: 0x2X
             limitter!.peripheral?.readValue(for: limitter!.readCharacteristic!)
             log("LimiTTer: reading data")
         }
