@@ -61,27 +61,27 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
             }
 
-            // NFC Tap source code:
+            var fram = Data()
+
             // https://www.st.com/en/embedded-software/stsw-st25ios001.html#get-software
-            
             // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/NFCReaderX.java
 
-            //TODO: read multiple blocks (0x23 command code): don't work (Tag response error)
+            // FIXME: dooesn't work -> Tap response error
 
-            //                tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(0...42)) { (dataArray, error) in
-            //                    if error != nil {
-            //                        self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
-            //                        session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
-            //                        return
-            //                    }
-            //                    for (n, data) in dataArray.enumerated() {
-            //                        self.main.log("NFC block #\(String(format:"%02d", n)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
-            //                        if n == 42 { session.invalidate() }
-            //                    }
+            //            tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(0)...UInt8(42))) { (dataArray, error) in
+            //                if error != nil {
+            //                    self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
+            //                    session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
+            //                    return
             //                }
+            //                for (n, data) in dataArray.enumerated() {
+            //                    fram.append(data)
+            //                    self.main.log("NFC block #\(String(format:"%02d", n)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
+            //                    if n == 42 { session.invalidate() }
+            //                }
+            //            }
 
 
-            // (0x20 command code)
             for b: UInt8 in 0...42 {
                 tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: b) { (data, error) in
                     if error != nil {
@@ -90,9 +90,13 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         return
                     }
 
+                    fram.append(data)
                     self.main.log("NFC block #\(String(format:"%02d", b)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
 
-                    if b == 42 { session.invalidate() }
+                    if b == 42 {
+                        session.invalidate()
+                        self.main.app.currentTransmitter.fram = Data(fram)
+                    }
                 }
             }
 

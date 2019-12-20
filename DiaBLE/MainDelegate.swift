@@ -150,7 +150,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
 
-        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken , bytes: fram) { data, errorDescription in
+        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
                 self.log("LibreOOP Server calibration response: \(json))")
