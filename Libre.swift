@@ -608,7 +608,6 @@ struct OOPCalibrationResponse: Codable {
 
 func postToLibreOOP(site: String = "http://www.glucose.space/", token: String = "bubble-201907", bytes: Data = Data(), patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
     var site = site + (patchInfo == nil ? "calibrateSensor" : "libreoop2")
-    site += patchInfo == nil ? "calibrateSensor" : "libreoop2"
     let date = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
     var json = ["content": "\(bytes.hex)"]
     if let patchInfo = patchInfo {
