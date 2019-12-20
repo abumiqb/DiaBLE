@@ -61,6 +61,9 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
             }
 
+            // NFC Tap source code:
+            // https://www.st.com/en/embedded-software/stsw-st25ios001.html#get-software
+            
             // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/NFCReaderX.java
 
             //TODO: read multiple blocks (0x23 command code): don't work (Tag response error)

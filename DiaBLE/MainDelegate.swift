@@ -37,7 +37,7 @@ class History: ObservableObject {
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
     @Published var reversedLog: Bool = true
-    @Published var oopServerSite: String = "http://www.glucose.space/"
+    @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
 }
 
@@ -559,7 +559,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 // TODO:  9999 = error
 
             } else if peripheral.name!.contains("LimiTTer") {
-                // https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Droplet/CGMDroplet1Transmitter.swift
+                // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
                 // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
 
                 let fields = String(decoding: data, as: UTF8.self).split(separator: " ")

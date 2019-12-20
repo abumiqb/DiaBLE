@@ -38,7 +38,7 @@ class History: ObservableObject {
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
     @Published var reversedLog: Bool = true
-    @Published var oopServerSite: String = "http://www.glucose.space/"
+    @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
 }
 
@@ -475,7 +475,7 @@ enum SensorState: UInt8, CustomStringConvertible {
     }
 }
 
-// https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreSensorSerialNumber.swift
+// https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/SensorSerialNumber.swift
 
 func sensorSerialNumber(uid: Data) -> String {
     let lookupTable = ["0","1","2","3","4","5","6","7","8","9","A","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","Z"]
@@ -602,11 +602,11 @@ struct OOPCalibrationResponse: Codable {
     }
 }
 
-// https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreOOPClient.swift
+// https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/BluetoothTransmitter/CGM/Libre/Utilities/LibreOOPClient.swift
 // https://github.com/bubbledevteam/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreOOPClient.swift
 // https://github.com/bubbledevteam/xdripswift/commit/a1779402
 
-func postToLibreOOP(site: String = "http://www.glucose.space/", token: String = "bubble-201907", bytes: Data = Data(), patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
+func postToLibreOOP(site: String = "https://www.glucose.space/", token: String = "bubble-201907", bytes: Data = Data(), patchUid: Data? = nil, patchInfo: Data? = nil, completion: @escaping (_ data: Data?, _ errorDescription: String?) -> Void) {
     var site = site + (patchInfo == nil ? "calibrateSensor" : "libreoop2")
     let date = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
     var json = ["content": "\(bytes.hex)"]
@@ -1147,7 +1147,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 // TODO:  9999 = error
 
             } else if peripheral.name!.contains("LimiTTer") {
-                // https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Droplet/CGMDroplet1Transmitter.swift
+                // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
                 // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
 
                 let fields = String(decoding: data, as: UTF8.self).split(separator: " ")

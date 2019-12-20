@@ -148,7 +148,7 @@ struct LogView: View {
                     .padding(4)
             }.background(Color.blue)
 
-            VStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .center, spacing: 14) {
 
                 Button(action: {
                     self.app.main.nfcReader.startSession()
@@ -168,7 +168,7 @@ struct LogView: View {
                         Image(systemName: "doc.on.doc")
                             .resizable()
                             .frame(width: 24, height: 24)
-                        Text("Copy").offset(y: -8)
+                        Text("Copy").offset(y: -6)
                     }
                 }
 
@@ -177,7 +177,7 @@ struct LogView: View {
                         Image(systemName: "clear")
                             .resizable()
                             .frame(width: 24, height: 24)
-                        Text("Clear").offset(y: -8)
+                        Text("Clear").offset(y: -6)
                     }
                 }
 

@@ -29,7 +29,7 @@ enum SensorState: UInt8, CustomStringConvertible {
     }
 }
 
-// https://github.com/JohanDegraeve/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreSensorSerialNumber.swift
+// https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/SensorSerialNumber.swift
 
 func sensorSerialNumber(uid: Data) -> String {
     let lookupTable = ["0","1","2","3","4","5","6","7","8","9","A","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","Z"]
