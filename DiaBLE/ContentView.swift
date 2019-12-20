@@ -152,40 +152,53 @@ struct LogView: View {
 
                 Button(action: {
                     self.app.main.nfcReader.startSession()
-                }) { VStack() {
+                }) { VStack {
                     Image(systemName: "radiowaves.left")
                         .resizable()
                         .rotationEffect(Angle(degrees: 90))
-                    .frame(width: 20, height: 40)
-
+                        .frame(width: 20, height: 40)
                     Text("NFC").bold().offset(y: -18)
                     }
                 }
 
                 Spacer()
-                
-                #if os(macOS)
-                // FIXME: only works with iPad
-                Button("Copy") { NSPasteboard.general.setString(self.log.text, forType: .string) }
-                #else
-                Button("Copy") { UIPasteboard.general.string = self.log.text }
-                #endif
 
-                Button("Clear") { self.log.text = "" }
+                Button(action: { UIPasteboard.general.string = self.log.text }) {
+                    VStack {
+                        Image(systemName: "doc.on.doc")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                        Text("Copy").offset(y: -8)
+                    }
+                }
+
+                Button(action: { self.log.text = "" }) {
+                    VStack {
+                        Image(systemName: "clear")
+                            .resizable()
+                            .frame(width: 24, height: 24)
+                        Text("Clear").offset(y: -8)
+                    }
+                }
+
 
                 Button(action: {
                     self.settings.reversedLog.toggle()
                     self.log.text = self.log.text.split(separator:"\n").reversed().joined(separator: "\n")
-                }) {
-                    Text(" REV ")
-                }.padding(2)
-                    .background(self.settings.reversedLog ? Color.accentColor : Color.clear)
+                }) { VStack {
+                    Image(systemName: "backward.fill")
+                        .resizable()
+                        .frame(width: 12, height: 12).offset(y: 4)
+                    Text(" REV ").offset(y: -4)
+                    }
+                }.background(self.settings.reversedLog ? Color.accentColor : Color.clear)
                     .border(Color.accentColor, width: 3)
                     .cornerRadius(5)
                     .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
 
                 Spacer()
-            }
+
+            }.font(.system(.footnote))
         }
     }
 }
