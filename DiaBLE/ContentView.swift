@@ -104,6 +104,17 @@ struct Monitor: View {
                     .font(.footnote)
                     .layoutPriority(2)
             }
+            .navigationBarItems(trailing:
+                Button(action: {
+                    self.app.main.nfcReader.startSession()
+                }) { VStack {
+                    Image(systemName: "radiowaves.left")
+                        .resizable()
+                        .rotationEffect(Angle(degrees: 90))
+                        .frame(width: 15, height: 30)
+                    Text("NFC").bold().offset(y: -16)
+                    }
+            })
         }
     }
 }
