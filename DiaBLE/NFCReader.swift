@@ -39,6 +39,10 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 return
             }
 
+            // Create a dummy transmitter when none is available in order to be able
+            // to call parseSensorData(transmitter) at the end
+            let transmitter = self.main.app.transmitter ?? Transmitter()
+
             tag.getSystemInfo(requestFlags: [.address, .highDataRate]) {  (dfsid: Int, afi: Int, blockSize: Int, memorySize: Int, icRef: Int, error: Error?) in
                 if error != nil {
                     session.invalidate(errorMessage: "getSystemInfo error: " + error!.localizedDescription)
@@ -64,7 +68,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 let patchUid = Data(tag.identifier.reversed())
                 let serialNumber = sensorSerialNumber(uid: patchUid)
                 self.main.log("NFC: sensor serial number: \(serialNumber)")
-                self.main.app.transmitter.patchUid = patchUid
+                transmitter.patchUid = patchUid
                 self.main.app.sensorSerial = serialNumber
 
             }
@@ -78,7 +82,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     self.main.log("NFC: \(error!.localizedDescription)")
                     return
                 }
-                self.main.app.transmitter.patchInfo = Data(response)
+                transmitter.patchInfo = Data(response)
                 self.main.log("NFC: PatchInfo: \(response.hex)")
             }
 
@@ -86,8 +90,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
             // https://www.st.com/en/embedded-software/stsw-st25ios001.html#get-software
 
-            // FIXME: dooesn't work -> Tap response error
-
+            //            FIXME: dooesn't work -> Tap response error
+            //
             //            tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(0)...UInt8(42))) { (dataArray, error) in
             //                if error != nil {
             //                    self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
@@ -97,7 +101,11 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
             //                for (n, data) in dataArray.enumerated() {
             //                    fram.append(data)
             //                    self.main.log("NFC block #\(String(format:"%02d", n)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
-            //                    if n == 42 { session.invalidate() }
+            //                    if n == 42 {
+            //                        session.invalidate()
+            //                        transmitter.fram = Data(fram)
+            //                        self.main.parseSensorData(transmitter: transmitter)
+            //                    }
             //                }
             //            }
 
@@ -115,8 +123,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                     if b == 42 {
                         session.invalidate()
-                        self.main.app.transmitter.fram = Data(fram)
-                        self.main.parseSensorData(transmitter: self.main.app.transmitter)
+                        transmitter.fram = Data(fram)
+                        self.main.parseSensorData(transmitter: transmitter)
                     }
                 }
             }

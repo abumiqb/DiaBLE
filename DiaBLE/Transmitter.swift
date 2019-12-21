@@ -42,6 +42,9 @@ class Transmitter {
         self.peripheral = peripheral
     }
 
+    init() {
+    }
+
     func write(_ bytes: Array<UInt8>) {
         peripheral?.writeValue(Data(bytes), for: writeCharacteristic!, type: .withoutResponse)
     }
