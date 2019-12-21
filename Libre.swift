@@ -156,7 +156,7 @@ struct Monitor: View {
                     .font(.footnote)
                     .layoutPriority(2)
             }
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

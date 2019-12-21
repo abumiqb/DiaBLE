@@ -115,7 +115,7 @@ struct Monitor: View {
                     Text("NFC").bold().offset(y: -16)
                     }
             })
-        }
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 
