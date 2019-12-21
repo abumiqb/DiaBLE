@@ -63,7 +63,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 let patchUid = Data(tag.identifier.reversed())
                 let serialNumber = sensorSerialNumber(uid: patchUid)
                 self.main.log("NFC: sensor serial number: \(serialNumber)")
-                self.main.app.currentTransmitter.patchUid = patchUid
+                self.main.app.transmitter.patchUid = patchUid
                 self.main.app.sensorSerial = serialNumber
 
             }
@@ -76,7 +76,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     session.invalidate(errorMessage: "Error getting PatchInfo: " + error!.localizedDescription)
                     self.main.log("NFC: \(error!.localizedDescription)")
                 }
-                self.main.app.currentTransmitter.patchInfo = Data(response)
+                self.main.app.transmitter.patchInfo = Data(response)
                 self.main.log("NFC: PatchInfo: \(response.hex)")
             }
 
@@ -113,8 +113,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                     if b == 42 {
                         session.invalidate()
-                        self.main.app.currentTransmitter.fram = Data(fram)
-                        self.main.parseSensorData(transmitter: self.main.app.currentTransmitter)
+                        self.main.app.transmitter.fram = Data(fram)
+                        self.main.parseSensorData(transmitter: self.main.app.transmitter)
                     }
                 }
             }

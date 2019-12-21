@@ -239,7 +239,7 @@ struct SettingsView: View {
             Spacer()
 
             Button(action: {
-                let transmitter = self.app.currentTransmitter
+                let transmitter = self.app.transmitter
                 // FIXME: crashes in a playground
                 self.selectedTab = .monitor
                 let centralManager = self.app.main.centralManager

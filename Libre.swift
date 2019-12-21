@@ -6,7 +6,7 @@ class App: ObservableObject {
 
     // Replace the final .none with .bubble | .droplet | .limitter | .miaomiao
     @Published var preferredTransmitter = TransmitterType.none
-    @Published var currentTransmitter: Transmitter!
+    @Published var transmitter: Transmitter!
 
     var main: MainDelegate!
 
@@ -267,7 +267,7 @@ struct SettingsView: View {
             Spacer()
 
             Button(action: {
-                let transmitter = self.app.currentTransmitter
+                let transmitter = self.app.transmitter
                 // FIXME: crashes in a playground
                 // self.selectedTab = .monitor
                 let centralManager = self.app.main.centralManager
@@ -863,7 +863,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             transmitter = miaomiao!
         }
         info("\n\n\(transmitter.name)")
-        app.currentTransmitter = transmitter
+        app.transmitter = transmitter
         transmitter.peripheral?.delegate = self
         if let manifacturerData = advertisement["kCBAdvDataManufacturerData"] as? Data {
             var firmware = ""
