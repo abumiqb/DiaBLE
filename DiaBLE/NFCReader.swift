@@ -33,6 +33,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
         guard case .iso15693(let tag) = firstTag else { return }
 
         session.alertMessage = "Scan complete"
+        var dataArray = [Data](repeating: Data(), count: 43)
+
         session.connect(to: firstTag) { error in
             if error != nil {
                 self.main.log("NFC: \(error!.localizedDescription)")
@@ -57,7 +59,6 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         self.main.log("NFC: \(error!.localizedDescription)")
                         return
                     }
-                    var dataArray = [Data]()
 
                     // FIXME: readMultipleBlock dooesn't work and returns a Tap response error
 
@@ -84,7 +85,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                                 session.invalidate(errorMessage: "Error while reading single block: \(error!.localizedDescription)")
                                 return
                             }
-                            dataArray.append(data)
+                            dataArray[Int(b)]=data
 
                             if b == 42 {
                                 session.invalidate()
