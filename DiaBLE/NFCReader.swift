@@ -60,7 +60,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         return
                     }
 
-                    // readMultipleBlock reads max 3 bytes from the Libre
+                    // readMultipleBlocks reads max 3 blocks from the Libre
 
                     for b in 0...14 {
 
