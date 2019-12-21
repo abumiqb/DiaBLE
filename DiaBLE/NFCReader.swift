@@ -21,6 +21,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
         if let readerError = error as? NFCReaderError {
             if readerError.code != .readerSessionInvalidationErrorUserCanceled {
                 main.log("NFC: \(error.localizedDescription)")
+                session.invalidate(errorMessage: "Connection failure: \(error.localizedDescription)")
             }
         }
     }
@@ -45,7 +46,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                     return
                 }
                 let uidString = tag.identifier.hex
-                session.alertMessage = "Tag UID : \(uidString)"
+                session.alertMessage = "Scan complete"
                 self.main.log("NFC: IC Identifier: \(uidString)")
 
                 var manufacturer = String(tag.icManufacturerCode)
@@ -75,6 +76,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                 if error != nil {
                     session.invalidate(errorMessage: "Error getting PatchInfo: " + error!.localizedDescription)
                     self.main.log("NFC: \(error!.localizedDescription)")
+                    return
                 }
                 self.main.app.transmitter.patchInfo = Data(response)
                 self.main.log("NFC: PatchInfo: \(response.hex)")
