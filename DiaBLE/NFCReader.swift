@@ -33,7 +33,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
         guard case .iso15693(let tag) = firstTag else { return }
 
         session.alertMessage = "Scan complete"
-        var dataArray = [Data](repeating: Data(), count: 43)
+        var dataArray = [Data](repeating: Data(), count: 45)
 
         session.connect(to: firstTag) { error in
             if error != nil {
@@ -60,34 +60,22 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         return
                     }
 
-                    // FIXME: readMultipleBlock dooesn't work and returns a Tap response error
+                    // readMultipleBlock reads max 3 bytes from the Libre
 
-//                    tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(0)...UInt8(42))) { (blockArray, error) in
-//                        if error != nil {
-//                            self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
-//                            session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
-//                            return
-//                        }
-//                        for (n, data) in blockArray.enumerated() {
-//                            dataArray.append(data)
-//
-//                            if n == 42 {
-//                                session.invalidate()
-//                                self.main.log("NFC: Read \(blockArray.count) blocks: \(blockArray)")
-//                            }
-//                        }
-//                    }
+                    for b in 0...14 {
 
-                    for b: UInt8 in 0...42 {
-                        tag.readSingleBlock(requestFlags: [.highDataRate, .address], blockNumber: b) { (data, error) in
+                        tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(b * 3)...UInt8(b * 3 + 2))) { (blockArray, error) in
                             if error != nil {
-                                self.main.log("NFC: Error while reading single block: \(error!.localizedDescription)")
-                                session.invalidate(errorMessage: "Error while reading single block: \(error!.localizedDescription)")
+                                self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
+                                session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
                                 return
                             }
-                            dataArray[Int(b)]=data
+                            dataArray[b * 3]     = blockArray[0]
+                            dataArray[b * 3 + 1] = blockArray[1]
+                            dataArray[b * 3 + 2] = blockArray[2]
 
-                            if b == 42 {
+                            if b == 14 {
+
                                 session.invalidate()
 
                                 // Create a dummy transmitter when none is available in order to be able
@@ -96,7 +84,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                                 var fram = Data()
 
-                                for (n, data) in dataArray.enumerated() {
+                                for (n, data) in dataArray.enumerated().dropLast(2) {
                                     fram.append(data)
                                     self.main.log("NFC block #\(String(format:"%02d", n)): \(data.reduce("", { $0 + String(format: "%02X", $1) + " "}))")
                                 }

@@ -888,7 +888,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     public func centralManager(_ manager: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if let name = peripheral.name {
-            log("\"\(name)\" has connected.")
+            log("\(name) has connected.")
             app.transmitterState = "Connected"
             log("Requesting service discovery.")
             peripheral.discoverServices(nil)
@@ -1021,7 +1021,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     public func centralManager(_ manager: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         if let name = peripheral.name {
-            log("\"\(name)\" has disconnected.")
+            log("\(name) has disconnected.")
             app.transmitterState = "Disconnected"
         }
     }
