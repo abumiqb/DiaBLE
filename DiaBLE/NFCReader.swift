@@ -59,6 +59,13 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                 self.main.log(String(format: "NFC: Block Size: %d", blockSize))
                 self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
+
+                let patchUid = Data(tag.identifier.reversed())
+                let serialNumber = sensorSerialNumber(uid: patchUid)
+                self.main.log("NFC: sensor serial number: \(serialNumber)")
+                self.main.app.currentTransmitter.patchUid = patchUid
+                self.main.app.sensorSerial = serialNumber
+
             }
 
 
