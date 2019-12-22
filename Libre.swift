@@ -156,7 +156,7 @@ struct Monitor: View {
                     .font(.footnote)
                     .layoutPriority(2)
             }
-        }.navigationViewStyle(StackNavigationViewStyle())
+        }.navigationViewStyle(self.app.main.navigationViewStyle)
     }
 }
 
@@ -692,6 +692,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     var centralManager: CBCentralManager
 
+    var runningOnMac: Bool
+    var navigationViewStyle: NavigationViewStyle
+
     override init() {
         app = App()
         log = Log()
@@ -700,12 +703,25 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         settings = Settings()
 
         #if os(macOS)
+
         host = NSHostingView(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
+        let runningOnMac = true
+        let navigationViewStyle = DefaultNavigationViewStyle()
+
         #elseif os(iOS)
+
         host = UIHostingController(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
+        let runningOnMac = false
+        let navigationViewStyle = StackNavigationViewStyle()
+
         #endif
+
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
+        self.runningOnMac = runningOnMac
+        self.navigationViewStyle = navigationViewStyle
+
         super.init()
+
         self.centralManager.delegate = self
     }
 
