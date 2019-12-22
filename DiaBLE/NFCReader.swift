@@ -14,7 +14,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     }
 
     public func tagReaderSessionDidBecomeActive(_ session: NFCTagReaderSession) {
-        main.log("NFC: Session Did Become Active")
+        main.log("NFC: session did become active")
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
@@ -27,7 +27,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     }
 
     public func tagReaderSession(_ session: NFCTagReaderSession, didDetect tags: [NFCTag]) {
-        main.log("NFC: Did Detect Tags")
+        main.log("NFC: did detect tags")
 
         guard let firstTag = tags.first else { return }
         guard case .iso15693(let tag) = firstTag else { return }
@@ -46,8 +46,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
             tag.getSystemInfo(requestFlags: [.address, .highDataRate]) {  (dfsid: Int, afi: Int, blockSize: Int, memorySize: Int, icRef: Int, error: Error?) in
                 if error != nil {
-                    session.invalidate(errorMessage: "getSystemInfo error: " + error!.localizedDescription)
-                    self.main.log("NFC: error while getSystemInfo: \(error!.localizedDescription)")
+                    session.invalidate(errorMessage: "Error while getting system info: " + error!.localizedDescription)
+                    self.main.log("NFC: error while getting system info: \(error!.localizedDescription)")
                     return
                 }
 
@@ -55,8 +55,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                 tag.customCommand(requestFlags: RequestFlag(rawValue: 0x02), customCommandCode: 0xA1, customRequestParameters: Data([0x07])) { (customResponse: Data, error: Error?) in
                     if error != nil {
-                        session.invalidate(errorMessage: "Error getting PatchInfo: " + error!.localizedDescription)
-                        self.main.log("NFC: \(error!.localizedDescription)")
+                        session.invalidate(errorMessage: "Error while getting patch info: " + error!.localizedDescription)
+                        self.main.log("NFC: error while getting patch info: \(error!.localizedDescription)")
                         return
                     }
 
@@ -66,7 +66,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                         tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(i * 3)...UInt8(i * 3 + 2))) { (blockArray, error) in
                             if error != nil {
-                                self.main.log("Error while reading multiple blocks: \(error!.localizedDescription)")
+                                self.main.log("NFC: error while reading multiple blocks: \(error!.localizedDescription)")
                                 session.invalidate(errorMessage: "Error while reading multiple blocks: \(error!.localizedDescription)")
                                 return
                             }
@@ -90,19 +90,19 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                                 }
 
                                 let uid = tag.identifier.hex
-                                self.main.log("NFC: IC Identifier: \(uid)")
+                                self.main.log("NFC: IC identifier: \(uid)")
 
                                 var manufacturer = String(tag.icManufacturerCode)
                                 if manufacturer == "7" {
                                     manufacturer.append(" (Texas Instruments)")
                                 }
-                                self.main.log("NFC: IC ManufacturerCode: \(manufacturer)")
-                                self.main.log("NFC: IC Serial Number: \(tag.icSerialNumber.hex)")
+                                self.main.log("NFC: IC manufacturer code: \(manufacturer)")
+                                self.main.log("NFC: IC serial number: \(tag.icSerialNumber.hex)")
 
-                                self.main.log(String(format: "NFC: IC Reference: 0x%X", icRef))
+                                self.main.log(String(format: "NFC: IC reference: 0x%X", icRef))
 
-                                self.main.log(String(format: "NFC: Block Size: %d", blockSize))
-                                self.main.log(String(format: "NFC: Memory Size: %d blocks", memorySize))
+                                self.main.log(String(format: "NFC: block size: %d", blockSize))
+                                self.main.log(String(format: "NFC: memory size: %d blocks", memorySize))
 
                                 let patchUid = Data(tag.identifier.reversed())
                                 transmitter.patchUid = patchUid
@@ -113,7 +113,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                                 let patchInfo = customResponse
                                 transmitter.patchInfo = Data(patchInfo)
-                                self.main.log("NFC: PatchInfo: \(patchInfo.hex)")
+                                self.main.log("NFC: patch info: \(patchInfo.hex)")
                                 self.main.log("NFC: Libre type: \(sensorType(patchInfo: patchInfo).rawValue)")
 
                                 transmitter.fram = Data(fram)

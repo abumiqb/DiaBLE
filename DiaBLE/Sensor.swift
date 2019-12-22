@@ -45,25 +45,19 @@ func sensorType(patchInfo: Data) -> SensorType {
     var type: SensorType
 
     // Germany is DF 00 00 01, Canada is DF 00 00 04
-    if patchInfo[0] == 0xDF && patchInfo[1] == 0x00 && patchInfo[2] == 0x00 { //   && (patchInfo[3] == 0x01
+    if patchInfo[0] == 0xDF && patchInfo[1] == 0x00 && patchInfo[2] == 0x00 { //   && patchInfo[3] == 0x01
         type = .libre1
-
     } else if patchInfo[0] == 0x9D && patchInfo[1] == 0x08 && patchInfo[2] == 0x30 && patchInfo[3] == 0x01 {
         type = .libre2
-
     } else if patchInfo[0] == 0xE5 && patchInfo[1] == 0x00 && patchInfo[2] == 0x03 && patchInfo[3] == 0x02 {
         type = .libreUS
-
     } else if patchInfo[0] == 0x70 && patchInfo[1] == 0x00 && patchInfo[2] == 0x10 && patchInfo[3] == 0x00 {
         type = .librePro
-
-
     } else {
         type = .unknown
     }
 
     return type
-
 }
 
 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/SensorSerialNumber.swift
