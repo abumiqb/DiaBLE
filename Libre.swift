@@ -693,7 +693,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var centralManager: CBCentralManager
 
     var runningOnMac: Bool
-    var navigationViewStyle: NavigationViewStyle
+    #if os(macOS)
+    var navigationViewStyle = DefaultNavigationViewStyle()
+    #elseif os(iOS)
+    var navigationViewStyle = StackNavigationViewStyle()
+    #endif
 
     override init() {
         app = App()
@@ -706,19 +710,16 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         host = NSHostingView(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
         let runningOnMac = true
-        let navigationViewStyle = DefaultNavigationViewStyle()
 
         #elseif os(iOS)
 
         host = UIHostingController(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
         let runningOnMac = false
-        let navigationViewStyle = StackNavigationViewStyle()
 
         #endif
 
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
         self.runningOnMac = runningOnMac
-        self.navigationViewStyle = navigationViewStyle
 
         super.init()
 
