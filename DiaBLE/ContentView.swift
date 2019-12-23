@@ -68,8 +68,8 @@ struct Monitor: View {
 
                     HStack {
                         VStack {
-                            if app.batteryLevel > 0 {
-                                Text("Battery: \(app.batteryLevel)%")
+                            if app.battery > 0 {
+                                Text("Battery: \(app.battery)%")
                             }
                             Text(app.sensorState)
                                 .foregroundColor(app.sensorState == "Ready" ? .green : .red)
@@ -230,12 +230,12 @@ struct SettingsView: View {
 
             Spacer()
             
-            Text("TODO: Settings").bold()
+            Text("Settings").bold()
 
             Spacer()
 
             VStack {
-                Text("Preferred transmitter:")
+                Text("Preferred:")
                 Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
                     ForEach(TransmitterType.allCases) { t in
                         Text(t.rawValue).tag(t)
@@ -256,7 +256,7 @@ struct SettingsView: View {
                 centralManager.scanForPeripherals(withServices: nil, options: nil)
                 self.app.nextReading = self.settings.readingInterval * 60
             }
-            ) { Text("Rescan") }
+            ) { Text("Rescan").bold() }
 
             Spacer()
 

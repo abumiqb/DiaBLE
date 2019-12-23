@@ -9,7 +9,7 @@ class App: ObservableObject {
 
     var main: MainDelegate!
 
-    @Published var batteryLevel: Int = 0
+    @Published var battery: Int = 0
     @Published var currentGlucose: Int = 0
     @Published var glucoseAlarm: String = ""
     @Published var glucoseTrend: String = ""
@@ -458,7 +458,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case Transmitter.batteryVoltageCharacteristicUUID:
             let result = Int(data[0])
             log("Battery level: \(result)")
-            app.batteryLevel = result
+            app.transmitter.battery = result
+            app.battery = result
 
         case Transmitter.modelCharacteristicUUID:
             let model = String(decoding: data, as: UTF8.self)
@@ -508,9 +509,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 } else if response == .dataInfo {
                     let hardware =  "\(data[2]).0"
                     log("Bubble: hardware: \(hardware)")
-                    let batteryLevel = Int(data[4])
-                    log("Bubble: battery level: \(batteryLevel)")
-                    app.batteryLevel = batteryLevel
+                    let battery = Int(data[4])
+                    bubble!.battery = battery
+                    log("Bubble: battery level: \(battery)")
+                    app.battery = battery
                     let firmware = "\(data[2]).\(data[3])"
                     bubble!.firmware = firmware
                     log("Bubble: firmware: \(firmware)")
@@ -575,9 +577,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
                 guard fields.count == 4 else { return }
 
-                let batteryLevel = Int(fields[2])!
-                log("LimiTTer: battery level: \(batteryLevel)")
-                app.batteryLevel = batteryLevel
+                let battery = Int(fields[2])!
+                limitter!.battery = battery
+                log("LimiTTer: battery level: \(battery)")
+                app.battery = battery
 
                 let firstField = fields[0]
                 guard !firstField.hasPrefix("000") else {
@@ -650,9 +653,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         log("Miaomiao: sensor serial number: \(sensor.serial)")
                         app.sensorSerial = sensor.serial
 
-                        let batteryLevel = Int(buffer[13])
-                        log("MiaoMiao: battery level: \(batteryLevel)")
-                        app.batteryLevel = batteryLevel
+                        let battery = Int(buffer[13])
+                        miaomiao!.battery = battery
+                        log("MiaoMiao: battery level: \(battery)")
+                        app.battery = battery
 
                         let firmware = buffer[14...15].hex
                         let hardware = buffer[16...17].hex
