@@ -43,6 +43,13 @@ class Sensor {
     var patchInfo: Data = Data()
     var fram: Data = Data()
     weak var transmitter: Transmitter?
+
+    init() {
+    }
+    
+    init(transmitter: Transmitter) {
+        self.transmitter = transmitter
+    }
 }
 
 // https://github.com/keencave/LBridge/blob/master/LBridge_Arduino_V11/LBridge_Arduino_V1.1.02_190502_2120/LBridge_Arduino_V1.1.02_190502_2120.ino

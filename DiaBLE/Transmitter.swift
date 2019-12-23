@@ -36,9 +36,6 @@ class Transmitter {
     var buffer = Data()
 
     var sensor: Sensor?
-    var fram = Data()
-    var patchUid = Data()
-    var patchInfo = Data()
 
     init(peripheral: CBPeripheral) {
         self.peripheral = peripheral

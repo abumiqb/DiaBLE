@@ -60,8 +60,6 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                         return
                     }
 
-                    // readMultipleBlocks reads max 3 blocks from the Libre
-
                     for i in 0...14 {
 
                         tag.readMultipleBlocks(requestFlags: [.highDataRate, .address], blockRange: NSRange(UInt8(i * 3)...UInt8(i * 3 + 2))) { (blockArray, error) in
@@ -78,9 +76,7 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                                 session.invalidate()
 
-                                // Create a dummy transmitter when none is available in order to be able
-                                // to call parseSensorData(transmitter) at the end
-                                let transmitter = self.main.app.transmitter ?? Transmitter()
+                                let sensor = Sensor()
 
                                 var fram = Data()
 
@@ -104,20 +100,19 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                                 self.main.log(String(format: "NFC: block size: %d", blockSize))
                                 self.main.log(String(format: "NFC: memory size: %d blocks", memorySize))
 
-                                let patchUid = Data(tag.identifier.reversed())
-                                transmitter.patchUid = patchUid
+                                sensor.uid = Data(tag.identifier.reversed())
 
-                                let serialNumber = sensorSerialNumber(uid: patchUid)
+                                let serialNumber = sensorSerialNumber(uid: sensor.uid)
                                 self.main.app.sensorSerial = serialNumber
                                 self.main.log("NFC: sensor serial number: \(serialNumber)")
 
                                 let patchInfo = customResponse
-                                transmitter.patchInfo = Data(patchInfo)
+                                sensor.patchInfo = Data(patchInfo)
                                 self.main.log("NFC: patch info: \(patchInfo.hex)")
                                 self.main.log("NFC: Libre type: \(sensorType(patchInfo: patchInfo).rawValue)")
 
-                                transmitter.fram = Data(fram)
-                                self.main.parseSensorData(transmitter: transmitter)
+                                sensor.fram = Data(fram)
+                                self.main.parseSensorData(sensor)
                             }
                         }
                     }

@@ -341,9 +341,6 @@ class Transmitter {
     var buffer = Data()
 
     var sensor: Sensor?
-    var fram = Data()
-    var patchUid = Data()
-    var patchInfo = Data()
 
     init(peripheral: CBPeripheral) {
         self.peripheral = peripheral
@@ -454,7 +451,7 @@ class MiaoMiao: Transmitter {
 
 
 enum SensorType: String {
-    case libre    = "Libre 1"
+    case libre1   = "Libre 1"
     case libre2   = "Libre 2"
     case libreUS  = "Libre US"
     case librePro = "Libre Pro"
@@ -496,6 +493,13 @@ class Sensor {
     var patchInfo: Data = Data()
     var fram: Data = Data()
     weak var transmitter: Transmitter?
+
+    init() {
+    }
+
+    init(transmitter: Transmitter) {
+        self.transmitter = transmitter
+    }
 }
 
 // https://github.com/keencave/LBridge/blob/master/LBridge_Arduino_V11/LBridge_Arduino_V1.1.02_190502_2120/LBridge_Arduino_V1.1.02_190502_2120.ino
@@ -755,8 +759,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
 
-    func parseSensorData(transmitter: Transmitter) {
-        let fram = transmitter.fram
+    func parseSensorData(_ sensor: Sensor) {
+        let fram = sensor.fram
 
         log("Sensor data: header CRC16: \(fram[0...1].hex), computed CRC16: \(String(format: "%04x", crc16(fram[2...23])))")
         log("Sensor data: body CRC16: \(fram[24...25].hex), computed CRC16: \(String(format: "%04x", crc16(fram[26...319])))")
@@ -829,10 +833,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             return
         }
 
-        if transmitter.patchInfo.count > 0 {
+        if sensor.patchInfo.count > 0 {
             log("Sending FRAM to \(settings.oopServerSite) for measurements...")
 
-            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram, patchUid: transmitter.patchUid, patchInfo: transmitter.patchInfo) { data, errorDescription in
+            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram, patchUid: sensor.uid, patchInfo: sensor.patchInfo) { data, errorDescription in
                 if let data = data {
                     let json = String(decoding: data, as: UTF8.self)
                     self.log("LibreOOP Server measurements response: \(json)")
@@ -1155,7 +1159,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 if response == .noSensor {
                     // TODO: confirm receipt the first time
                     // bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
-                    info("\n\nBubble: No sensor")
+                    info("\n\nBubble: no sensor")
 
                 } else if response == .dataInfo {
                     let hardware =  "\(data[2]).0"
@@ -1169,30 +1173,36 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     // confirm receipt
                     bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
 
-                } else if response == .serialNumber {
-                    let uid = data[2...9]
-                    bubble!.patchUid = Data(uid)
-                    log("Bubble: Patch UID: \(uid.hex)")
-                    let serial = sensorSerialNumber(uid: uid)
-                    log("Bubble: Sensor SN: \(serial)")
-                    app.sensorSerial = serial
+                } else {
+                    if bubble!.sensor == nil {
+                    bubble!.sensor = Sensor(transmitter: bubble!)
+                    }
+                    let sensor = bubble!.sensor!
+                    if response == .serialNumber {
+                        let uid = data[2...9]
+                        sensor.uid = Data(uid)
+                        log("Bubble: patch uid: \(uid.hex)")
+                        let serial = sensorSerialNumber(uid: uid)
+                        log("Bubble: sensor serial number: \(serial)")
+                        app.sensorSerial = serial
 
-                } else if response == .patchInfo {
-                    let info = Double(bubble!.firmware)! < 1.35 ? data[3...8] : data[5...10]
-                    bubble!.patchInfo = Data(info)
-                    log("Bubble: Patch info: \(info.hex)")
+                    } else if response == .patchInfo {
+                        let info = Double(bubble!.firmware)! < 1.35 ? data[3...8] : data[5...10]
+                        sensor.patchInfo = Data(info)
+                        log("Bubble: patch info: \(info.hex)")
 
-                } else if response == .dataPacket {
-                    var buffer = bubble!.buffer
-                    buffer.append(data.suffix(from: 4))
-                    bubble!.buffer = buffer
-                    log("Bubble: partial buffer count: \(buffer.count)")
-                    if buffer.count == 352 {
-                        let fram = buffer[..<344]
-                        // TODO: let footer = buffer.suffix(8)
-                        bubble!.fram = Data(fram)
-                        parseSensorData(transmitter: bubble!)
-                        bubble!.buffer = Data()
+                    } else if response == .dataPacket {
+                        var buffer = bubble!.buffer
+                        buffer.append(data.suffix(from: 4))
+                        bubble!.buffer = buffer
+                        log("Bubble: partial buffer count: \(buffer.count)")
+                        if buffer.count == 352 {
+                            let fram = buffer[..<344]
+                            // TODO: let footer = buffer.suffix(8)
+                            sensor.fram = Data(fram)
+                            parseSensorData(sensor)
+                            bubble!.buffer = Data()
+                        }
                     }
                 }
 
@@ -1221,7 +1231,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 let firstField = fields[0]
                 guard !firstField.hasPrefix("000") else {
                     log("LimiTTer: no sensor data")
-                    info("\n\nLimitter: No sensor data")
+                    info("\n\nLimitter: no sensor data")
                     if firstField.hasSuffix("999") {
                         let err = fields[1]
                         log("LimiTTer: error \(err)\n(0001 = low battery, 0002 = badly positioned)")
@@ -1254,8 +1264,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
                 if data.count == 1 {
                     if response == .noSensor {
-                        log("MiaoMiao: No sensor")
-                        info("\n\nMiaoMiao: No sensor")
+                        log("MiaoMiao: no sensor")
+                        info("\n\nMiaoMiao: no sensor")
                     }
                     if response == .newSensor {
                         log("MiaoMiao: New sensor detected")
@@ -1270,6 +1280,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         }
                     }
                 } else {
+                    let sensor = Sensor(transmitter: miaomiao!)
+                    miaomiao!.sensor = sensor
                     var buffer = miaomiao!.buffer
                     buffer.append(data)
                     miaomiao!.buffer = buffer
@@ -1281,10 +1293,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         log("MiaoMiao: minutes since start: \(minutesSinceStart), days: \(String(format: "%.1f", Double(minutesSinceStart)/60/24))")
                         app.sensorStart = minutesSinceStart
                         let uid = buffer[5...12]
-                        miaomiao!.patchUid = Data(uid)
-                        log("MiaoMiao: Patch UID: \(uid.hex)")
+                        sensor.uid = Data(uid)
+                        log("MiaoMiao: patch uid: \(uid.hex)")
                         let serial = sensorSerialNumber(uid: uid)
-                        log("Miaomiao: Sensor SN: \(serial)")
+                        log("Miaomiao: sensor serial number: \(serial)")
                         app.sensorSerial = serial
                         let batteryLevel = Int(buffer[13])
                         log("MiaoMiao: battery level: \(batteryLevel)")
@@ -1298,15 +1310,15 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                         if buffer.count > 363 {
                             let patchInfo = buffer[363...368]
-                            miaomiao!.patchInfo = Data(patchInfo)
-                            log("MiaoMiao: Patch info: \(patchInfo.hex)")
+                            sensor.patchInfo = Data(patchInfo)
+                            log("MiaoMiao: patch info: \(patchInfo.hex)")
                         } else {
                             // https://github.com/dabear/LibreOOPAlgorithm/blob/master/app/src/main/java/com/hg4/oopalgorithm/oopalgorithm/AlgorithmRunner.java
-                            miaomiao!.patchInfo = Data([0xDF, 0x00, 0x00, 0x01, 0x01, 0x02])
+                            sensor.patchInfo = Data([0xDF, 0x00, 0x00, 0x01, 0x01, 0x02])
                         }
 
-                        miaomiao!.fram = Data(buffer[18 ..< 362])
-                        parseSensorData(transmitter: miaomiao!)
+                        sensor.fram = Data(buffer[18 ..< 362])
+                        parseSensorData(sensor)
                         miaomiao!.buffer = Data()
                     }
                 }
