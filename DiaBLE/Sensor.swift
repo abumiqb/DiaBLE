@@ -38,16 +38,28 @@ enum SensorState: UInt8, CustomStringConvertible {
 }
 
 class Sensor {
+
     var type: SensorType = .libre1
+    weak var transmitter: Transmitter?
+
     var uid: Data = Data() {
-        willSet {
-            serial = sensorSerialNumber(uid: newValue)
+        willSet(uid) {
+            serial = serialNumber(uid: uid)
         }
     }
     var serial: String = ""
+
     var patchInfo: Data = Data()
-    var fram: Data = Data()
-    weak var transmitter: Transmitter?
+
+    var fram: Data = Data() {
+        willSet(fram) {
+            state = SensorState(rawValue: fram[4])!
+            age = Int(fram[317]) << 8 + Int(fram[316])
+        }
+    }
+
+    var state: SensorState = SensorState.unknown
+    var age: Int = 0
 
     init() {
     }
@@ -56,6 +68,7 @@ class Sensor {
         self.transmitter = transmitter
     }
 }
+
 
 // https://github.com/keencave/LBridge/blob/master/LBridge_Arduino_V11/LBridge_Arduino_V1.1.02_190502_2120/LBridge_Arduino_V1.1.02_190502_2120.ino
 
@@ -81,7 +94,7 @@ func sensorType(patchInfo: Data) -> SensorType {
 
 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/SensorSerialNumber.swift
 
-func sensorSerialNumber(uid: Data) -> String {
+func serialNumber(uid: Data) -> String {
     let lookupTable = ["0","1","2","3","4","5","6","7","8","9","A","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","T","U","V","W","X","Y","Z"]
     guard uid.count == 8 else {return "invalid uid"}
     let bytes = Array(uid.reversed().suffix(6))
@@ -100,6 +113,7 @@ func sensorSerialNumber(uid: Data) -> String {
         $0 + lookupTable[ Int(0x1F & $1) ]
     })
 }
+
 
 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/CRC.swift
 

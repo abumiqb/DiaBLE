@@ -14,7 +14,7 @@ class App: ObservableObject {
     @Published var glucoseAlarm: String = ""
     @Published var glucoseTrend: String = ""
     @Published var sensorSerial: String = ""
-    @Published var sensorStart: Int = 0
+    @Published var sensorAge: Int = 0
     @Published var sensorState: String = "Scanning..."
     @Published var transmitterState: String = ""
     @Published var transmitterFirmware: String = ""
@@ -113,13 +113,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Sensor data: body CRC16: \(fram[24...25].hex), computed CRC16: \(String(format: "%04x", crc16(fram[26...319])))")
         log("Sensor data: footer CRC16: \(fram[320...321].hex), computed CRC16: \(String(format: "%04x", crc16(fram[322...343])))")
 
-        let sensorState = SensorState(rawValue: fram[4])!.description
-        log("Sensor state: \(sensorState)")
-        app.sensorState = sensorState
-        let minutesSinceStart = Int(fram[317]) << 8 + Int(fram[316])
-        let daysSinceStart = Double(minutesSinceStart)/60/24
-        log("Sensor data: minutes since start: \(minutesSinceStart), days: \(daysSinceStart)")
-        app.sensorStart = minutesSinceStart
+        log("Sensor state: \(sensor.state)")
+        app.sensorState = sensor.state.description
+        log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
+        app.sensorAge = sensor.age
 
         var trend = [GlucoseMeasurement]()
         var history = [GlucoseMeasurement]()
@@ -522,7 +519,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                 } else {
                     if bubble!.sensor == nil {
-                    bubble!.sensor = Sensor(transmitter: bubble!)
+                        bubble!.sensor = Sensor(transmitter: bubble!)
                     }
                     let sensor = bubble!.sensor!
                     if response == .serialNumber {
@@ -553,11 +550,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
 
             } else if peripheral.name! == "Droplet" {
-                droplet!.sensor = Sensor(transmitter: droplet!)
+                if droplet!.sensor == nil {
+                    droplet!.sensor = Sensor(transmitter: droplet!)
+                }
+                let sensor = droplet!.sensor!
                 if data.count == 8 {
                     droplet!.sensor!.uid = Data(data)
-                    log("Droplet: Sensor SN: \(droplet!.sensor!.serial))")
-                    app.sensorSerial = droplet!.sensor!.serial
+                    log("Droplet: sensor serial number: \(sensor.serial))")
+                    app.sensorSerial = sensor.serial
                 } else {
                     log("Droplet response: 0x\(data[0...0].hex)")
                     log("Droplet response data length: \(Int(data[1]))")
@@ -567,6 +567,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             } else if peripheral.name!.contains("LimiTTer") {
                 // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
                 // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
+                if limitter!.sensor == nil {
+                    limitter!.sensor = Sensor(transmitter: limitter!)
+                }
+                let sensor = limitter!.sensor!
 
                 let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
                 guard fields.count == 4 else { return }
@@ -595,9 +599,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 log("LimiTTer: sensor type = \(sensorType)")
                 app.sensorSerial = sensorType
 
-                let sensorTimeInMinutes = Int(fields[3])! * 10
-                log("LimiTTer: sensor time in minutes: \(Int(sensorTimeInMinutes)) (\(String(format: "%.1f", Double(sensorTimeInMinutes)/60/24)) days)")
-                app.sensorStart = sensorTimeInMinutes
+                sensor.age = Int(fields[3])! * 10
+                log("LimiTTer: sensor age: \(Int(sensor.age)) (\(String(format: "%.1f", Double(sensor.age)/60/24)) days)")
+                app.sensorAge = sensor.age
 
 
             } else if peripheral.name!.contains("miaomiao") {
@@ -636,9 +640,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     if buffer.count >= 363 {
                         log("MiaoMiao buffer data count: \(buffer.count)")
                         log("MiaoMiao: data length: \(Int(buffer[1]) << 8 + Int(buffer[2]))")
-                        let minutesSinceStart = Int(buffer[3]) << 8 + Int(buffer[4])
-                        log("MiaoMiao: minutes since start: \(minutesSinceStart), days: \(String(format: "%.1f", Double(minutesSinceStart)/60/24))")
-                        app.sensorStart = minutesSinceStart
+                        sensor.age = Int(buffer[3]) << 8 + Int(buffer[4])
+                        log("MiaoMiao: sensor age: \(sensor.age), days: \(String(format: "%.1f", Double(sensor.age)/60/24))")
+                        app.sensorAge = sensor.age
+
                         let uid = buffer[5...12]
                         sensor.uid = Data(uid)
                         log("MiaoMiao: patch uid: \(uid.hex)")
