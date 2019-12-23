@@ -39,7 +39,12 @@ enum SensorState: UInt8, CustomStringConvertible {
 
 class Sensor {
     var type: SensorType = .libre1
-    var uid: Data = Data()
+    var uid: Data = Data() {
+        willSet {
+            serial = sensorSerialNumber(uid: newValue)
+        }
+    }
+    var serial: String = ""
     var patchInfo: Data = Data()
     var fram: Data = Data()
     weak var transmitter: Transmitter?

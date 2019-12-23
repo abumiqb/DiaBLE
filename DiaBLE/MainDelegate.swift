@@ -3,9 +3,9 @@ import CoreBluetooth
 
 class App: ObservableObject {
 
-    // Replace the final .none with .bubble | .droplet | .limitter | .miaomiao
     @Published var preferredTransmitter = TransmitterType.none
     @Published var transmitter: Transmitter!
+    @Published var sensor: Sensor!
 
     var main: MainDelegate!
 
@@ -529,9 +529,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         let uid = data[2...9]
                         sensor.uid = Data(uid)
                         log("Bubble: patch uid: \(uid.hex)")
-                        let serial = sensorSerialNumber(uid: uid)
-                        log("Bubble: sensor serial number: \(serial)")
-                        app.sensorSerial = serial
+                        log("Bubble: sensor serial number: \(sensor.serial)")
+                        app.sensorSerial = sensor.serial
 
                     } else if response == .patchInfo {
                         let info = Double(bubble!.firmware)! < 1.35 ? data[3...8] : data[5...10]
@@ -554,10 +553,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
 
             } else if peripheral.name! == "Droplet" {
+                droplet!.sensor = Sensor(transmitter: droplet!)
                 if data.count == 8 {
-                    let serial = sensorSerialNumber(uid: data)
-                    log("Droplet: Sensor SN: \(serial))")
-                    app.sensorSerial = serial
+                    droplet!.sensor!.uid = Data(data)
+                    log("Droplet: Sensor SN: \(droplet!.sensor!.serial))")
+                    app.sensorSerial = droplet!.sensor!.serial
                 } else {
                     log("Droplet response: 0x\(data[0...0].hex)")
                     log("Droplet response data length: \(Int(data[1]))")
@@ -642,9 +642,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         let uid = buffer[5...12]
                         sensor.uid = Data(uid)
                         log("MiaoMiao: patch uid: \(uid.hex)")
-                        let serial = sensorSerialNumber(uid: uid)
-                        log("Miaomiao: sensor serial number: \(serial)")
-                        app.sensorSerial = serial
+                        log("Miaomiao: sensor serial number: \(sensor.serial)")
+                        app.sensorSerial = sensor.serial
+
                         let batteryLevel = Int(buffer[13])
                         log("MiaoMiao: battery level: \(batteryLevel)")
                         app.batteryLevel = batteryLevel

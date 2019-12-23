@@ -102,9 +102,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                                 sensor.uid = Data(tag.identifier.reversed())
 
-                                let serialNumber = sensorSerialNumber(uid: sensor.uid)
-                                self.main.app.sensorSerial = serialNumber
-                                self.main.log("NFC: sensor serial number: \(serialNumber)")
+                                self.main.app.sensorSerial = sensor.serial
+                                self.main.log("NFC: sensor serial number: \(sensor.serial)")
 
                                 let patchInfo = customResponse
                                 sensor.patchInfo = Data(patchInfo)
