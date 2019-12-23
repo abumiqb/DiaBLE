@@ -199,51 +199,26 @@ struct SettingsView: View {
 
     @State var preferredTransmitter: TransmitterType = .none
 
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
     var body: some View {
         VStack {
-
-            Spacer()
-            
-            Text("TODO: Settings")
-
-            Spacer()
-
             HStack {
-
-                Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
+                Picker(selection: $preferredTransmitter, label: Text("Preferred:")) {
                     ForEach(TransmitterType.allCases) { t in
                         Text(t.rawValue).tag(t)
                     }
                 }.pickerStyle(SegmentedPickerStyle())
-
+                Spacer()
+                Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Interval: \(settings.readingInterval)m") })
+                Button(action: {
+                    let transmitter = self.app.transmitter
+                    let centralManager = self.app.main.centralManager
+                    centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    self.app.preferredTransmitter = self.preferredTransmitter
+                    centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    self.app.nextReading = self.settings.readingInterval * 60
+                }
+                ) { Text("Rescan").bold() }
             }
-
-            Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
-
-            Spacer()
-
-            Button(action: {
-                let transmitter = self.app.transmitter
-                let centralManager = self.app.main.centralManager
-                centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
-                self.app.preferredTransmitter = self.preferredTransmitter
-                centralManager.scanForPeripherals(withServices: nil, options: nil)
-                self.app.nextReading = self.settings.readingInterval * 60
-            }
-            ) { Text("Rescan") }
-
-            Spacer()
-
-            Text("\(self.app.nextReading)s")
-                .onReceive(timer) { _ in
-                    if self.app.nextReading > 0 {
-                        self.app.nextReading -= 1
-                    }
-            }.foregroundColor(.gray)
-
-            Spacer()
         }
     }
 }
