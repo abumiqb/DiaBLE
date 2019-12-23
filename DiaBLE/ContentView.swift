@@ -122,7 +122,7 @@ struct Monitor: View {
 struct Graph: View {
     @EnvironmentObject var history: History
     var body: some View {
-        // FIXME: called multiple times (15-40) on the Mac
+
         GeometryReader { geometry in
             Path() { path in
                 let width  = Double(geometry.size.width)
@@ -225,7 +225,6 @@ struct SettingsView: View {
 
     @State var preferredTransmitter: TransmitterType = .none
 
-    // FIXME: timer doesn't update
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -247,14 +246,13 @@ struct SettingsView: View {
 
             }
 
-            // FIXME: Stepper doesn't update when in a tabview
             Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
 
             Spacer()
 
             Button(action: {
                 let transmitter = self.app.transmitter
-                // FIXME: crashes in a playground
+
                 self.selectedTab = .monitor
                 let centralManager = self.app.main.centralManager
                 centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
@@ -271,7 +269,7 @@ struct SettingsView: View {
                     if self.app.nextReading > 0 {
                         self.app.nextReading -= 1
                     }
-            }
+            }.foregroundColor(.gray)
 
             Spacer()
         }

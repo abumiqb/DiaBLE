@@ -287,7 +287,7 @@ struct SettingsView: View {
                     if self.app.nextReading > 0 {
                         self.app.nextReading -= 1
                     }
-            }
+            }.foregroundColor(.gray)
 
             Spacer()
         }
@@ -339,6 +339,8 @@ class Transmitter {
 
     var firmware = ""
     var buffer = Data()
+
+    var sensor: Sensor?
     var fram = Data()
     var patchUid = Data()
     var patchInfo = Data()
@@ -452,7 +454,7 @@ class MiaoMiao: Transmitter {
 
 
 enum SensorType: String {
-    case libre1   = "Libre 1"
+    case libre    = "Libre 1"
     case libre2   = "Libre 2"
     case libreUS  = "Libre US"
     case librePro = "Libre Pro"
@@ -486,6 +488,14 @@ enum SensorState: UInt8, CustomStringConvertible {
             return "Unknown"
         }
     }
+}
+
+class Sensor {
+    var type: SensorType = .libre1
+    var uid: Data = Data()
+    var patchInfo: Data = Data()
+    var fram: Data = Data()
+    weak var transmitter: Transmitter?
 }
 
 // https://github.com/keencave/LBridge/blob/master/LBridge_Arduino_V11/LBridge_Arduino_V1.1.02_190502_2120/LBridge_Arduino_V1.1.02_190502_2120.ino

@@ -34,6 +34,8 @@ class Transmitter {
 
     var firmware = ""
     var buffer = Data()
+
+    var sensor: Sensor?
     var fram = Data()
     var patchUid = Data()
     var patchInfo = Data()
