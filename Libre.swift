@@ -43,12 +43,6 @@ class Settings: ObservableObject {
 }
 
 
-enum Tab: Hashable {
-    case monitor
-    case log
-    case settings
-}
-
 struct ContentView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
@@ -56,44 +50,13 @@ struct ContentView: View {
     @EnvironmentObject var history: History
     @EnvironmentObject var settings: Settings
 
-    @State var selectedTab: Tab = .monitor
-
-    #if os(iOS)
-
-    var body: some View {
-        TabView(selection: $selectedTab) {
-            Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
-                .tabItem {
-                    Image(systemName: "gauge")
-                    Text("Monitor")
-            }.tag(Tab.monitor)
-
-            LogView().environmentObject(app).environmentObject(log).environmentObject(settings)
-                .tabItem {
-                    Image(systemName: "doc.plaintext")
-                    Text("Log")
-            }.tag(Tab.log)
-
-            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
-                .tabItem {
-                    Image(systemName: "gear")
-                    Text("Settings")
-            }.tag(Tab.settings)
-        }
-    }
-
-    #else
-
-    // FIXME: Mac playgrounds don't display tabs
     var body: some View {
         VStack {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
             LogView().environmentObject(app).environmentObject(log).environmentObject(settings)
-            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
+            SettingsView().environmentObject(app).environmentObject(settings)
         }.frame(idealHeight: 400)
     }
-
-    #endif
 }
 
 struct Monitor: View {
@@ -234,11 +197,8 @@ struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
 
-    @Binding var selectedTab: Tab
-
     @State var preferredTransmitter: TransmitterType = .none
 
-    // FIXME: timer doesn't update
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -260,15 +220,12 @@ struct SettingsView: View {
 
             }
 
-            // FIXME: Stepper doesn't update when in a tabview
             Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
 
             Spacer()
 
             Button(action: {
                 let transmitter = self.app.transmitter
-                // FIXME: crashes in a playground
-                // self.selectedTab = .monitor
                 let centralManager = self.app.main.centralManager
                 centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                 self.app.preferredTransmitter = self.preferredTransmitter
