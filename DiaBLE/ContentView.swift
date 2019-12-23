@@ -230,23 +230,21 @@ struct SettingsView: View {
 
             Spacer()
             
-            Text("TODO: Settings")
+            Text("TODO: Settings").bold()
 
             Spacer()
 
-            HStack {
-
+            VStack {
+                Text("Preferred transmitter:")
                 Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
                     ForEach(TransmitterType.allCases) { t in
                         Text(t.rawValue).tag(t)
                     }
                 }.pickerStyle(SegmentedPickerStyle())
-
             }
 
             Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
-
-            Spacer()
+                .padding(50)
 
             Button(action: {
                 let transmitter = self.app.transmitter

@@ -492,7 +492,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
-
+            self.app.nextReading = self.settings.readingInterval * 60
 
             // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Bubble.java
 
