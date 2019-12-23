@@ -226,49 +226,48 @@ struct SettingsView: View {
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        VStack {
 
-            Spacer()
-            
-            Text("Settings").bold()
-
-            Spacer()
-
+        NavigationView {
             VStack {
-                Text("Preferred:")
-                Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
-                    ForEach(TransmitterType.allCases) { t in
-                        Text(t.rawValue).tag(t)
-                    }
-                }.pickerStyle(SegmentedPickerStyle())
-            }
+                Spacer()
 
-            Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
-                .padding(50)
+                VStack {
+                    Text("Preferred:")
+                    Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
+                        ForEach(TransmitterType.allCases) { t in
+                            Text(t.rawValue).tag(t)
+                        }
+                    }.pickerStyle(SegmentedPickerStyle())
+                }
 
-            Button(action: {
-                let transmitter = self.app.transmitter
+                Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
+                    .padding(50)
 
-                self.selectedTab = .monitor
-                let centralManager = self.app.main.centralManager
-                centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
-                self.app.preferredTransmitter = self.preferredTransmitter
-                centralManager.scanForPeripherals(withServices: nil, options: nil)
-                self.app.nextReading = self.settings.readingInterval * 60
-            }
-            ) { Text("Rescan").bold() }
+                Button(action: {
+                    let transmitter = self.app.transmitter
 
-            Spacer()
+                    self.selectedTab = .monitor
+                    let centralManager = self.app.main.centralManager
+                    centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    self.app.preferredTransmitter = self.preferredTransmitter
+                    centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    self.app.nextReading = self.settings.readingInterval * 60
+                }
+                ) { Text("Rescan").bold() }
 
-            Text("\(self.app.nextReading)s")
-                .onReceive(timer) { _ in
-                    if self.app.nextReading > 0 {
-                        self.app.nextReading -= 1
-                    }
-            }.foregroundColor(.gray)
+                Spacer()
 
-            Spacer()
-        }
+                Text("\(self.app.nextReading)s")
+                    .onReceive(timer) { _ in
+                        if self.app.nextReading > 0 {
+                            self.app.nextReading -= 1
+                        }
+                }.foregroundColor(.gray)
+
+                Spacer()
+
+            }.navigationBarTitle("Settings")
+        }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
 

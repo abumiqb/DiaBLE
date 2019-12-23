@@ -134,13 +134,13 @@ class MiaoMiao: Transmitter {
         var description: String {
             switch self {
             case .dataPacket:
-                return "Data packet received"
+                return "data packet received"
             case .newSensor:
-                return "New sensor detected"
+                return "new sensor detected"
             case .noSensor:
-                return "No sensor detected"
+                return "no sensor detected"
             case .frequencyChange:
-                return "Reading frequency change"
+                return "reading frequency change"
             }
         }
     }
