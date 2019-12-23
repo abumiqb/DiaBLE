@@ -101,62 +101,59 @@ struct Monitor: View {
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
 
-    @State var showingLog = false
-
     var body: some View {
-        NavigationView {
-            VStack {
-                HStack {
-                    Spacer()
-                    VStack {
-                        Text(app.currentGlucose > 0 ? "\(app.currentGlucose)" : "---")
-                            .fontWeight(.black)
-                            .foregroundColor(.black)
-                            .padding(10)
-                            .background(Color.yellow)
-                        Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
-                            .foregroundColor(.yellow)
-                        Text(app.transmitterState)
-                            .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
-                    }
 
-                    Graph().environmentObject(history).frame(width: 30*5, height: 80)
-
-                    HStack {
-                        VStack {
-                            if app.batteryLevel > 0 {
-                                Text("Battery: \(app.batteryLevel)%")
-                            }
-                            Text(app.sensorState)
-                                .foregroundColor(app.sensorState == "Ready" ? .green : .red)
-
-                            if app.sensorStart > 0 {
-                                Text("\(app.sensorSerial)")
-                                Text("\(String(format: "%.1f", Double(app.sensorStart)/60/24)) days")
-                            }
-                        }
-                        VStack {
-                            if app.transmitterFirmware.count > 0 {
-                                Text("Firmware\n\(app.transmitterFirmware)")
-                            }
-                            if app.transmitterHardware.count > 0 {
-                                Text("Hardware:\n\(app.transmitterHardware)")
-                            }
-                        }
-                    }
-                    .font(.footnote)
-                    .foregroundColor(.yellow)
-                    .multilineTextAlignment(.center)
-
-                    Spacer()
+        VStack {
+            HStack {
+                Spacer()
+                VStack {
+                    Text(app.currentGlucose > 0 ? "\(app.currentGlucose)" : "---")
+                        .fontWeight(.black)
+                        .foregroundColor(.black)
+                        .padding(10)
+                        .background(Color.yellow)
+                    Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
+                        .foregroundColor(.yellow)
+                    Text(app.transmitterState)
+                        .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
                 }
 
-                Text(info.text)
-                    .multilineTextAlignment(.center)
-                    .font(.footnote)
-                    .layoutPriority(2)
+                Graph().environmentObject(history).frame(width: 30*5, height: 80)
+
+                HStack {
+                    VStack {
+                        if app.batteryLevel > 0 {
+                            Text("Battery: \(app.batteryLevel)%")
+                        }
+                        Text(app.sensorState)
+                            .foregroundColor(app.sensorState == "Ready" ? .green : .red)
+
+                        if app.sensorStart > 0 {
+                            Text("\(app.sensorSerial)")
+                            Text("\(String(format: "%.1f", Double(app.sensorStart)/60/24)) days")
+                        }
+                    }
+                    VStack {
+                        if app.transmitterFirmware.count > 0 {
+                            Text("Firmware\n\(app.transmitterFirmware)")
+                        }
+                        if app.transmitterHardware.count > 0 {
+                            Text("Hardware:\n\(app.transmitterHardware)")
+                        }
+                    }
+                }
+                .font(.footnote)
+                .foregroundColor(.yellow)
+                .multilineTextAlignment(.center)
+
+                Spacer()
             }
-        }.navigationViewStyle(self.app.main.navigationViewStyle)
+
+            Text(info.text)
+                .multilineTextAlignment(.center)
+                .font(.footnote)
+                .layoutPriority(2)
+        }
     }
 }
 
@@ -706,13 +703,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     var centralManager: CBCentralManager
 
-    var runningOnMac: Bool
-    #if os(macOS)
-    var navigationViewStyle = DefaultNavigationViewStyle()
-    #elseif os(iOS)
-    var navigationViewStyle = StackNavigationViewStyle()
-    #endif
-
     override init() {
         app = App()
         log = Log()
@@ -721,19 +711,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         settings = Settings()
 
         #if os(macOS)
-
         host = NSHostingView(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
-        let runningOnMac = true
-
         #elseif os(iOS)
-
         host = UIHostingController(rootView: ContentView().environmentObject(app).environmentObject(log).environmentObject(info).environmentObject(history).environmentObject(settings))
-        let runningOnMac = false
-
         #endif
 
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
-        self.runningOnMac = runningOnMac
 
         super.init()
 
@@ -1175,7 +1158,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                 } else {
                     if bubble!.sensor == nil {
-                    bubble!.sensor = Sensor(transmitter: bubble!)
+                        bubble!.sensor = Sensor(transmitter: bubble!)
                     }
                     let sensor = bubble!.sensor!
                     if response == .serialNumber {

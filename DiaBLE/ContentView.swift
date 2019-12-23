@@ -44,8 +44,6 @@ struct Monitor: View {
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
 
-    @State var showingLog = false
-
     var body: some View {
         NavigationView {
             
