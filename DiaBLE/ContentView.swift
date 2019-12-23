@@ -254,8 +254,13 @@ struct SettingsView: View {
                     }.pickerStyle(SegmentedPickerStyle())
                 }
 
-                Stepper(value: $settings.readingInterval, in: 1 ... 15, label: { Text("Reading interval: \(settings.readingInterval)m") })
-                    .padding(50)
+                HStack {
+                    Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
+                        Image(systemName: "timer")
+                        Text("\(settings.readingInterval)m") })
+                }
+                .foregroundColor(.orange)
+                .padding(100)
 
                 Button(action: {
                     let transmitter = self.app.transmitter
