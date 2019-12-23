@@ -245,8 +245,8 @@ struct SettingsView: View {
             VStack {
                 Spacer()
 
-                VStack {
-                    Text("Preferred:")
+                HStack {
+                    Image(systemName: "heart.fill").foregroundColor(.red)
                     Picker(selection: $preferredTransmitter, label: Text("Preferred transmitter")) {
                         ForEach(TransmitterType.allCases) { t in
                             Text(t.rawValue).tag(t)
