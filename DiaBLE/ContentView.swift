@@ -44,6 +44,9 @@ struct Monitor: View {
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
 
+    // TODO: a global timer
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+
     var body: some View {
         NavigationView {
             
@@ -54,11 +57,24 @@ struct Monitor: View {
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
+                        .fixedSize()
                         .background(Color.yellow)
                     Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
                         .foregroundColor(.yellow)
-                    Text(app.transmitterState)
-                        .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
+
+                    HStack {
+                        Text(app.transmitterState)
+                            .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
+                            .fixedSize()
+
+                        Text("\(self.app.nextReading)s")
+                            .fixedSize()
+                            .onReceive(timer) { _ in
+                                if self.app.nextReading > 0 {
+                                    self.app.nextReading -= 1
+                                }
+                        }.foregroundColor(.orange)
+                    }
                 }
 
                 Graph().environmentObject(history).frame(width: 30*5, height: 80)
@@ -223,8 +239,6 @@ struct SettingsView: View {
 
     @State var preferredTransmitter: TransmitterType = .none
 
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
-
     var body: some View {
 
         NavigationView {
@@ -251,18 +265,8 @@ struct SettingsView: View {
                     centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     self.app.preferredTransmitter = self.preferredTransmitter
                     centralManager.scanForPeripherals(withServices: nil, options: nil)
-                    self.app.nextReading = self.settings.readingInterval * 60
                 }
                 ) { Text("Rescan").bold() }
-
-                Spacer()
-
-                Text("\(self.app.nextReading)s")
-                    .onReceive(timer) { _ in
-                        if self.app.nextReading > 0 {
-                            self.app.nextReading -= 1
-                        }
-                }.foregroundColor(.gray)
 
                 Spacer()
 

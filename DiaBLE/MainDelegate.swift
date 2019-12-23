@@ -19,7 +19,7 @@ class App: ObservableObject {
     @Published var transmitterState: String = ""
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
-    @Published var nextReading: Int = 300
+    @Published var nextReading: Int = 300 - 4
 }
 
 class Log: ObservableObject {
@@ -480,7 +480,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
-            self.app.nextReading = self.settings.readingInterval * 60
+            self.app.nextReading = self.settings.readingInterval * 60 - 4
 
             // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Bubble.java
 
