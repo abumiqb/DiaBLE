@@ -67,15 +67,15 @@ class Bubble: Transmitter {
         var description: String {
             switch self {
             case .dataInfo:
-                return "Data info received"
+                return "data info received"
             case .dataPacket:
-                return "Data packet received"
+                return "data packet received"
             case .noSensor:
-                return "No sensor detected"
+                return "no sensor detected"
             case .serialNumber:
-                return "Serial number received"
+                return "serial number received"
             case .patchInfo:
-                return "Patch info received"
+                return "patch info received"
             }
         }
     }

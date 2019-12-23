@@ -41,19 +41,6 @@ class Settings: ObservableObject {
     @Published var oopServerToken: String = "bubble-201907"
 }
 
-
-extension Data {
-    var hex: String {
-        self.reduce("", { $0 + String(format: "%02x", $1)})
-    }
-}
-
-extension String {
-    var base64: String? { self.data(using: .utf8)?.base64EncodedString() }
-    var base64Data: Data? { Data(base64Encoded: self) }
-}
-
-
 public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     var app: App
@@ -618,19 +605,17 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
                 if data.count == 1 {
                     if response == .noSensor {
-                        log("MiaoMiao: no sensor")
                         info("\n\nMiaoMiao: no sensor")
                     }
                     if response == .newSensor {
-                        log("MiaoMiao: New sensor detected")
-                        info("\n\nMiaoMiao: New sensor detected")
+                        info("\n\nMiaoMiao: new sensor detected")
                     }
                 } else if data.count == 2 {
                     if response == .frequencyChange {
                         if data[1] == 0x01 {
-                            log("MiaoMiao: Success changing frequency")
+                            log("MiaoMiao: success changing frequency")
                         } else {
-                            log("MiaoMiao: Failed to change frequency")
+                            log("MiaoMiao: failed to change frequency")
                         }
                     }
                 } else {
