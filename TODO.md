@@ -14,3 +14,10 @@ TODO
 * a global timer for the next reading
 * changing the calibration parameters updates a third blue curve
 * Settings: a slider for setting the glucose range for alarms 
+
+
+PLANS
+------
+
+* upload the scanned data to Nightscout
+* a watch app conecting directly via Bluetooth

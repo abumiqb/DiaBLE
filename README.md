@@ -4,3 +4,7 @@ Experimenting with the Droplet, Bubble and MiaoMiao transmitters I bought for th
 * scanning the Libre directly via **NFC**;
 * using online servers for calibrating just like **Abbott’s algorithm**;
 * a detailed **log** to check the traffic from/to the BLE devices and remote servers.
+
+The project started as a single script for the iPad Swift Playgrounds and was quickly converted to an app by using a standard Xcode template.
+
+It should compile finely without dependencies just after changing the _Bundle Identifier_ in the _General_ panel and the _Team_ in the _Signing and Capabilities_ tab of Xcode. **Only once** (Spike users know what that means... :) )
