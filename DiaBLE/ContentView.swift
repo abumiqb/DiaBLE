@@ -58,8 +58,9 @@ struct Monitor: View {
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
-                        .fixedSize()
                         .background(Color.yellow)
+                        .fixedSize()
+
                     Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
                         .foregroundColor(.yellow)
 
@@ -120,21 +121,25 @@ struct Monitor: View {
 
                 VStack {
                     HStack {
-                        Text("Slope slope")
+                        Text("Slope slope:")
                         TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
-                        Text("Slope offset")
+                            .foregroundColor(.blue)
+                        Text("Slope offset:")
                         TextField("Slope offset", value: $app.params.offsetSlope, formatter: settings.numberFormatter)
+                            .foregroundColor(.blue)
                     }
 
                     HStack {
-                        Text("Offset slope")
+                        Text("Offset slope:")
                         TextField("Offset slope", value: $app.params.slopeOffset, formatter: settings.numberFormatter)
-                        Text("Offset offset")
+                            .foregroundColor(.blue)
+                        Text("Offset offset:")
                         TextField("Offset offset", value: $app.params.offsetOffset, formatter: settings.numberFormatter)
+                            .foregroundColor(.blue)
                     }
                 }
                 .font(.footnote)
-                .foregroundColor(.blue)
+
 
                 Text(" ")
 
@@ -145,7 +150,7 @@ struct Monitor: View {
                 }) { VStack {
                     Image(systemName: "radiowaves.left")
                         .resizable()
-                        .rotationEffect(Angle(degrees: 90))
+                        .rotationEffect(.degrees(90))
                         .frame(width: 15, height: 30)
                     Text("NFC").bold().offset(y: -16)
                     }
@@ -157,27 +162,51 @@ struct Monitor: View {
 struct Graph: View {
     @EnvironmentObject var history: History
     var body: some View {
+        ZStack {
 
-        GeometryReader { geometry in
-            Path() { path in
-                let width  = Double(geometry.size.width)
-                let height = Double(geometry.size.height)
-                path.addRoundedRect(in: CGRect(x: 0.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
-                let count = self.history.values.count
-                if count > 0 {
-                    let v = self.history.values
-                    let max = v.max()!
-                    let yScale = (height - 30) / Double(max)
-                    let xScale = width / Double(count - 1)
-                    path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
-                    for i in 1 ..< count {
-                        path.addLine(to: .init(
-                            x: Double(i) * xScale,
-                            y: height - Double(v[count - i - 1]) * yScale)
-                        )
+            // Raw Values
+            GeometryReader { geometry in
+                Path() { path in
+                    let width  = Double(geometry.size.width)
+                    let height = Double(geometry.size.height)
+                    let count = self.history.rawValues.count
+                    if count > 0 {
+                        let v = self.history.rawValues
+                        let max = v.max()!
+                        let yScale = (height - 30) / Double(max)
+                        let xScale = width / Double(count - 1)
+                        path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
+                        for i in 1 ..< count {
+                            path.addLine(to: .init(
+                                x: Double(i) * xScale,
+                                y: height - Double(v[count - i - 1]) * yScale)
+                            )
+                        }
                     }
-                }
-            }.stroke(Color.purple)
+                }.stroke(Color.yellow).opacity(0.6)
+            }
+
+            GeometryReader { geometry in
+                Path() { path in
+                    let width  = Double(geometry.size.width)
+                    let height = Double(geometry.size.height)
+                    path.addRoundedRect(in: CGRect(x: 0.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
+                    let count = self.history.values.count
+                    if count > 0 {
+                        let v = self.history.values
+                        let max = v.max()!
+                        let yScale = (height - 30) / Double(max)
+                        let xScale = width / Double(count - 1)
+                        path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
+                        for i in 1 ..< count {
+                            path.addLine(to: .init(
+                                x: Double(i) * xScale,
+                                y: height - Double(v[count - i - 1]) * yScale)
+                            )
+                        }
+                    }
+                }.stroke(Color.purple)
+            }
         }
     }
 }
@@ -204,7 +233,7 @@ struct LogView: View {
                 }) { VStack {
                     Image(systemName: "radiowaves.left")
                         .resizable()
-                        .rotationEffect(Angle(degrees: 90))
+                        .rotationEffect(.degrees(90))
                         .frame(width: 20, height: 40)
                     Text("NFC").bold().offset(y: -18)
                     }

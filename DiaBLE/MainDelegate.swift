@@ -34,6 +34,7 @@ class Info: ObservableObject {
 
 class History: ObservableObject {
     @Published var values: [Int] = []
+    @Published var rawValues: [Int] = []
 }
 
 class Settings: ObservableObject {
@@ -103,9 +104,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func parseSensorData(_ sensor: Sensor) {
         let fram = sensor.fram
 
-        log("Sensor data: header CRC16: \(fram[0...1].hex), computed CRC16: \(String(format: "%04x", crc16(fram[2...23])))")
-        log("Sensor data: body CRC16: \(fram[24...25].hex), computed CRC16: \(String(format: "%04x", crc16(fram[26...319])))")
-        log("Sensor data: footer CRC16: \(fram[320...321].hex), computed CRC16: \(String(format: "%04x", crc16(fram[322...343])))")
+        log("Sensor: header CRC16: \(fram[0...1].hex), computed: \(String(format: "%04x", crc16(fram[2...23])))")
+        log("Sensor: body CRC16: \(fram[24...25].hex), computed: \(String(format: "%04x", crc16(fram[26...319])))")
+        log("Sensor: footer CRC16: \(fram[320...321].hex), computed: \(String(format: "%04x", crc16(fram[322...343])))")
 
         log("Sensor state: \(sensor.state)")
         app.sensorState = sensor.state.description
@@ -137,6 +138,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Raw history: \(history.map{ $0.rawGlucose })")
 
         var historyValues = history.map{ $0.glucose }
+        self.history.rawValues = historyValues
 
         info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
