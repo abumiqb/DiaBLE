@@ -119,26 +119,28 @@ struct Monitor: View {
                     .font(.footnote)
                     .layoutPriority(2)
 
-                VStack {
-                    HStack {
-                        Text("Slope slope:")
-                        TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
-                            .foregroundColor(.blue)
-                        Text("Slope offset:")
-                        TextField("Slope offset", value: $app.params.offsetSlope, formatter: settings.numberFormatter)
-                            .foregroundColor(.blue)
-                    }
+                if app.params.offsetOffset != 0.0 {
+                    VStack {
+                        HStack {
+                            Text("Slope slope:")
+                            TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
+                                .foregroundColor(.blue)
+                            Text("Slope offset:")
+                            TextField("Slope offset", value: $app.params.offsetSlope, formatter: settings.numberFormatter)
+                                .foregroundColor(.blue)
+                        }
 
-                    HStack {
-                        Text("Offset slope:")
-                        TextField("Offset slope", value: $app.params.slopeOffset, formatter: settings.numberFormatter)
-                            .foregroundColor(.blue)
-                        Text("Offset offset:")
-                        TextField("Offset offset", value: $app.params.offsetOffset, formatter: settings.numberFormatter)
-                            .foregroundColor(.blue)
+                        HStack {
+                            Text("Offset slope:")
+                            TextField("Offset slope", value: $app.params.slopeOffset, formatter: settings.numberFormatter)
+                                .foregroundColor(.blue)
+                            Text("Offset offset:")
+                            TextField("Offset offset", value: $app.params.offsetOffset, formatter: settings.numberFormatter)
+                                .foregroundColor(.blue)
+                        }
                     }
+                    .font(.footnote)
                 }
-                .font(.footnote)
 
 
                 Text(" ")
