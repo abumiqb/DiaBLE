@@ -44,11 +44,6 @@ struct Monitor: View {
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
 
-    @State var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0,
-                                                                     slopeOffset: 0.0,
-                                                                     offsetOffset: 0.0,
-                                                                     offsetSlope: 0.0)
-
     // TODO: a global timer
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -116,7 +111,7 @@ struct Monitor: View {
 
                     Spacer()
                 }
-
+                Text(" ")
                 Text(info.text)
                     .multilineTextAlignment(.center)
                     .font(.footnote)
@@ -124,17 +119,17 @@ struct Monitor: View {
 
                 VStack {
                     HStack {
-                        TextField("Slope slope", value: $params.slopeSlope, formatter: NumberFormatter())
-                        TextField("Slope offset", value: $params.offsetSlope, formatter: NumberFormatter())
+                        TextField("Slope slope", value: $app.params.slopeSlope, formatter: NumberFormatter())
+                        TextField("Slope offset", value: $app.params.offsetSlope, formatter: NumberFormatter())
                     }
 
                     HStack {
-                        TextField("Offset slope", value: $params.slopeOffset, formatter: NumberFormatter())
-                        TextField("Offset offset", value: $params.offsetOffset, formatter: NumberFormatter())
+                        TextField("Offset slope", value: $app.params.slopeOffset, formatter: NumberFormatter())
+                        TextField("Offset offset", value: $app.params.offsetOffset, formatter: NumberFormatter())
                     }
                 }
                 .font(.footnote)
-                .foregroundColor(.gray)
+                .foregroundColor(.blue)
 
             }
             .navigationBarItems(trailing:

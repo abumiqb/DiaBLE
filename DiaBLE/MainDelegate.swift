@@ -19,7 +19,9 @@ class App: ObservableObject {
     @Published var transmitterState: String = ""
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
+
     @Published var nextReading: Int = 300 - 4
+    @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
 }
 
 class Log: ObservableObject {
@@ -151,6 +153,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     for measurement in trend {
                         measurement.calibrationParameters = params
                     }
+                    self.app.params = params
                     self.log("OOP calibrated trend: \(trend.map{ $0.glucose })")
                     self.info("\nOOP calibrated trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
                 }
