@@ -131,12 +131,26 @@ func crc16(_ data: Data) -> UInt16 {
 // https://github.com/bubbledevteam/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreMeasurement.swift
 
 struct CalibrationParameters: Codable {
-    let slopeSlope, slopeOffset, offsetOffset, offsetSlope: Double
-    enum CodingKeys: String, CodingKey {
+    var slopeSlope, slopeOffset, offsetOffset, offsetSlope: Double
+
+    enum CodingKeys: String, CodingKey,  CustomStringConvertible {
         case slopeSlope   = "slope_slope"
         case slopeOffset  = "slope_offset"
         case offsetOffset = "offset_offset"
         case offsetSlope  = "offset_slope"
+
+        var description: String {
+            switch self {
+            case .slopeSlope:
+                return "Slope slope"
+            case .slopeOffset:
+                return "Offset slop"
+            case .offsetOffset:
+                return "Offset offset"
+            case .offsetSlope:
+                return "Slope offset"
+            }
+        }
     }
 }
 

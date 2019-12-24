@@ -141,7 +141,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 let decoder = JSONDecoder.init()
                 if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
                     let params = oopCalibration.parameters
-                    self.log("OOP \(params)")
 
                     for measurement in history {
                         measurement.calibrationParameters = params
@@ -486,7 +485,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
             if peripheral.name! == "Bubble" {
                 let response = Bubble.ResponseType(rawValue: data[0])
-                log("Bubble: response: \(response!) (0x\(data[0...0].hex))")
+                log("Bubble response: \(response!) (0x\(data[0...0].hex))")
 
                 if response == .noSensor {
                     // TODO: confirm receipt the first time
@@ -601,7 +600,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                 let response = MiaoMiao.ResponseType(rawValue: data[0])
                 if miaomiao!.buffer.count == 0 {
-                    log("MiaoMiao: response: \(response!) (0x\(data[0...0].hex))")
+                    log("MiaoMiao response: \(response!) (0x\(data[0...0].hex))")
                 }
                 if data.count == 1 {
                     if response == .noSensor {
