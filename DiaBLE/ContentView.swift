@@ -69,7 +69,7 @@ struct Monitor: View {
                             .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
                             .fixedSize()
 
-                        Text("\(self.app.nextReading)s")
+                        Text("\(self.app.nextReading) s")
                             .fixedSize()
                             .onReceive(timer) { _ in
                                 if self.app.nextReading > 0 {
@@ -326,7 +326,7 @@ struct SettingsView: View {
                 HStack {
                     Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
                         Image(systemName: "timer")
-                        Text("\(settings.readingInterval)m") })
+                        Text("\(settings.readingInterval) m") })
                 }
                 .foregroundColor(.orange)
                 .padding(100)
