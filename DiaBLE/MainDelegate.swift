@@ -190,6 +190,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             let oopHistory = history.map { $0.glucose }
                             if oopHistory.count > 0 {
                                 self.history.values = oopHistory
+                            } else {
+                                self.history.values = []
                             }
                             self.log("OOP history: \(oopHistory)")
                         } else {
