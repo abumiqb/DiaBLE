@@ -120,5 +120,3 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
         }
     }
 }
-
-// TODO: a func to return FRAM and the PatchInfo
