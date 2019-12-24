@@ -39,6 +39,7 @@ class History: ObservableObject {
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
     @Published var reversedLog: Bool = true
+    @Published var numberFormatter = NumberFormatter()
     @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
 }
@@ -73,6 +74,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         self.centralManager.delegate = self
         self.nfcReader.main = self
+
+        let numberFormatter = NumberFormatter()
+        numberFormatter.minimumFractionDigits = 6
+        self.settings.numberFormatter = numberFormatter
 
     }
 

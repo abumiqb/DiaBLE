@@ -18,7 +18,7 @@ struct ContentView: View {
     var body: some View {
 
         TabView(selection: $selectedTab) {
-            Monitor().environmentObject(app).environmentObject(info).environmentObject(history)
+            Monitor().environmentObject(app).environmentObject(info).environmentObject(history).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gauge")
                     Text("Monitor")
@@ -43,6 +43,7 @@ struct Monitor: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
     @EnvironmentObject var history: History
+    @EnvironmentObject var settings: Settings
 
     // TODO: a global timer
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -119,17 +120,23 @@ struct Monitor: View {
 
                 VStack {
                     HStack {
-                        TextField("Slope slope", value: $app.params.slopeSlope, formatter: NumberFormatter())
-                        TextField("Slope offset", value: $app.params.offsetSlope, formatter: NumberFormatter())
+                        Text("Slope slope")
+                        TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
+                        Text("Slope offset")
+                        TextField("Slope offset", value: $app.params.offsetSlope, formatter: settings.numberFormatter)
                     }
 
                     HStack {
-                        TextField("Offset slope", value: $app.params.slopeOffset, formatter: NumberFormatter())
-                        TextField("Offset offset", value: $app.params.offsetOffset, formatter: NumberFormatter())
+                        Text("Offset slope")
+                        TextField("Offset slope", value: $app.params.slopeOffset, formatter: settings.numberFormatter)
+                        Text("Offset offset")
+                        TextField("Offset offset", value: $app.params.offsetOffset, formatter: settings.numberFormatter)
                     }
                 }
                 .font(.footnote)
                 .foregroundColor(.blue)
+
+                Text(" ")
 
             }
             .navigationBarItems(trailing:
