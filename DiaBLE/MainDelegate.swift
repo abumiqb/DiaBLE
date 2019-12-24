@@ -35,6 +35,7 @@ class Info: ObservableObject {
 class History: ObservableObject {
     @Published var values: [Int] = []
     @Published var rawValues: [Int] = []
+    @Published var rawTrend: [Int] = []
 }
 
 class Settings: ObservableObject {
@@ -134,11 +135,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             let rawTemperature = (Int(fram[128+j*6]) & 0x3F) << 8 + Int(fram[127+j*6])
             history.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
         }
-
         log("Raw history: \(history.map{ $0.rawGlucose })")
 
-        var historyValues = history.map{ $0.glucose }
-        self.history.rawValues = historyValues
+        self.history.rawValues = history.map{ $0.glucose }
+        self.history.rawTrend  = trend.map{ $0.glucose }
+
 
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
         postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram) { data, errorDescription in
@@ -159,10 +160,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
 
             } else {
-                self.info("\nRaw trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
-                self.history.values = historyValues
             }
             return
         }
@@ -190,7 +189,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             let (_, history) = oopData.glucoseData(date: Date())
                             let oopHistory = history.map { $0.glucose }
                             if oopHistory.count > 0 {
-                                historyValues = oopHistory
+                                self.history.values = oopHistory
                             }
                             self.log("OOP history: \(oopHistory)")
                         } else {
@@ -202,7 +201,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.log("LibreOOP connection failed")
                     self.info("\nLibreOOP connection failed")
                 }
-                self.history.values = historyValues
                 return
             }
         }

@@ -130,6 +130,8 @@ struct Monitor: View {
                     if history.rawValues.count > 0 {
                         Text("Raw history: [\(history.rawValues.map{ String($0) }.joined(separator: " "))]")
                             .foregroundColor(.yellow)
+                        Text("Raw trend: [\(history.rawTrend.map{ String($0) }.joined(separator: " "))]")
+                        .foregroundColor(.yellow)
                     }
 
                 }
