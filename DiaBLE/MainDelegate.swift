@@ -140,9 +140,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         var historyValues = history.map{ $0.glucose }
         self.history.rawValues = historyValues
 
-        info("\n\nRaw history: [\(historyValues.map{ String($0) }.joined(separator: " "))]")
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
-
         postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
@@ -150,20 +148,16 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 let decoder = JSONDecoder.init()
                 if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
                     let params = oopCalibration.parameters
-
                     for measurement in history {
                         measurement.calibrationParameters = params
                     }
-                    self.log("OOP calibrated history: \(history.map{ $0.glucose })")
-                    self.info("\nOOP calibrated history: [\(history.map{ String($0.glucose) }.joined(separator: " "))]")
-
                     for measurement in trend {
                         measurement.calibrationParameters = params
                     }
                     self.app.params = params
-                    self.log("OOP calibrated trend: \(trend.map{ $0.glucose })")
-                    self.info("\nOOP calibrated trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
+                    // TODO: store new app.history.calibratedValues and display a blue curve
                 }
+
             } else {
                 self.info("\nRaw trend: [\(trend.map{ String($0.glucose) }.joined(separator: " "))]")
                 self.log("LibreOOP calibration failed")
@@ -199,7 +193,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                                 historyValues = oopHistory
                             }
                             self.log("OOP history: \(oopHistory)")
-                            self.info("\nOOP history: [\(oopHistory.map{ String($0) }.joined(separator: " "))]")
                         } else {
                             self.log("Missing LibreOOP Data")
                             self.info("\nMissing LibreOOP data")

@@ -113,11 +113,28 @@ struct Monitor: View {
 
                     Spacer()
                 }
+
                 Text(" ")
-                Text(info.text)
-                    .multilineTextAlignment(.center)
-                    .font(.footnote)
-                    .layoutPriority(2)
+
+                VStack {
+
+                    Text(info.text)
+                        .layoutPriority(2)
+
+                    Text(" ")
+
+                    if history.values.count > 0 {
+                        Text("OOP history: [\(history.values.map{ String($0) }.joined(separator: " "))]")
+                            .foregroundColor(.purple)
+                    }
+                    if history.rawValues.count > 0 {
+                        Text("Raw history: [\(history.rawValues.map{ String($0) }.joined(separator: " "))]")
+                            .foregroundColor(.yellow)
+                    }
+
+                }
+                .font(.footnote)
+                .multilineTextAlignment(.center)
 
                 if app.params.offsetOffset != 0.0 {
                     VStack {
@@ -142,9 +159,7 @@ struct Monitor: View {
                     .font(.footnote)
                 }
 
-
                 Text(" ")
-
             }
             .navigationBarItems(trailing:
                 Button(action: {
