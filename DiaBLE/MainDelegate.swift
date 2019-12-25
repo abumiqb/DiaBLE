@@ -295,7 +295,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         if let services = peripheral.services {
             for service in services {
-                log("Discovered service \(service.uuid.uuidString)")
+                log("Discovered \(peripheral.name!)'s service \(service.uuid.uuidString)")
                 peripheral.discoverCharacteristics(nil, for: service)
             }
         }
@@ -324,54 +324,48 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         for characteristic in characteristics {
             let name = characteristic.uuid.uuidString
-            log("Discovered caracteristic uuid: \(name)")
+            var msg = "Discovered \(peripheralName)'s caracteristic \(name)"
 
             if name == Droplet.dataReadCharacteristicUUID || name == MiaoMiao.dataReadCharacteristicUUID || name == Bubble.dataReadCharacteristicUUID {
                 transmitter.readCharacteristic = characteristic
                 transmitter.peripheral?.setNotifyValue(true, for: transmitter.readCharacteristic!)
-                log("Discovered \(peripheralName) data read characteristic")
+                msg += " (data read)"
             }
 
             if name == Droplet.dataWriteCharacteristicUUID || name == MiaoMiao.dataWriteCharacteristicUUID || name == Bubble.dataWriteCharacteristicUUID {
-                log("Discovered \(peripheralName) data write characteristic")
+                msg += " (data write)"
                 transmitter.writeCharacteristic = characteristic
             }
 
             if name ==  Transmitter.batteryVoltageCharacteristicUUID {
-                log("Discovered \(peripheralName) Battery Voltage characteristic")
+                msg += " (battery voltage): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading battery level")
             }
             if name == Transmitter.modelCharacteristicUUID {
-                log("Discovered \(peripheralName) Model Number Characteristic")
+                msg += " (model number): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading model number")
             }
             if name == Transmitter.serialCharacteristicUUID {
-                log("Discovered \(peripheralName) Serial Number Characteristic")
+                msg += " (serial number): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading serial number")
             }
             if name == Transmitter.firmwareCharacteristicUUID {
-                log("Discovered \(peripheralName) Firmware Version Characteristic")
+                msg += " (firmware version): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading firmware version")
             }
             if name == Transmitter.hardwareCharacteristicUUID {
-                log("Discovered \(peripheralName) Hardware Version Characteristic")
+                msg += " (hardware version): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading hardware version")
             }
             if name == Transmitter.softwareCharacteristicUUID {
-                log("Discovered \(peripheralName) Software Version Characteristic")
+                msg += " (software version): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading software version")
             }
             if name == Transmitter.manufacturerCharacteristicUUID {
-                log("Discovered \(peripheralName) Manufacturer Characteristic")
+                msg += " (manufacturer): reading it"
                 transmitter.peripheral?.readValue(for: characteristic)
-                log("Reading manifacturer name")
             }
+            log(msg)
         }
 
         if peripheralName == "Bubble" && service.uuid.uuidString == Bubble.dataServiceUUID {
@@ -430,14 +424,19 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        log("\(peripheral.name!) did write characteristic value for " + characteristic.uuid.uuidString)
         if error != nil {
-            log("Did write error")
+            log("Error while writing \(peripheral.name!) characteristic \(characteristic.uuid.uuidString) value: \(error!.localizedDescription)")
+        } else {
+            log("\(peripheral.name!) did write characteristic value for \(characteristic.uuid.uuidString)")
         }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateNotificationStateFor characteristic: CBCharacteristic, error: Error?) {
-        log("\(peripheral.name!) did update notification state for " + characteristic.uuid.uuidString)
+        var characteristicString = characteristic.uuid.uuidString
+        if [Bubble.dataReadCharacteristicUUID, Droplet.dataReadCharacteristicUUID, MiaoMiao.dataReadCharacteristicUUID].contains(characteristicString) {
+            characteristicString = "data read"
+        }
+        log("\(peripheral.name!) did update notification state for \(characteristicString) characteristic")
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -445,10 +444,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         if [Bubble.dataReadCharacteristicUUID, Droplet.dataReadCharacteristicUUID, MiaoMiao.dataReadCharacteristicUUID].contains(characteristicString) {
             characteristicString = "data read"
         }
-        log("\(peripheral.name!) did update value for \( characteristicString) characteristic")
+        log("\(peripheral.name!) did update value for \(characteristicString) characteristic")
 
         guard let data = characteristic.value
-            else { log("missing updated value"); return }
+            else { log("Missing updated value"); return }
 
         log("\(data.count) bytes received")
 
@@ -681,4 +680,3 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
     }
 }
-
