@@ -339,7 +339,9 @@ struct SettingsView: View {
 
                     self.selectedTab = .monitor
                     let centralManager = self.app.main.centralManager
-                    centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    if transmitter != nil {
+                        centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    }
                     self.app.preferredTransmitter = self.preferredTransmitter
                     centralManager.scanForPeripherals(withServices: nil, options: nil)
                 }
