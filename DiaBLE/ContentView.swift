@@ -163,6 +163,7 @@ struct Monitor: View {
 
                 Text(" ")
             }
+            .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
             .navigationBarItems(trailing:
                 Button(action: {
                     self.app.main.nfcReader.startSession()
@@ -344,7 +345,7 @@ struct SettingsView: View {
 
                 Spacer()
 
-            }.navigationBarTitle("Settings")
+            }.navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)  - Settings", displayMode: .inline)
         }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
