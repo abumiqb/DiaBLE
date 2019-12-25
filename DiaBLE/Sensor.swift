@@ -1,11 +1,13 @@
 import Foundation
 
-enum SensorType: String {
+enum SensorType: String, CustomStringConvertible {
     case libre1   = "Libre 1"
     case libre2   = "Libre 2"
     case libreUS  = "Libre US"
     case librePro = "Libre Pro"
     case unknown  = "Unknown"
+
+    var description: String { self.rawValue }
 }
 
 enum SensorState: UInt8, CustomStringConvertible {

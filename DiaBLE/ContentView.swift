@@ -345,7 +345,7 @@ struct SettingsView: View {
 
                 Spacer()
 
-            }.navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)  - Settings", displayMode: .inline)
+            }.navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)  -  Settings", displayMode: .inline)
         }.navigationViewStyle(StackNavigationViewStyle())
     }
 }

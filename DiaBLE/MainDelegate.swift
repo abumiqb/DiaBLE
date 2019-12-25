@@ -535,6 +535,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // TODO: let footer = buffer.suffix(8)
                             sensor.fram = Data(fram)
                             parseSensorData(sensor)
+                            info("\n\nBubble + \(sensor.type)")
                             bubble!.buffer = Data()
                         }
                     }
@@ -662,6 +663,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                         sensor.fram = Data(buffer[18 ..< 362])
                         parseSensorData(sensor)
+                        info("\n\nMiaoMiao + \(sensor.type)")
                         miaomiao!.buffer = Data()
                     }
                 }
