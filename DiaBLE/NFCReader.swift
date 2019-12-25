@@ -20,8 +20,8 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     public func tagReaderSession(_ session: NFCTagReaderSession, didInvalidateWithError error: Error) {
         if let readerError = error as? NFCReaderError {
             if readerError.code != .readerSessionInvalidationErrorUserCanceled {
-                main.log("NFC: \(error.localizedDescription)")
-                session.invalidate(errorMessage: "Connection failure: \(error.localizedDescription)")
+                main.log("NFC: \(readerError.localizedDescription)")
+                session.invalidate(errorMessage: "Connection failure: \(readerError.localizedDescription)")
             }
         }
     }
