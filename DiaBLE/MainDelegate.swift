@@ -216,7 +216,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             if app.transmitter != nil {
                 centralManager.cancelPeripheralConnection(app.transmitter!.peripheral!)
             }
-            centralManager.stopScan()
             app.transmitterState = "Disconnected"
             app.nextReading = -1
         case .poweredOn:

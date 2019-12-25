@@ -343,7 +343,9 @@ struct SettingsView: View {
                         centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     }
                     self.app.preferredTransmitter = self.preferredTransmitter
-                    centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    if centralManager.state == .poweredOn {
+                        centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    }
                 }
                 ) { Text("Rescan").bold() }
 
