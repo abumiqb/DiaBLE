@@ -215,6 +215,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             log("Bluetooth: Powered off")
             if app.transmitter != nil {
                 centralManager.cancelPeripheralConnection(app.transmitter.peripheral!)
+                app.transmitter.state = .disconnected
             }
             app.transmitterState = "Disconnected"
             app.nextReading = -1
@@ -286,13 +287,17 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     public func centralManager(_ manager: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if let name = peripheral.name {
             log("\(name) has connected.")
-            app.transmitterState = "Connected"
-            log("Bluetooth: requesting service discovery")
-            peripheral.discoverServices(nil)
+            if app.transmitter.state == .disconnected {
+                app.transmitter.state = peripheral.state
+                app.transmitterState = "Connected"
+                log("Bluetooth: requesting service discovery")
+                peripheral.discoverServices(nil)
+            }
         }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
+        app.transmitter.state = peripheral.state
         if let services = peripheral.services {
             for service in services {
                 log("Discovered \(peripheral.name!)'s service \(service.uuid.uuidString)")
@@ -411,16 +416,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func centralManager(_ manager: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
-        if let name = peripheral.name {
-            log("\(name) has disconnected.")
-            if error != nil {
-                log("Bluetooth error: \(error!.localizedDescription)")
-                if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter.type) {
-                    centralManager.connect(peripheral, options: nil)
-                }
+        log("\(peripheral.name!) has disconnected.")
+        if error != nil {
+            log("Bluetooth error: \(error!.localizedDescription)")
+            if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter.type) {
+                centralManager.connect(peripheral, options: nil)
             }
-            app.transmitterState = "Disconnected"
         }
+        app.transmitterState = "Disconnected"
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {

@@ -29,6 +29,7 @@ class Transmitter {
     var name: String { "Unknown" }
 
     var peripheral: CBPeripheral?
+    var state: CBPeripheralState = .disconnected
     var readCharacteristic: CBCharacteristic?
     var writeCharacteristic: CBCharacteristic?
 
