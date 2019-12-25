@@ -421,7 +421,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             log("\(name) has disconnected.")
             if error != nil {
                 log("Bluetooth error: \(error!.localizedDescription)")
-                if app.transmitter != nil && app.preferredTransmitter == app.transmitter!.type {
+                if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter!.type) {
                     centralManager.connect(peripheral, options: nil)
                 }
             }
