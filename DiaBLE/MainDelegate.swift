@@ -213,7 +213,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         switch manager.state {
         case .poweredOff:
             log("Bluetooth: Powered off")
+            if app.transmitter != nil {
+                centralManager.cancelPeripheralConnection(app.transmitter!.peripheral!)
+            }
             centralManager.stopScan()
+            app.transmitterState = "Disconnected"
+            app.nextReading = -1
         case .poweredOn:
             log("Bluetooth: Powered on")
             centralManager.scanForPeripherals(withServices: nil, options: nil)
