@@ -20,7 +20,7 @@ class App: ObservableObject {
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
 
-    @Published var nextReading: Int = 300 - 4
+    @Published var nextReading: Int = -1
     @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
 }
 
@@ -325,11 +325,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             if name == Droplet.dataReadCharacteristicUUID || name == MiaoMiao.dataReadCharacteristicUUID || name == Bubble.dataReadCharacteristicUUID {
                 transmitter.readCharacteristic = characteristic
                 transmitter.peripheral?.setNotifyValue(true, for: transmitter.readCharacteristic!)
-                log("Discovered \(peripheralName) dataReadCharacteristic")
+                log("Discovered \(peripheralName) data read characteristic")
             }
 
             if name == Droplet.dataWriteCharacteristicUUID || name == MiaoMiao.dataWriteCharacteristicUUID || name == Bubble.dataWriteCharacteristicUUID {
-                log("Discovered \(peripheralName) dataWriteCharacteristic")
+                log("Discovered \(peripheralName) data write characteristic")
                 transmitter.writeCharacteristic = characteristic
             }
 

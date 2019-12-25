@@ -69,13 +69,15 @@ struct Monitor: View {
                             .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
                             .fixedSize()
 
-                        Text("\(self.app.nextReading) s")
-                            .fixedSize()
-                            .onReceive(timer) { _ in
-                                if self.app.nextReading > 0 {
-                                    self.app.nextReading -= 1
-                                }
-                        }.foregroundColor(.orange)
+                        if self.app.nextReading > -1 {
+                            Text("\(self.app.nextReading) s")
+                                .fixedSize()
+                                .onReceive(timer) { _ in
+                                    if self.app.nextReading > 0 {
+                                        self.app.nextReading -= 1
+                                    }
+                            }.foregroundColor(.orange)
+                        }
                     }
                 }
 
@@ -131,7 +133,7 @@ struct Monitor: View {
                         Text("Raw history: [\(history.rawValues.map{ String($0) }.joined(separator: " "))]")
                             .foregroundColor(.yellow)
                         Text("Raw trend: [\(history.rawTrend.map{ String($0) }.joined(separator: " "))]")
-                        .foregroundColor(.yellow)
+                            .foregroundColor(.yellow)
                     }
 
                 }

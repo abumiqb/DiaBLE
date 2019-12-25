@@ -5,7 +5,7 @@ enum SensorType: String, CustomStringConvertible {
     case libre2   = "Libre 2"
     case libreUS  = "Libre US"
     case librePro = "Libre Pro"
-    case unknown  = "Unknown"
+    case unknown  = "Libre (?)"
 
     var description: String { self.rawValue }
 }
