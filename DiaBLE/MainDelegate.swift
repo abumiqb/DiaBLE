@@ -517,7 +517,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         log("Bubble: partial buffer count: \(buffer.count)")
                         if buffer.count == 352 {
                             let fram = buffer[..<344]
-                            // TODO: let footer = buffer.suffix(8)
+                            // let footer = buffer.suffix(8)
                             sensor.fram = Data(fram)
                             parseSensorData(sensor)
                             info("\n\nBubble + \(sensor.type)")
@@ -593,7 +593,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
                 if data.count == 1 {
                     if response == .noSensor {
-                        info("\n\nMiaoMiao: no sensor")
+                        info("\n\n\(app.transmitter.name): no sensor")
                     }
                     if response == .newSensor {
                         info("\n\nMiaoMiao: new sensor detected")
@@ -649,7 +649,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
                         sensor.fram = Data(buffer[18 ..< 362])
                         parseSensorData(sensor)
-                        info("\n\nMiaoMiao + \(sensor.type)")
+                        info("\n\n\(app.transmitter.name)  +  \(sensor.type)")
                         app.transmitter.buffer = Data()
                     }
                 }
