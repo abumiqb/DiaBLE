@@ -9,6 +9,7 @@ class App: ObservableObject {
 
     var main: MainDelegate!
 
+    // TODO: use directly app.transmitter and app.sensor in ContentView
     @Published var battery: Int = 0
     @Published var currentGlucose: Int = 0
     @Published var glucoseAlarm: String = ""

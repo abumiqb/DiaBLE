@@ -81,7 +81,7 @@ struct Monitor: View {
                     }
                 }
 
-                Graph().environmentObject(history).frame(width: 30*7, height: 120)
+                Graph().environmentObject(history).frame(width: 30*7, height: 150)
 
                 HStack {
                     Spacer()
@@ -238,6 +238,8 @@ struct LogView: View {
     @EnvironmentObject var log: Log
     @EnvironmentObject var settings: Settings
 
+    @State private var showingNFCAlert = false
+
     var body: some View {
         HStack {
             ScrollView(showsIndicators: true) {
@@ -251,7 +253,11 @@ struct LogView: View {
             VStack(alignment: .center, spacing: 14) {
 
                 Button(action: {
-                    self.app.main.nfcReader.startSession()
+                    if self.app.main.nfcReader.isNFCAvailable {
+                        self.app.main.nfcReader.startSession()
+                    } else {
+                        self.showingNFCAlert = true
+                    }
                 }) { VStack {
                     Image(systemName: "radiowaves.left")
                         .resizable()
@@ -259,7 +265,11 @@ struct LogView: View {
                         .frame(width: 20, height: 40)
                     Text("NFC").bold().offset(y: -18)
                     }
-                }
+                }.alert(isPresented: $showingNFCAlert) {
+                    Alert(
+                        title: Text("NFC not supported"),
+                        message: Text("This device doesn't allow scanning the Libre."))
+                    }
 
                 Spacer()
 
@@ -280,7 +290,6 @@ struct LogView: View {
                         Text("Clear").offset(y: -6)
                     }
                 }
-
 
                 Button(action: {
                     self.settings.reversedLog.toggle()

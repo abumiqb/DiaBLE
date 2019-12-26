@@ -6,6 +6,10 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
     var tagSession: NFCTagReaderSession?
     var main: MainDelegate!
 
+    var isNFCAvailable: Bool {
+        return NFCTagReaderSession.readingAvailable
+    }
+    
     func startSession() {
         // execute in the .main queue because of main.log
         tagSession = NFCTagReaderSession(pollingOption: [.iso15693], delegate: self, queue: .main)
