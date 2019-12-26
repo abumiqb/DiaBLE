@@ -5,6 +5,7 @@ Experimenting with the Droplet, Bubble and MiaoMiao transmitters I bought for th
 * using online servers for calibrating just like **Abbott’s algorithm**;
 * a detailed **log** to check the traffic from/to the BLE devices and remote servers.
 
+Still to early to decide the final design (and the evil logo 😈) , here there are the first rough screenshots:
 <img src="https://drive.google.com/uc?export=view&id=155iMrE7xJzAYH0XLx4OlVP1o0u5otryC" width="25%" />&nbsp;<img src="https://drive.google.com/uc?export=view&id=1r3pdVHJf_-pgqLHOCHtXLo56C7Dvh4-9" width="25%" />
 
 The project started as a single script for the iPad Swift Playgrounds and was quickly converted to an app by using a standard Xcode template.
