@@ -12,3 +12,7 @@ Still too early to decide the final design (and the evil logo 😈), here there 
 The project started as a single script for the iPad Swift Playgrounds and was quickly converted to an app by using a standard Xcode template.
 
 It should compile finely without dependencies just after changing the _Bundle Identifier_ in the _General_ panel and the _Team_ in the _Signing and Capabilities_ tab of Xcode (Spike users know already very well what that means... ;) ).
+
+---
+Credits: [xDrip for iOS](https://github.com/JohanDegraeve/xdripswift), [LibreMonitor](https://github.com/UPetersen/LibreMonitor/tree/Swift4), [WoofWoof](https://github.com/gshaviv/ninety-two), [bubbledevteam](https://github.com/bubbledevteam).
+
