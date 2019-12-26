@@ -285,15 +285,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func centralManager(_ manager: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        if let name = peripheral.name {
-            log("\(name) has connected.")
+        log("\(peripheral.name!) has connected.")
             if app.transmitter.state == .disconnected {
                 app.transmitter.state = peripheral.state
                 app.transmitterState = "Connected"
                 log("Bluetooth: requesting service discovery")
                 peripheral.discoverServices(nil)
             }
-        }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -416,6 +414,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func centralManager(_ manager: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
+        app.transmitter.state = peripheral.state
         log("\(peripheral.name!) has disconnected.")
         if error != nil {
             log("Bluetooth error: \(error!.localizedDescription)")
