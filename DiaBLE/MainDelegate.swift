@@ -54,11 +54,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var history: History
     var settings: Settings
 
-    var bubble: Bubble?
-    var droplet: Droplet?
-    var limitter: Limitter?
-    var miaomiao: MiaoMiao?
-
     var centralManager: CBCentralManager
     var nfcReader: NFCReader
 
@@ -251,47 +246,42 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Advertisement data: \(advertisement)")
         log("Attempting to connect to \(name)")
         centralManager.stopScan()
-        var transmitter: Transmitter!
         if peripheral.name == "Bubble" {
-            bubble = Bubble(peripheral: peripheral)
-            transmitter = bubble!
+            app.transmitter = Bubble(peripheral: peripheral)
         } else if peripheral.name == "Droplet" {
-            droplet = Droplet(peripheral: peripheral)
-            transmitter = droplet!
+            app.transmitter = Droplet(peripheral: peripheral)
         } else if peripheral.name!.hasPrefix("LimiTTer") {
-            limitter = Limitter(peripheral: peripheral)
-            transmitter = limitter!
+            app.transmitter = Limitter(peripheral: peripheral)
         } else if peripheral.name!.contains("miaomiao") {
-            miaomiao = MiaoMiao(peripheral: peripheral)
-            transmitter = miaomiao!
+            app.transmitter = MiaoMiao(peripheral: peripheral)
         }
-        info("\n\n\(transmitter.name)")
-        app.transmitter = transmitter
-        transmitter.peripheral?.delegate = self
+        info("\n\n\(app.transmitter.name)")
+        app.transmitter.peripheral?.delegate = self
         if let manifacturerData = advertisement["kCBAdvDataManufacturerData"] as? Data {
             var firmware = ""
             var hardware = ""
-            if transmitter.name == "Bubble" {
+            if app.transmitter.type == .bubble {
                 let macAddress = Data(manifacturerData[2...7]).reduce("", { $0 + String(format: "%02X", $1) + ":"}).dropLast(1)
                 let transmitterData = Data(manifacturerData.suffix(4))
                 firmware = "\(Int(transmitterData[0])).\(Int(transmitterData[1]))"
                 hardware = "\(Int(transmitterData[2])).\(Int(transmitterData[3]))"
                 hardware = "V \(hardware)\n\(macAddress)"
             }
+            app.transmitter.firmware = firmware
             app.transmitterFirmware = firmware
             app.transmitterHardware = hardware
         }
-        centralManager.connect(transmitter.peripheral!, options: nil)
+        centralManager.connect(app.transmitter.peripheral!, options: nil)
     }
 
     public func centralManager(_ manager: CBCentralManager, didConnect peripheral: CBPeripheral) {
         log("\(peripheral.name!) has connected.")
-            if app.transmitter.state == .disconnected {
-                app.transmitter.state = peripheral.state
-                app.transmitterState = "Connected"
-                log("Bluetooth: requesting service discovery")
-                peripheral.discoverServices(nil)
-            }
+        if app.transmitter.state == .disconnected {
+            app.transmitter.state = peripheral.state
+            app.transmitterState = "Connected"
+            log("Bluetooth: requesting service discovery")
+            peripheral.discoverServices(nil)
+        }
     }
 
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
@@ -307,108 +297,91 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics
             else { log("Unable to retrieve service characteristics"); return }
-        var peripheralName = peripheral.name!
-        var transmitter: Transmitter!
-
-        if peripheralName == "Bubble" {
-            transmitter = bubble
-        }
-        if peripheralName == "Droplet" {
-            transmitter = droplet
-        }
-        if peripheralName.contains("LimiTTer") {
-            peripheralName = "Limitter"
-            transmitter = limitter
-        }
-        if peripheralName.contains("miaomiao") {
-            peripheralName = "MiaoMiao"
-            transmitter = miaomiao
-        }
 
         for characteristic in characteristics {
-            let name = characteristic.uuid.uuidString
-            var msg = "Discovered \(peripheralName)'s caracteristic \(name)"
+            let uuid = characteristic.uuid.uuidString
+            var msg = "Discovered \(app.transmitter.name)'s caracteristic \(uuid)"
 
-            if name == Droplet.dataReadCharacteristicUUID || name == MiaoMiao.dataReadCharacteristicUUID || name == Bubble.dataReadCharacteristicUUID {
-                transmitter.readCharacteristic = characteristic
-                transmitter.peripheral?.setNotifyValue(true, for: transmitter.readCharacteristic!)
+            if uuid == Droplet.dataReadCharacteristicUUID || uuid == MiaoMiao.dataReadCharacteristicUUID || uuid == Bubble.dataReadCharacteristicUUID {
+                app.transmitter.readCharacteristic = characteristic
+                app.transmitter.peripheral?.setNotifyValue(true, for: app.transmitter.readCharacteristic!)
                 msg += " (data read)"
             }
 
-            if name == Droplet.dataWriteCharacteristicUUID || name == MiaoMiao.dataWriteCharacteristicUUID || name == Bubble.dataWriteCharacteristicUUID {
+            if uuid == Droplet.dataWriteCharacteristicUUID || uuid == MiaoMiao.dataWriteCharacteristicUUID || uuid == Bubble.dataWriteCharacteristicUUID {
                 msg += " (data write)"
-                transmitter.writeCharacteristic = characteristic
+                app.transmitter.writeCharacteristic = characteristic
             }
 
-            if name ==  Transmitter.batteryVoltageCharacteristicUUID {
+            if uuid ==  Transmitter.batteryVoltageCharacteristicUUID {
                 msg += " (battery voltage): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.modelCharacteristicUUID {
+            if uuid == Transmitter.modelCharacteristicUUID {
                 msg += " (model number): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.serialCharacteristicUUID {
+            if uuid == Transmitter.serialCharacteristicUUID {
                 msg += " (serial number): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.firmwareCharacteristicUUID {
+            if uuid == Transmitter.firmwareCharacteristicUUID {
                 msg += " (firmware version): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.hardwareCharacteristicUUID {
+            if uuid == Transmitter.hardwareCharacteristicUUID {
                 msg += " (hardware version): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.softwareCharacteristicUUID {
+            if uuid == Transmitter.softwareCharacteristicUUID {
                 msg += " (software version): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
-            if name == Transmitter.manufacturerCharacteristicUUID {
+            if uuid == Transmitter.manufacturerCharacteristicUUID {
                 msg += " (manufacturer): reading it"
-                transmitter.peripheral?.readValue(for: characteristic)
+                app.transmitter.peripheral?.readValue(for: characteristic)
             }
             log(msg)
         }
 
-        if peripheralName == "Bubble" && service.uuid.uuidString == Bubble.dataServiceUUID {
-            bubble!.write(bubble!.readCommand(interval: self.settings.readingInterval))
+        if app.transmitter.type == .bubble && service.uuid.uuidString == Bubble.dataServiceUUID {
+            app.transmitter.write(app.transmitter.readCommand(interval: self.settings.readingInterval))
             log("Bubble: writing start reading command 0x0000\(self.settings.readingInterval)")
             // bubble!.write([0x00, 0x01, 0x05])
             // log("Bubble: writing reset and send data every 5 minutes command 0x000105")
         }
 
-        if peripheralName == "Droplet" && service.uuid.uuidString == Droplet.dataServiceUUID {
+        if app.transmitter.type == .droplet && service.uuid.uuidString == Droplet.dataServiceUUID {
 
             // https://github.com/MarekM60/eDroplet/blob/master/eDroplet/eDroplet/ViewModels/CgmPageViewModel.cs
             // Droplet - New Protocol.pdf: https://www.facebook.com/download/preview/961042740919138
 
-            // droplet!.write([0x31, 0x32, 0x33]); log("Droplet: writing old ping command")
-            // droplet!.write([0x34, 0x35, 0x36]); log("Droplet: writing old read command")
-            // droplet!.write([0x50, 0x00, 0x00]); log("Droplet: writing ping command P00")
-            // droplet!.write([0x54, 0x00, 0x01]); log("Droplet: writing timer command T01")
+            // app.transmitter.write([0x31, 0x32, 0x33]); log("Droplet: writing old ping command")
+            // app.transmitter.write([0x34, 0x35, 0x36]); log("Droplet: writing old read command")
+            // app.transmitter.write([0x50, 0x00, 0x00]); log("Droplet: writing ping command P00")
+            // app.transmitter.write([0x54, 0x00, 0x01]); log("Droplet: writing timer command T01")
             // TODO: T05 = 5 minutes, T00 = quiet mode
-            droplet!.write([0x53, 0x00, 0x00]); log("Droplet: writing sensor identification command S00")
-            droplet!.write([0x43, 0x00, 0x01]); log("Droplet: writing FRAM reading command C01")
-            // droplet!.write([0x43, 0x00, 0x02]); log("Droplet: writing FRAM reading command C02")
-            // droplet!.write([0x42, 0x00, 0x01]); log("Droplet: writing RAM reading command B01")
-            // droplet!.write([0x42, 0x00, 0x02]); log("Droplet: writing RAM reading command B02")
+            app.transmitter.write([0x53, 0x00, 0x00]); log("Droplet: writing sensor identification command S00")
+            app.transmitter.write([0x43, 0x00, 0x01]); log("Droplet: writing FRAM reading command C01")
+            // app.transmitter.write([0x43, 0x00, 0x02]); log("Droplet: writing FRAM reading command C02")
+            // app.transmitter.write([0x42, 0x00, 0x01]); log("Droplet: writing RAM reading command B01")
+            // app.transmitter.write([0x42, 0x00, 0x02]); log("Droplet: writing RAM reading command B02")
             // TODO: "A0xyz...z” sensor activation where: x=1 for Libre 1, 2 for Libre 2 and US 14-day, 3 for Libre Pro/H; y = length of activation bytes, z...z = activation bytes
         }
 
-        if peripheralName == "Limitter" && service.uuid.uuidString == Limitter.dataServiceUUID {
-            // limitter!.write([0x31, 0x32, 0x33]); log("Limitter: writing old ping command")
-            // limitter!.write([0x34, 0x35, 0x36]); log("Limitter: writing old read command")
-            limitter!.write([0x21]); log("LimiTTer: writing old timer (1 minute) command")
+        if app.transmitter.type == .limitter && service.uuid.uuidString == Limitter.dataServiceUUID {
+            // app.transmitter.write([0x31, 0x32, 0x33]); log("Limitter: writing old ping command")
+            // app.transmitter.write([0x34, 0x35, 0x36]); log("Limitter: writing old read command")
+            app.transmitter.write([0x21]); log("LimiTTer: writing old timer (1 minute) command")
             // TODO: varying frequency: 0x2X
-            limitter!.peripheral?.readValue(for: limitter!.readCharacteristic!)
+            app.transmitter.peripheral?.readValue(for: app.transmitter.readCharacteristic!)
             log("LimiTTer: reading data")
         }
 
-        if peripheralName == "MiaoMiao" && service.uuid.uuidString == MiaoMiao.dataServiceUUID {
-            miaomiao!.write([0xF0])
+        if app.transmitter.type == .miaomiao && service.uuid.uuidString == MiaoMiao.dataServiceUUID {
+            app.transmitter.write([0xF0])
             log("MiaoMiao: writing start reading command F0")
-            // miaomiao!.write([0xD3, 0x01]); log("MiaoMiao writing start new sensor command D301")
+            // app.transmitter.write([0xD3, 0x01]); log("MiaoMiao writing start new sensor command D301")
             // TODO: normalFrequency: [0xD1, 0x03], shortFrequency: [0xD1, 0x01], startupFrequency: [0xD1, 0x05]
         }
     }
@@ -440,6 +413,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
         log("\(peripheral.name!) did update notification state for \(characteristicString) characteristic")
     }
+
 
     public func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         var characteristicString = characteristic.uuid.uuidString
@@ -473,8 +447,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case Transmitter.firmwareCharacteristicUUID:
             let firmware = String(decoding: data, as: UTF8.self)
             log("Firmware version: \(firmware)")
-            if peripheral.name! == "Droplet" { droplet!.firmware = firmware }
-            if peripheral.name!.contains("LimiTTer") { limitter!.firmware = firmware }
+            if peripheral.name! == "Droplet" { app.transmitter.firmware = firmware }
+            if peripheral.name!.contains("LimiTTer") { app.transmitter.firmware = firmware }
             app.transmitterFirmware = firmware
 
         case Transmitter.hardwareCharacteristicUUID:
@@ -497,7 +471,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
             // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Bubble.java
 
-            if peripheral.name! == "Bubble" {
+            if app.transmitter.type == .bubble {
                 let response = Bubble.ResponseType(rawValue: data[0])
                 log("Bubble response: \(response!) (0x\(data[0...0].hex))")
 
@@ -510,20 +484,20 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     let hardware =  "\(data[2]).0"
                     log("Bubble: hardware: \(hardware)")
                     let battery = Int(data[4])
-                    bubble!.battery = battery
+                    app.transmitter.battery = battery
                     log("Bubble: battery level: \(battery)")
                     app.battery = battery
                     let firmware = "\(data[2]).\(data[3])"
-                    bubble!.firmware = firmware
+                    app.transmitter.firmware = firmware
                     log("Bubble: firmware: \(firmware)")
                     // confirm receipt
-                    bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
+                    app.transmitter.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
 
                 } else {
-                    if bubble!.sensor == nil {
-                        bubble!.sensor = Sensor(transmitter: bubble!)
+                    if app.transmitter.sensor == nil {
+                        app.transmitter.sensor = Sensor(transmitter: app.transmitter)
                     }
-                    let sensor = bubble!.sensor!
+                    let sensor = app.transmitter.sensor!
                     if response == .serialNumber {
                         let uid = data[2...9]
                         sensor.uid = Data(uid)
@@ -532,14 +506,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         app.sensorSerial = sensor.serial
 
                     } else if response == .patchInfo {
-                        let info = Double(bubble!.firmware)! < 1.35 ? data[3...8] : data[5...10]
+                        let info = Double(app.transmitter.firmware)! < 1.35 ? data[3...8] : data[5...10]
                         sensor.patchInfo = Data(info)
                         log("Bubble: patch info: \(info.hex)")
 
                     } else if response == .dataPacket {
-                        var buffer = bubble!.buffer
+                        var buffer = app.transmitter.buffer
                         buffer.append(data.suffix(from: 4))
-                        bubble!.buffer = buffer
+                        app.transmitter.buffer = buffer
                         log("Bubble: partial buffer count: \(buffer.count)")
                         if buffer.count == 352 {
                             let fram = buffer[..<344]
@@ -547,18 +521,18 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             sensor.fram = Data(fram)
                             parseSensorData(sensor)
                             info("\n\nBubble + \(sensor.type)")
-                            bubble!.buffer = Data()
+                            app.transmitter.buffer = Data()
                         }
                     }
                 }
 
-            } else if peripheral.name! == "Droplet" {
-                if droplet!.sensor == nil {
-                    droplet!.sensor = Sensor(transmitter: droplet!)
+            } else if app.transmitter.type == .droplet {
+                if app.transmitter.sensor == nil {
+                    app.transmitter.sensor = Sensor(transmitter: app.transmitter)
                 }
-                let sensor = droplet!.sensor!
+                let sensor = app.transmitter.sensor!
                 if data.count == 8 {
-                    droplet!.sensor!.uid = Data(data)
+                    app.transmitter.sensor!.uid = Data(data)
                     log("Droplet: sensor serial number: \(sensor.serial))")
                     app.sensorSerial = sensor.serial
                 } else {
@@ -567,19 +541,19 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 }
                 // TODO:  9999 = error
 
-            } else if peripheral.name!.contains("LimiTTer") {
+            } else if app.transmitter.type == .limitter {
                 // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
                 // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
-                if limitter!.sensor == nil {
-                    limitter!.sensor = Sensor(transmitter: limitter!)
+                if app.transmitter.sensor == nil {
+                    app.transmitter.sensor = Sensor(transmitter: app.transmitter)
                 }
-                let sensor = limitter!.sensor!
+                let sensor = app.transmitter.sensor!
 
                 let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
                 guard fields.count == 4 else { return }
 
                 let battery = Int(fields[2])!
-                limitter!.battery = battery
+                app.transmitter.battery = battery
                 log("LimiTTer: battery level: \(battery)")
                 app.battery = battery
 
@@ -608,13 +582,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 app.sensorAge = sensor.age
 
 
-            } else if peripheral.name!.contains("miaomiao") {
+            } else if app.transmitter.type == .miaomiao {
                 // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java
                 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Bluetooth/MiaoMiaoManager.swift
                 // https://github.com/gshaviv/ninety-two/blob/master/WoofWoof/MiaoMiao.swift
 
                 let response = MiaoMiao.ResponseType(rawValue: data[0])
-                if miaomiao!.buffer.count == 0 {
+                if app.transmitter.buffer.count == 0 {
                     log("MiaoMiao response: \(response!) (0x\(data[0...0].hex))")
                 }
                 if data.count == 1 {
@@ -633,11 +607,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         }
                     }
                 } else {
-                    let sensor = Sensor(transmitter: miaomiao!)
-                    miaomiao!.sensor = sensor
-                    var buffer = miaomiao!.buffer
+                    let sensor = Sensor(transmitter: app.transmitter)
+                    app.transmitter.sensor = sensor
+                    var buffer = app.transmitter.buffer
                     buffer.append(data)
-                    miaomiao!.buffer = buffer
+                    app.transmitter.buffer = buffer
                     log("MiaoMiao: partial buffer count: \(buffer.count)")
                     if buffer.count >= 363 {
                         log("MiaoMiao buffer data count: \(buffer.count)")
@@ -653,13 +627,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         app.sensorSerial = sensor.serial
 
                         let battery = Int(buffer[13])
-                        miaomiao!.battery = battery
+                        app.transmitter.battery = battery
                         log("MiaoMiao: battery level: \(battery)")
                         app.battery = battery
 
                         let firmware = buffer[14...15].hex
                         let hardware = buffer[16...17].hex
                         log("MiaoMiao: firmware: \(firmware), hardware: \(hardware)")
+                        app.transmitter.firmware = firmware
                         app.transmitterFirmware = firmware
                         app.transmitterHardware = hardware
 
@@ -675,7 +650,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         sensor.fram = Data(buffer[18 ..< 362])
                         parseSensorData(sensor)
                         info("\n\nMiaoMiao + \(sensor.type)")
-                        miaomiao!.buffer = Data()
+                        app.transmitter.buffer = Data()
                     }
                 }
             }

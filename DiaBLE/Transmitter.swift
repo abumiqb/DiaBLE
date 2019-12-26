@@ -29,7 +29,10 @@ class Transmitter {
     var name: String { "Unknown" }
 
     var peripheral: CBPeripheral?
+
+    /// Updated when notified by the Bluetooth manager
     var state: CBPeripheralState = .disconnected
+
     var readCharacteristic: CBCharacteristic?
     var writeCharacteristic: CBCharacteristic?
 
