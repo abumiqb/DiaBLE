@@ -58,7 +58,7 @@ class Transmitter {
         peripheral?.writeValue(Data(bytes), for: writeCharacteristic!, type: .withoutResponse)
     }
 
-    func read(data: Data) {
+    func read(_ data: Data) {
     }
 }
 
@@ -96,6 +96,60 @@ class Bubble: Transmitter {
     override func readCommand(interval: Int = 5) -> [UInt8] {
         return [0x00, 0x00, UInt8(interval)]
     }
+
+    override func read(_ data: Data) {
+
+        // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Bubble.java
+
+        let response = ResponseType(rawValue: data[0])
+        main.log("\(name) response: \(response!) (0x\(data[0...0].hex))")
+
+        if response == .noSensor {
+            // TODO: confirm receipt the first time
+            // bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
+            main.info("\n\n\(name): no sensor")
+
+        } else if response == .dataInfo {
+            hardware =  "\(data[2]).0"
+            main.log("\(name): hardware: \(hardware)")
+            battery = Int(data[4])
+            main.log("\(name): battery level: \(battery)")
+            // TODO: app.battery = battery
+            firmware = "\(data[2]).\(data[3])"
+            main.log("\(name): firmware: \(firmware)")
+            // confirm receipt
+            write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
+
+        } else {
+            if sensor == nil {
+                sensor = Sensor(transmitter: self)
+            }
+            if response == .serialNumber {
+                sensor!.uid = Data(data[2...9])
+                main.log("\(name): patch uid: \(sensor!.uid.hex)")
+                main.log("\(name): sensor serial number: \(sensor!.serial)")
+                // TODO: app.sensorSerial = sensor.serial
+
+            } else if response == .patchInfo {
+                sensor!.patchInfo = Data(Double(firmware)! < 1.35 ? data[3...8] : data[5...10])
+                main.log("\(name): patch info: \(sensor!.patchInfo.hex)")
+
+            } else if response == .dataPacket {
+                buffer.append(data.suffix(from: 4))
+                main.log("\(name): partial buffer count: \(buffer.count)")
+                if buffer.count == 352 {
+                    let fram = buffer[..<344]
+                    // let footer = buffer.suffix(8)
+                    sensor!.fram = Data(fram)
+                    // TODO: parseSensorData(sensor)
+                    main.info("\n\n\(name) + \(sensor!.type)")
+                    buffer = Data()
+                }
+            }
+        }
+
+
+    }
 }
 
 
@@ -125,11 +179,67 @@ class Droplet: Transmitter {
             }
         }
     }
+
+    override func read(_ data: Data) {
+        if sensor == nil {
+            sensor = Sensor(transmitter: self)
+        }
+        if data.count == 8 {
+            sensor!.uid = Data(data)
+            main.log("\(name): sensor serial number: \(sensor!.serial))")
+            // TODO: app.sensorSerial = sensor.serial
+        } else {
+            main.log("\(name) response: 0x\(data[0...0].hex)")
+            main.log("\(name) response data length: \(Int(data[1]))")
+        }
+        // TODO:  9999 = error    }
+    }
 }
 
 
 class Limitter: Droplet {
     override var type: TransmitterType { TransmitterType.limitter }
+
+    override func read(_ data: Data) {
+
+        // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
+        // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
+
+        if sensor == nil {
+            sensor = Sensor(transmitter: self)
+        }
+
+        let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
+        guard fields.count == 4 else { return }
+
+        battery = Int(fields[2])!
+        main.log("\(name): battery: \(battery)")
+        // TODO: app.battery = battery
+
+        let firstField = fields[0]
+        guard !firstField.hasPrefix("000") else {
+            main.log("\(name): no sensor data")
+            main.info("\n\\(name): no sensor data")
+            if firstField.hasSuffix("999") {
+                let err = fields[1]
+                main.log("\(name): error \(err)\n(0001 = low battery, 0002 = badly positioned)")
+            }
+            return
+        }
+
+        let rawValue = Int(firstField.dropLast(2))!
+        main.log("\(name): Glucose raw value: \(rawValue)")
+        main.info("\n\nDroplet raw glucose: \(rawValue)")
+        // TODO: app.currentGlucose = rawValue / 10
+
+        let sensorType = LibreType(rawValue: String(firstField.suffix(2)))!.description
+        main.log("\name): sensor type = \(sensorType)")
+        // TODO: app.sensorSerial = sensorType
+
+        sensor!.age = Int(fields[3])! * 10
+        main.log("\(name): sensor age: \(Int(sensor!.age)) (\(String(format: "%.1f", Double(sensor!.age)/60/24)) days)")
+        // TODO: app.sensorAge = sensor.age
+    }
 }
 
 
@@ -169,7 +279,8 @@ class MiaoMiao: Transmitter {
     }
 
 
-    override func read(data: Data) {
+    override func read(_ data: Data) {
+        
         // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java
         // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Bluetooth/MiaoMiaoManager.swift
         // https://github.com/gshaviv/ninety-two/blob/master/WoofWoof/MiaoMiao.swift
