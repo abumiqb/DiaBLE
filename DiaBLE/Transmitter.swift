@@ -111,11 +111,13 @@ class Bubble: Transmitter {
             main.info("\n\n\(name): no sensor")
 
         } else if response == .dataInfo {
-            // keep the manufacturer data advertised via Bluetooth (MAC addreess in the second line)
-            let firmwareHardware =  "\(data[2]).0"
+            // keep the manufacturer data advertised via Bluetooth (MAC address in the second line)
+            let firmwareHardware = "\(data[2]).0"
             let hardwareLines = hardware.split(separator: "\n")
             if hardwareLines.count == 2 {
+                if !(hardwareLines[0].hasSuffix(")")) {
                 hardware = "\(hardwareLines[0]) (\(firmwareHardware))\n\(hardwareLines[1])"
+                }
             } else {
                 hardware = firmwareHardware
             }

@@ -83,7 +83,7 @@ struct Monitor: View {
                     }
                 }
 
-                Graph().environmentObject(history).frame(width: 30*7, height: 150)
+                Graph().environmentObject(history).environmentObject(settings).frame(width: 30 * 7 + 60, height: 150)
 
                 HStack {
                     Spacer()
@@ -194,13 +194,31 @@ struct Monitor: View {
 
 struct Graph: View {
     @EnvironmentObject var history: History
+    @EnvironmentObject var settings: Settings
+
     var body: some View {
         ZStack {
 
-            // Raw Values
+            // Glucose range rect in the background
             GeometryReader { geometry in
                 Path() { path in
-                    let width  = Double(geometry.size.width)
+                    let width  = Double(geometry.size.width) - 60.0
+                    let height = Double(geometry.size.height)
+                    let count = self.history.rawValues.count
+                    if count > 0 {
+                        let v = self.history.rawValues
+                        let max = v.max()!
+                        let yScale = (height - 30) / Double(max)
+                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
+                    }
+                }.fill(Color.green).opacity(0.2)
+            }
+
+
+            // Raw values
+            GeometryReader { geometry in
+                Path() { path in
+                    let width  = Double(geometry.size.width) - 60.0
                     let height = Double(geometry.size.height)
                     let count = self.history.rawValues.count
                     if count > 0 {
@@ -208,10 +226,10 @@ struct Graph: View {
                         let max = v.max()!
                         let yScale = (height - 30) / Double(max)
                         let xScale = width / Double(count - 1)
-                        path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
+                        path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
                         for i in 1 ..< count {
                             path.addLine(to: .init(
-                                x: Double(i) * xScale,
+                                x: Double(i) * xScale + 30.0,
                                 y: height - Double(v[count - i - 1]) * yScale)
                             )
                         }
@@ -219,21 +237,23 @@ struct Graph: View {
                 }.stroke(Color.yellow).opacity(0.6)
             }
 
+            // Values scaled based on the raw values
             GeometryReader { geometry in
                 Path() { path in
-                    let width  = Double(geometry.size.width)
+                    let width  = Double(geometry.size.width) - 60.0
                     let height = Double(geometry.size.height)
-                    path.addRoundedRect(in: CGRect(x: 0.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
+                    path.addRoundedRect(in: CGRect(x: 0.0 + 30.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
                     let count = self.history.values.count
                     if count > 0 {
                         let v = self.history.values
-                        let max = v.max()!
+                        let r = self.history.rawValues
+                        let max = r.max()!
                         let yScale = (height - 30) / Double(max)
                         let xScale = width / Double(count - 1)
-                        path.move(to: .init(x: 0.0, y: height - Double(v[count - 1]) * yScale))
+                        path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
                         for i in 1 ..< count {
                             path.addLine(to: .init(
-                                x: Double(i) * xScale,
+                                x: Double(i) * xScale + 30.0,
                                 y: height - Double(v[count - i - 1]) * yScale)
                             )
                         }

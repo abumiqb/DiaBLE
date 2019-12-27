@@ -45,6 +45,8 @@ class Settings: ObservableObject {
     @Published var numberFormatter = NumberFormatter()
     @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
+    @Published var lowGlucose: Int = 70
+    @Published var highGlucose: Int = 180
 }
 
 public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {

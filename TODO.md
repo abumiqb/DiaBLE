@@ -11,7 +11,7 @@ TODO
 
 * MiaoMiao:
    - varying the frequency (normal: [0xD1, 0x03], short:  [0xD1, 0x01], startup: [0xD1, 0x05])
-* save the settings and store the measurements by using HealthKit's bloodGlucose.
+   * save the app.settings (simply by using a wrappable property) and the measurements (simply by using HealthKit's bloodGlucose).
 * a global timer for the next reading
 * changing the calibration parameters updates a third blue curve
 * a single slider for setting the desired glucose range and the alarms
