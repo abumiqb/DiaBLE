@@ -178,6 +178,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
                             let realTimeGlucose = oopData.realTimeGlucose.value
                             self.app.currentGlucose = realTimeGlucose
+                            UIApplication.shared.applicationIconBadgeNumber = realTimeGlucose
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.glucoseAlarm = oopData.alarm
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
@@ -391,7 +392,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         app.transmitter.state = peripheral.state
         log("\(peripheral.name!) has disconnected.")
         if error != nil {
-            log("Bluetooth error: \(error!.localizedDescription)")
+            let errorCode = (error as! CBError).code // 6 = timed out when out of reach
+            log("Bluetooth error type (\(errorCode)): \(error!.localizedDescription)")
             if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter.type) {
                 centralManager.connect(peripheral, options: nil)
             }

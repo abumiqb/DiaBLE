@@ -6,6 +6,7 @@ enum TransmitterType: String, CaseIterable, Hashable, Identifiable {
     var id: String { rawValue }
 }
 
+
 class Transmitter {
 
     static let deviceInfoServiceUUID = "180A"
@@ -53,6 +54,7 @@ class Transmitter {
         peripheral?.writeValue(Data(bytes), for: writeCharacteristic!, type: .withoutResponse)
     }
 }
+
 
 class Bubble: Transmitter {
     override var type: TransmitterType { TransmitterType.bubble }
@@ -118,21 +120,22 @@ class Droplet: Transmitter {
     }
 }
 
+
 class Limitter: Droplet {
     override var type: TransmitterType { TransmitterType.limitter }
 }
+
 
 class MiaoMiao: Transmitter {
     override var type: TransmitterType { TransmitterType.miaomiao }
 
     override var name: String {
         var name = "MiaoMiao"
-        if let peripheral = peripheral {
-            if peripheral.name!.contains("miaomiao2") {
-                name += " 2"
-            }
+        if let peripheral = peripheral, peripheral.name!.contains("miaomiao2") {
+            name += " 2"
         }
-        return name}
+        return name
+    }
     
     override class var dataServiceUUID: String { "6E400001-B5A3-F393-E0A9-E50E24DCCA9E" }
     override class var dataReadCharacteristicUUID: String  { "6E400003-B5A3-F393-E0A9-E50E24DCCA9E" }
