@@ -11,7 +11,6 @@ TODO
 
 * MiaoMiao:
    - varying the frequency (normal: [0xD1, 0x03], short:  [0xD1, 0x01], startup: [0xD1, 0x05])
-* Decode data received from Bluetooth in Transmitter classes
 * save the settings and store the measurements by using HealthKit's bloodGlucose.
 * a global timer for the next reading
 * changing the calibration parameters updates a third blue curve

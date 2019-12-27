@@ -271,6 +271,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 hardware = "V \(hardware)\n\(macAddress)"
             }
             app.transmitter.firmware = firmware
+            app.transmitter.hardware = hardware
             app.transmitterFirmware = firmware
             app.transmitterHardware = hardware
         }

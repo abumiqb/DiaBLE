@@ -111,8 +111,15 @@ class Bubble: Transmitter {
             main.info("\n\n\(name): no sensor")
 
         } else if response == .dataInfo {
-            hardware =  "\(data[2]).0"
-            main.log("\(name): hardware: \(hardware)")
+            // keep the manufacturer data advertised via Bluetooth (MAC addreess in the second line)
+            let firmwareHardware =  "\(data[2]).0"
+            let hardwareLines = hardware.split(separator: "\n")
+            if hardwareLines.count == 2 {
+                hardware = "\(hardwareLines[0]) (\(firmwareHardware))\n\(hardwareLines[1])"
+            } else {
+                hardware = firmwareHardware
+            }
+            main.log("\(name): hardware version (in firmware): \(firmwareHardware)")
             battery = Int(data[4])
             main.log("\(name): battery level: \(battery)")
             firmware = "\(data[2]).\(data[3])"
