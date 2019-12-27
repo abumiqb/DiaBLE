@@ -4,6 +4,8 @@ import CoreNFC
 class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
     var tagSession: NFCTagReaderSession?
+
+    /// Main app delegate to use its log()
     var main: MainDelegate!
 
     var isNFCAvailable: Bool {

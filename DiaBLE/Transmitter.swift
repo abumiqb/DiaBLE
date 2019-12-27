@@ -29,6 +29,9 @@ class Transmitter {
     var type: TransmitterType { TransmitterType.none }
     var name: String { "Unknown" }
 
+    /// Main app delegate to use its log()
+    var main: MainDelegate!
+
     var peripheral: CBPeripheral?
 
     /// Updated when notified by the Bluetooth manager
@@ -39,6 +42,7 @@ class Transmitter {
 
     var battery: Int = 0
     var firmware = ""
+    var hardware = ""
     var buffer = Data()
 
     var sensor: Sensor?
@@ -52,6 +56,9 @@ class Transmitter {
 
     func write(_ bytes: [UInt8]) {
         peripheral?.writeValue(Data(bytes), for: writeCharacteristic!, type: .withoutResponse)
+    }
+
+    func read(data: Data) {
     }
 }
 
@@ -157,6 +164,73 @@ class MiaoMiao: Transmitter {
                 return "no sensor detected"
             case .frequencyChange:
                 return "reading frequency change"
+            }
+        }
+    }
+
+
+    override func read(data: Data) {
+        // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java
+        // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Bluetooth/MiaoMiaoManager.swift
+        // https://github.com/gshaviv/ninety-two/blob/master/WoofWoof/MiaoMiao.swift
+
+        let response = ResponseType(rawValue: data[0])
+        if buffer.count == 0 {
+            main.log("\(name) response: \(response!) (0x\(data[0...0].hex))")
+        }
+        if data.count == 1 {
+            if response == .noSensor {
+                main.info("\n\n\(name): no sensor")
+            }
+            if response == .newSensor {
+                main.info("\n\n\(name): new sensor detected")
+            }
+        } else if data.count == 2 {
+            if response == .frequencyChange {
+                if data[1] == 0x01 {
+                    main.log("\(name): success changing frequency")
+                } else {
+                    main.log("\(name): failed to change frequency")
+                }
+            }
+        } else {
+            sensor = Sensor(transmitter: self)
+            buffer.append(data)
+            main.log("\(name): partial buffer count: \(buffer.count)")
+            if buffer.count >= 363 {
+                main.log("\(name) buffer data count: \(buffer.count)")
+                main.log("\(name): \(Int(buffer[1]) << 8 + Int(buffer[2]))")
+                sensor!.age = Int(buffer[3]) << 8 + Int(buffer[4])
+                main.log("\(name): sensor age: \(sensor!.age), days: \(String(format: "%.1f", Double(sensor!.age)/60/24))")
+                // TODO: app.sensorAge = sensor.age
+
+                sensor!.uid = Data(buffer[5...12])
+                main.log("\(name): patch uid: \(sensor!.uid.hex)")
+                main.log("\(name): sensor serial number: \(sensor!.serial)")
+                // TODO: app.sensorSerial = sensor.serial
+
+                battery = Int(buffer[13])
+                main.log("\(name): battery: \(battery)")
+                // TODO: app.battery = battery
+
+                firmware = buffer[14...15].hex
+                hardware = buffer[16...17].hex
+                main.log("\(name): firmware: \(firmware), hardware: \(hardware)")
+                // TODO: app.transmitterFirmware = firmware
+                // TODO: app.transmitterHardware = hardware
+
+                if buffer.count > 363 {
+                    sensor!.patchInfo = Data(buffer[363...368])
+                    main.log("\(name): patch info: \(sensor!.patchInfo.hex)")
+                } else {
+                    // https://github.com/dabear/LibreOOPAlgorithm/blob/master/app/src/main/java/com/hg4/oopalgorithm/oopalgorithm/AlgorithmRunner.java
+                    sensor!.patchInfo = Data([0xDF, 0x00, 0x00, 0x01, 0x01, 0x02])
+                }
+
+                sensor!.fram = Data(buffer[18 ..< 362])
+                // TODO parseSensorData(sensor)
+                main.info("\n\n\(name)  +  \(sensor!.type)")
+                buffer = Data()
             }
         }
     }

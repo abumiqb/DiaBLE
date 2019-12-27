@@ -65,6 +65,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         history = History()
         settings = Settings()
 
+        // TODO: option CBCentralManagerOptionRestoreIdentifierKey
         self.centralManager = CBCentralManager(delegate: nil, queue: nil)
         self.nfcReader = NFCReader()
 
@@ -392,7 +393,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         app.transmitter.state = peripheral.state
         log("\(peripheral.name!) has disconnected.")
         if error != nil {
-            let errorCode = CBError.Code(rawValue: (error! as NSError).code)! // 6 = timed out when out of reach
+            let errorCode = CBError.Code(rawValue: (error! as NSError).code)! // 6 = timed out when out of range
             log("Bluetooth error type \(errorCode.rawValue): \(error!.localizedDescription)")
             if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter.type) {
                 centralManager.connect(peripheral, options: nil)
