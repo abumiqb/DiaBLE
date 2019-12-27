@@ -250,13 +250,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Attempting to connect to \(name)")
         centralManager.stopScan()
         if peripheral.name == "Bubble" {
-            app.transmitter = Bubble(peripheral: peripheral)
+            app.transmitter = Bubble(peripheral: peripheral, main: self)
         } else if peripheral.name == "Droplet" {
-            app.transmitter = Droplet(peripheral: peripheral)
+            app.transmitter = Droplet(peripheral: peripheral, main: self)
         } else if peripheral.name!.hasPrefix("LimiTTer") {
-            app.transmitter = Limitter(peripheral: peripheral)
+            app.transmitter = Limitter(peripheral: peripheral, main: self)
         } else if peripheral.name!.contains("miaomiao") {
-            app.transmitter = MiaoMiao(peripheral: peripheral)
+            app.transmitter = MiaoMiao(peripheral: peripheral, main: self)
         }
         info("\n\n\(app.transmitter.name)")
         app.transmitter.peripheral?.delegate = self
@@ -473,190 +473,23 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
             self.app.nextReading = self.settings.readingInterval * 60 - 4
 
-            // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Bubble.java
+            app.transmitter.read(data)
 
-            if app.transmitter.type == .bubble {
-                let response = Bubble.ResponseType(rawValue: data[0])
-                log("Bubble response: \(response!) (0x\(data[0...0].hex))")
-
-                if response == .noSensor {
-                    // TODO: confirm receipt the first time
-                    // bubble!.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
-                    info("\n\nBubble: no sensor")
-
-                } else if response == .dataInfo {
-                    let hardware =  "\(data[2]).0"
-                    log("Bubble: hardware: \(hardware)")
-                    let battery = Int(data[4])
-                    app.transmitter.battery = battery
-                    log("Bubble: battery level: \(battery)")
-                    app.battery = battery
-                    let firmware = "\(data[2]).\(data[3])"
-                    app.transmitter.firmware = firmware
-                    log("Bubble: firmware: \(firmware)")
-                    // confirm receipt
-                    app.transmitter.write([0x02, 0x01, 0x00, 0x00, 0x00, 0x2B])
-
-                } else {
-                    if app.transmitter.sensor == nil {
-                        app.transmitter.sensor = Sensor(transmitter: app.transmitter)
-                    }
-                    let sensor = app.transmitter.sensor!
-                    if response == .serialNumber {
-                        let uid = data[2...9]
-                        sensor.uid = Data(uid)
-                        log("Bubble: patch uid: \(uid.hex)")
-                        log("Bubble: sensor serial number: \(sensor.serial)")
-                        app.sensorSerial = sensor.serial
-
-                    } else if response == .patchInfo {
-                        let info = Double(app.transmitter.firmware)! < 1.35 ? data[3...8] : data[5...10]
-                        sensor.patchInfo = Data(info)
-                        log("Bubble: patch info: \(info.hex)")
-
-                    } else if response == .dataPacket {
-                        var buffer = app.transmitter.buffer
-                        buffer.append(data.suffix(from: 4))
-                        app.transmitter.buffer = buffer
-                        log("Bubble: partial buffer count: \(buffer.count)")
-                        if buffer.count == 352 {
-                            let fram = buffer[..<344]
-                            // let footer = buffer.suffix(8)
-                            sensor.fram = Data(fram)
-                            parseSensorData(sensor)
-                            info("\n\nBubble + \(sensor.type)")
-                            app.transmitter.buffer = Data()
-                        }
-                    }
-                }
-
-            } else if app.transmitter.type == .droplet {
-                if app.transmitter.sensor == nil {
-                    app.transmitter.sensor = Sensor(transmitter: app.transmitter)
-                }
-                let sensor = app.transmitter.sensor!
-                if data.count == 8 {
-                    app.transmitter.sensor!.uid = Data(data)
-                    log("Droplet: sensor serial number: \(sensor.serial))")
-                    app.sensorSerial = sensor.serial
-                } else {
-                    log("Droplet response: 0x\(data[0...0].hex)")
-                    log("Droplet response data length: \(Int(data[1]))")
-                }
-                // TODO:  9999 = error
-
-            } else if app.transmitter.type == .limitter {
-                // https://github.com/JohanDegraeve/xdripswift/tree/master/xdrip/BluetoothTransmitter/CGM/Libre/Droplet
-                // https://github.com/SpikeApp/Spike/blob/master/src/services/bluetooth/CGMBluetoothService.as
-                if app.transmitter.sensor == nil {
-                    app.transmitter.sensor = Sensor(transmitter: app.transmitter)
-                }
-                let sensor = app.transmitter.sensor!
-
-                let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
-                guard fields.count == 4 else { return }
-
-                let battery = Int(fields[2])!
-                app.transmitter.battery = battery
-                log("LimiTTer: battery level: \(battery)")
-                app.battery = battery
-
-                let firstField = fields[0]
-                guard !firstField.hasPrefix("000") else {
-                    log("LimiTTer: no sensor data")
-                    info("\n\nLimitter: no sensor data")
-                    if firstField.hasSuffix("999") {
-                        let err = fields[1]
-                        log("LimiTTer: error \(err)\n(0001 = low battery, 0002 = badly positioned)")
-                    }
-                    return
-                }
-
-                let rawValue = Int(firstField.dropLast(2))!
-                log("LimiTTer: Glucose raw value: \(rawValue)")
-                info("\n\nDroplet raw glucose: \(rawValue)")
-                app.currentGlucose = rawValue / 10
-
-                let sensorType = Droplet.LibreType(rawValue: String(firstField.suffix(2)))!.description
-                log("LimiTTer: sensor type = \(sensorType)")
-                app.sensorSerial = sensorType
-
-                sensor.age = Int(fields[3])! * 10
-                log("LimiTTer: sensor age: \(Int(sensor.age)) (\(String(format: "%.1f", Double(sensor.age)/60/24)) days)")
+            // TODO: use directly transmitter and sensor in ContentView
+            app.battery = app.transmitter.battery
+            if let sensor = app.transmitter.sensor {
+                app.sensorSerial = sensor.serial
                 app.sensorAge = sensor.age
+            }
+            app.transmitterFirmware = app.transmitter.firmware
+            app.transmitterHardware = app.transmitter.hardware
 
-
-            } else if app.transmitter.type == .miaomiao {
-                // https://github.com/NightscoutFoundation/xDrip/blob/master/app/src/main/java/com/eveningoutpost/dexdrip/Models/Tomato.java
-                // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Bluetooth/MiaoMiaoManager.swift
-                // https://github.com/gshaviv/ninety-two/blob/master/WoofWoof/MiaoMiao.swift
-
-                let response = MiaoMiao.ResponseType(rawValue: data[0])
-                if app.transmitter.buffer.count == 0 {
-                    log("MiaoMiao response: \(response!) (0x\(data[0...0].hex))")
+            if app.transmitter.type == .bubble || app.transmitter.type == .miaomiao {
+                if let sensor = app.transmitter.sensor, sensor.fram.count > 0 {
+                    parseSensorData(sensor)
                 }
-                if data.count == 1 {
-                    if response == .noSensor {
-                        info("\n\n\(app.transmitter.name): no sensor")
-                    }
-                    if response == .newSensor {
-                        info("\n\nMiaoMiao: new sensor detected")
-                    }
-                } else if data.count == 2 {
-                    if response == .frequencyChange {
-                        if data[1] == 0x01 {
-                            log("MiaoMiao: success changing frequency")
-                        } else {
-                            log("MiaoMiao: failed to change frequency")
-                        }
-                    }
-                } else {
-                    let sensor = Sensor(transmitter: app.transmitter)
-                    app.transmitter.sensor = sensor
-                    var buffer = app.transmitter.buffer
-                    buffer.append(data)
-                    app.transmitter.buffer = buffer
-                    log("MiaoMiao: partial buffer count: \(buffer.count)")
-                    if buffer.count >= 363 {
-                        log("MiaoMiao buffer data count: \(buffer.count)")
-                        log("MiaoMiao: data length: \(Int(buffer[1]) << 8 + Int(buffer[2]))")
-                        sensor.age = Int(buffer[3]) << 8 + Int(buffer[4])
-                        log("MiaoMiao: sensor age: \(sensor.age), days: \(String(format: "%.1f", Double(sensor.age)/60/24))")
-                        app.sensorAge = sensor.age
-
-                        let uid = buffer[5...12]
-                        sensor.uid = Data(uid)
-                        log("MiaoMiao: patch uid: \(uid.hex)")
-                        log("Miaomiao: sensor serial number: \(sensor.serial)")
-                        app.sensorSerial = sensor.serial
-
-                        let battery = Int(buffer[13])
-                        app.transmitter.battery = battery
-                        log("MiaoMiao: battery level: \(battery)")
-                        app.battery = battery
-
-                        let firmware = buffer[14...15].hex
-                        let hardware = buffer[16...17].hex
-                        log("MiaoMiao: firmware: \(firmware), hardware: \(hardware)")
-                        app.transmitter.firmware = firmware
-                        app.transmitterFirmware = firmware
-                        app.transmitterHardware = hardware
-
-                        if buffer.count > 363 {
-                            let patchInfo = buffer[363...368]
-                            sensor.patchInfo = Data(patchInfo)
-                            log("MiaoMiao: patch info: \(patchInfo.hex)")
-                        } else {
-                            // https://github.com/dabear/LibreOOPAlgorithm/blob/master/app/src/main/java/com/hg4/oopalgorithm/oopalgorithm/AlgorithmRunner.java
-                            sensor.patchInfo = Data([0xDF, 0x00, 0x00, 0x01, 0x01, 0x02])
-                        }
-
-                        sensor.fram = Data(buffer[18 ..< 362])
-                        parseSensorData(sensor)
-                        info("\n\n\(app.transmitter.name)  +  \(sensor.type)")
-                        app.transmitter.buffer = Data()
-                    }
-                }
+            } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
+                app.currentGlucose = app.transmitter.sensor!.currentGlucose
             }
         }
     }

@@ -62,6 +62,7 @@ class Sensor {
 
     var state: SensorState = SensorState.unknown
     var age: Int = 0
+    var currentGlucose: Int = 0
 
     init() {
     }

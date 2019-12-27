@@ -29,10 +29,10 @@ class Transmitter {
     var type: TransmitterType { TransmitterType.none }
     var name: String { "Unknown" }
 
+    var peripheral: CBPeripheral?
+
     /// Main app delegate to use its log()
     var main: MainDelegate!
-
-    var peripheral: CBPeripheral?
 
     /// Updated when notified by the Bluetooth manager
     var state: CBPeripheralState = .disconnected
@@ -47,8 +47,9 @@ class Transmitter {
 
     var sensor: Sensor?
 
-    init(peripheral: CBPeripheral) {
+    init(peripheral: CBPeripheral, main: MainDelegate) {
         self.peripheral = peripheral
+        self.main = main
     }
 
     init() {
@@ -114,7 +115,6 @@ class Bubble: Transmitter {
             main.log("\(name): hardware: \(hardware)")
             battery = Int(data[4])
             main.log("\(name): battery level: \(battery)")
-            // TODO: app.battery = battery
             firmware = "\(data[2]).\(data[3])"
             main.log("\(name): firmware: \(firmware)")
             // confirm receipt
@@ -128,7 +128,6 @@ class Bubble: Transmitter {
                 sensor!.uid = Data(data[2...9])
                 main.log("\(name): patch uid: \(sensor!.uid.hex)")
                 main.log("\(name): sensor serial number: \(sensor!.serial)")
-                // TODO: app.sensorSerial = sensor.serial
 
             } else if response == .patchInfo {
                 sensor!.patchInfo = Data(Double(firmware)! < 1.35 ? data[3...8] : data[5...10])
@@ -141,7 +140,6 @@ class Bubble: Transmitter {
                     let fram = buffer[..<344]
                     // let footer = buffer.suffix(8)
                     sensor!.fram = Data(fram)
-                    // TODO: parseSensorData(sensor)
                     main.info("\n\n\(name) + \(sensor!.type)")
                     buffer = Data()
                 }
@@ -187,7 +185,6 @@ class Droplet: Transmitter {
         if data.count == 8 {
             sensor!.uid = Data(data)
             main.log("\(name): sensor serial number: \(sensor!.serial))")
-            // TODO: app.sensorSerial = sensor.serial
         } else {
             main.log("\(name) response: 0x\(data[0...0].hex)")
             main.log("\(name) response data length: \(Int(data[1]))")
@@ -214,7 +211,6 @@ class Limitter: Droplet {
 
         battery = Int(fields[2])!
         main.log("\(name): battery: \(battery)")
-        // TODO: app.battery = battery
 
         let firstField = fields[0]
         guard !firstField.hasPrefix("000") else {
@@ -230,15 +226,13 @@ class Limitter: Droplet {
         let rawValue = Int(firstField.dropLast(2))!
         main.log("\(name): Glucose raw value: \(rawValue)")
         main.info("\n\nDroplet raw glucose: \(rawValue)")
-        // TODO: app.currentGlucose = rawValue / 10
+        sensor!.currentGlucose = rawValue / 10
 
         let sensorType = LibreType(rawValue: String(firstField.suffix(2)))!.description
         main.log("\name): sensor type = \(sensorType)")
-        // TODO: app.sensorSerial = sensorType
 
         sensor!.age = Int(fields[3])! * 10
         main.log("\(name): sensor age: \(Int(sensor!.age)) (\(String(format: "%.1f", Double(sensor!.age)/60/24)) days)")
-        // TODO: app.sensorAge = sensor.age
     }
 }
 
@@ -313,22 +307,17 @@ class MiaoMiao: Transmitter {
                 main.log("\(name): \(Int(buffer[1]) << 8 + Int(buffer[2]))")
                 sensor!.age = Int(buffer[3]) << 8 + Int(buffer[4])
                 main.log("\(name): sensor age: \(sensor!.age), days: \(String(format: "%.1f", Double(sensor!.age)/60/24))")
-                // TODO: app.sensorAge = sensor.age
 
                 sensor!.uid = Data(buffer[5...12])
                 main.log("\(name): patch uid: \(sensor!.uid.hex)")
                 main.log("\(name): sensor serial number: \(sensor!.serial)")
-                // TODO: app.sensorSerial = sensor.serial
 
                 battery = Int(buffer[13])
                 main.log("\(name): battery: \(battery)")
-                // TODO: app.battery = battery
 
                 firmware = buffer[14...15].hex
                 hardware = buffer[16...17].hex
                 main.log("\(name): firmware: \(firmware), hardware: \(hardware)")
-                // TODO: app.transmitterFirmware = firmware
-                // TODO: app.transmitterHardware = hardware
 
                 if buffer.count > 363 {
                     sensor!.patchInfo = Data(buffer[363...368])
@@ -339,7 +328,6 @@ class MiaoMiao: Transmitter {
                 }
 
                 sensor!.fram = Data(buffer[18 ..< 362])
-                // TODO parseSensorData(sensor)
                 main.info("\n\n\(name)  +  \(sensor!.type)")
                 buffer = Data()
             }
