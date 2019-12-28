@@ -90,9 +90,6 @@ struct Monitor: View {
 
                     HStack {
                         VStack {
-                            if app.battery > 0 {
-                                Text("Battery: \(app.battery)%")
-                            }
                             Text(app.sensorState)
                                 .foregroundColor(app.sensorState == "Ready" ? .green : .red)
 
@@ -103,8 +100,11 @@ struct Monitor: View {
                         }
 
                         VStack {
+                            if app.battery > 0 {
+                                Text("Battery: \(app.battery)%")
+                            }
                             if app.transmitterFirmware.count > 0 {
-                                Text("Firmware\n\(app.transmitterFirmware)")
+                                Text("Firmware: \(app.transmitterFirmware)")
                             }
                             if app.transmitterHardware.count > 0 {
                                 Text("Hardware:\n\(app.transmitterHardware)")
