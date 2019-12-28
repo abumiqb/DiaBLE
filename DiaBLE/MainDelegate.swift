@@ -93,6 +93,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func info(_ text: String) {
+        if info.text.contains(text) { return} 
         if text.prefix(2) == "\n\n" {
             info.text = String(text.dropFirst(2))
         } else {
