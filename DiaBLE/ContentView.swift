@@ -56,7 +56,7 @@ struct Monitor: View {
             VStack {
 
                 VStack {
-                    Text(app.currentGlucose > 0 ? "\(app.currentGlucose)" : "---")
+                    Text(app.currentGlucose > 0 ? " \(app.currentGlucose) " : " --- ")
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
