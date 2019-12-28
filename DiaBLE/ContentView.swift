@@ -200,20 +200,28 @@ struct Graph: View {
         ZStack {
 
             // Glucose range rect in the background
-            GeometryReader { geometry in
-                Path() { path in
-                    let width  = Double(geometry.size.width) - 60.0
-                    let height = Double(geometry.size.height)
-                    let count = self.history.rawValues.count
-                    if count > 0 {
-                        let v = self.history.rawValues
-                        let max = v.max()!
-                        let yScale = (height - 30) / Double(max)
-                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
-                    }
-                }.fill(Color.green).opacity(0.2)
+            if self.history.rawValues.count > 0 {
+                GeometryReader { geometry in
+                    Path() { path in
+                        let width  = Double(geometry.size.width) - 60
+                        let height = Double(geometry.size.height)
+                        let yScale = (height - 30) / Double(self.history.rawValues.max()!)
+                        path.addRect(CGRect(x: 1 + 30, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
+                    }.fill(Color.green).opacity(0.2)
+                }
             }
 
+            // Glucose low and high labels at the right
+            if self.history.rawValues.count > 0 {
+                GeometryReader { geometry in
+                    ZStack {
+                        Text("\(self.settings.highGlucose)")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.highGlucose)))
+                        Text("\(self.settings.lowGlucose)")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.lowGlucose)))
+                    }.font(.footnote).foregroundColor(.gray)
+                }
+            }
 
             // Raw values
             GeometryReader { geometry in
@@ -224,7 +232,7 @@ struct Graph: View {
                     if count > 0 {
                         let v = self.history.rawValues
                         let max = v.max()!
-                        let yScale = (height - 30) / Double(max)
+                        let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
                         path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
                         for i in 1 ..< count {
@@ -237,18 +245,18 @@ struct Graph: View {
                 }.stroke(Color.yellow).opacity(0.6)
             }
 
-            // Values scaled based on the raw values
+            // Values scaled the same as the raw values
             GeometryReader { geometry in
                 Path() { path in
                     let width  = Double(geometry.size.width) - 60.0
                     let height = Double(geometry.size.height)
-                    path.addRoundedRect(in: CGRect(x: 0.0 + 30.0, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
+                    path.addRoundedRect(in: CGRect(x: 0.0 + 30, y: 0.0, width: width, height: height), cornerSize: CGSize(width: 8, height: 8))
                     let count = self.history.values.count
                     if count > 0 {
                         let v = self.history.values
                         let r = self.history.rawValues
                         let max = r.max()!
-                        let yScale = (height - 30) / Double(max)
+                        let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
                         path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
                         for i in 1 ..< count {
