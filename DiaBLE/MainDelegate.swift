@@ -176,6 +176,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         self.info("\n\(json)")
                         self.log("LibreOOP measurements failed")
                         self.info("\nLibreOOP measurements failed")
+                        self.history.values = []
                     } else {
                         let decoder = JSONDecoder.init()
                         if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
@@ -200,6 +201,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         }
                     }
                 } else {
+                    self.history.values = []
                     self.log("LibreOOP connection failed")
                     self.info("\nLibreOOP connection failed")
                 }
