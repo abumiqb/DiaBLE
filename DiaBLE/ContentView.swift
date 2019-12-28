@@ -100,7 +100,7 @@ struct Monitor: View {
                         }
 
                         VStack {
-                            if app.battery > 0 {
+                            if app.battery > -1 {
                                 Text("Battery: \(app.battery)%")
                             }
                             if app.transmitterFirmware.count > 0 {

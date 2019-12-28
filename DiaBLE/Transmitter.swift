@@ -40,7 +40,7 @@ class Transmitter {
     var readCharacteristic: CBCharacteristic?
     var writeCharacteristic: CBCharacteristic?
 
-    var battery: Int = 0
+    var battery: Int = -1
     var firmware = ""
     var hardware = ""
     var buffer = Data()
