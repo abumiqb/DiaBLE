@@ -129,7 +129,7 @@ struct Monitor: View {
 
                     if history.values.count > 0 {
                         Text("OOP history: [\(history.values.map{ String($0) }.joined(separator: " "))]")
-                            .foregroundColor(.purple)
+                            .foregroundColor(.blue)
                     }
                     if history.rawValues.count > 0 {
                         Text("Raw history: [\(history.rawValues.map{ String($0) }.joined(separator: " "))]")
@@ -203,11 +203,11 @@ struct Graph: View {
             if self.history.rawValues.count > 0 {
                 GeometryReader { geometry in
                     Path() { path in
-                        let width  = Double(geometry.size.width) - 60
+                        let width  = Double(geometry.size.width) - 60.0
                         let height = Double(geometry.size.height)
-                        let yScale = (height - 30) / Double(self.history.rawValues.max()!)
-                        path.addRect(CGRect(x: 1 + 30, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
-                    }.fill(Color.green).opacity(0.2)
+                        let yScale = (height - 30.0) / Double(self.history.rawValues.max()!)
+                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
+                    }.fill(Color.green).opacity(0.15)
                 }
             }
 
@@ -266,7 +266,7 @@ struct Graph: View {
                             )
                         }
                     }
-                }.stroke(Color.purple)
+                }.stroke(Color.blue)
             }
         }
     }
