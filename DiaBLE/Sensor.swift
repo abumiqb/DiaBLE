@@ -70,6 +70,17 @@ class Sensor {
     init(transmitter: Transmitter) {
         self.transmitter = transmitter
     }
+    
+    func checkCRC16() -> (String, String, String, String, String, String) {
+        let headerCRC16 = fram[0...1].hex
+        let bodyCRC16   = fram[24...25].hex
+        let footerCRC16 = fram[320...321].hex
+        let computedHeaderCRC16 = String(format: "%04x", crc16(fram[2...23]))
+        let computedBodyCRC16   = String(format: "%04x", crc16(fram[26...319]))
+        let computedFooterCRC16 = String(format: "%04x", crc16(fram[322...343]))
+
+        return (headerCRC16, bodyCRC16, footerCRC16, computedHeaderCRC16, computedBodyCRC16, computedFooterCRC16)
+    }
 }
 
 

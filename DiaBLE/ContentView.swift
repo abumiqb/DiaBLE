@@ -71,12 +71,12 @@ struct Monitor: View {
                             .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
                             .fixedSize()
 
-                        if self.app.nextReading > -1 {
-                            Text("\(self.app.nextReading) s")
+                        if self.app.readingTimer > -1 {
+                            Text("\(self.app.readingTimer) s")
                                 .fixedSize()
                                 .onReceive(timer) { _ in
-                                    if self.app.nextReading > 0 {
-                                        self.app.nextReading -= 1
+                                    if self.app.readingTimer > 0 {
+                                        self.app.readingTimer -= 1
                                     }
                             }.foregroundColor(.orange)
                         }
@@ -333,16 +333,28 @@ struct LogView: View {
                 Button(action: {
                     self.settings.reversedLog.toggle()
                     self.log.text = self.log.text.split(separator:"\n").reversed().joined(separator: "\n")
+                    if !self.settings.reversedLog { self.log.text.append("\n") }
                 }) { VStack {
                     Image(systemName: "backward.fill")
                         .resizable()
-                        .frame(width: 12, height: 12).offset(y: 4)
-                    Text(" REV ").offset(y: -4)
+                        .frame(width: 12, height: 12).offset(y: 5)
+                    Text(" REV ").offset(y: -2)
                     }
                 }.background(self.settings.reversedLog ? Color.accentColor : Color.clear)
                     .border(Color.accentColor, width: 3)
                     .cornerRadius(5)
                     .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
+
+                
+                Button(action: {
+                    self.settings.logging.toggle()
+                    self.app.main.log("\(self.settings.logging ? "Log started" : "Log stopped") \(Date())")
+                }) { VStack {
+                    Image(systemName: self.settings.logging ? "stop.circle" : "play.circle")
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                    }
+                }.foregroundColor(.accentColor)
 
                 Spacer()
 

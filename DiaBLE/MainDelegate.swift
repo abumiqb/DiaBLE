@@ -21,7 +21,8 @@ class App: ObservableObject {
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
 
-    @Published var nextReading: Int = -1
+    @Published var readingCount: Int = 0
+    @Published var readingTimer: Int = -1
     @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
 }
 
@@ -41,7 +42,10 @@ class History: ObservableObject {
 
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
+
+    @Published var logging: Bool = true
     @Published var reversedLog: Bool = true
+
     @Published var numberFormatter = NumberFormatter()
     @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
@@ -84,10 +88,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
 
     public func log(_ text: String) {
-        if self.settings.reversedLog {
-            log.text = "\(text)\n\(log.text)"
-        } else {
-            log.text.append("\(text)\n")
+        if self.settings.logging || text.hasPrefix("Log") {
+            if self.settings.reversedLog {
+                log.text = "\(text)\n\(log.text)"
+            } else {
+                log.text.append("\(text)\n")
+            }
         }
         print("\(text)")
     }
@@ -220,7 +226,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 app.transmitter.state = .disconnected
             }
             app.transmitterState = "Disconnected"
-            app.nextReading = -1
+            app.readingTimer = -1
         case .poweredOn:
             log("Bluetooth: Powered on")
             centralManager.scanForPeripherals(withServices: nil, options: nil)
@@ -476,7 +482,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
-            self.app.nextReading = self.settings.readingInterval * 60 - 4
+            self.app.readingTimer = self.settings.readingInterval * 60 - 4
 
             app.transmitter.read(data)
 
