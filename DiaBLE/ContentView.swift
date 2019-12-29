@@ -63,7 +63,7 @@ struct Monitor: View {
                         .background(Color.blue)
                         .fixedSize()
 
-                    Text("\(app.glucoseAlarm.replacingOccurrences(of: "_", with: " "))  \(app.glucoseTrend)")
+                    Text("\(app.glucoseAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.glucoseTrend)")
                         .foregroundColor(.blue)
 
                     HStack {
@@ -394,6 +394,23 @@ struct SettingsView: View {
 
                 Spacer()
 
+                Button(action: {
+                    let transmitter = self.app.transmitter
+
+                    self.selectedTab = .monitor
+                    let centralManager = self.app.main.centralManager
+                    if transmitter != nil {
+                        centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    }
+                    self.app.preferredTransmitter = self.preferredTransmitter
+                    if centralManager.state == .poweredOn {
+                        centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    }
+                }
+                ) { Text("Rescan").bold() }
+
+                Spacer()
+
                 // TODO: a unified slider, see https://github.com/SwiftExtensions/SwiftUIExtensions
                 VStack(spacing: 0) {
                     Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))")
@@ -411,23 +428,6 @@ struct SettingsView: View {
                     Slider(value: $settings.alarmHigh, in: 30 ... 300, step: 1)
                 }.padding(.horizontal, 80)
                     .accentColor(.red)
-
-                Spacer()
-
-                Button(action: {
-                    let transmitter = self.app.transmitter
-
-                    self.selectedTab = .monitor
-                    let centralManager = self.app.main.centralManager
-                    if transmitter != nil {
-                        centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
-                    }
-                    self.app.preferredTransmitter = self.preferredTransmitter
-                    if centralManager.state == .poweredOn {
-                        centralManager.scanForPeripherals(withServices: nil, options: nil)
-                    }
-                }
-                ) { Text("Rescan").bold() }
 
                 Spacer()
 
