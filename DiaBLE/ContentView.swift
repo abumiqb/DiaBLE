@@ -200,30 +200,26 @@ struct Graph: View {
         ZStack {
 
             // Glucose range rect in the background
-            if self.history.rawValues.count > 0 {
-                GeometryReader { geometry in
-                    Path() { path in
-                        let width  = Double(geometry.size.width) - 60.0
-                        let height = Double(geometry.size.height)
-                        let yScale = (height - 30.0) / Double(self.history.rawValues.max()!)
-                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.glucoseHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.glucoseHigh - self.settings.glucoseLow) * yScale - 1.0))
-                    }.fill(Color.green).opacity(0.15)
-                }
+            GeometryReader { geometry in
+                Path() { path in
+                    let width  = Double(geometry.size.width) - 60.0
+                    let height = Double(geometry.size.height)
+                    let yScale = (height - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0)
+                    path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.glucoseHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.glucoseHigh - self.settings.glucoseLow) * yScale - 1.0))
+                }.fill(Color.green).opacity(0.15)
             }
 
             // Glucose low and high labels at the right
-            if self.history.rawValues.count > 0 {
-                GeometryReader { geometry in
-                    ZStack {
-                        Text("\(Int(self.settings.glucoseHigh))")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * self.settings.glucoseHigh))
-                        Text("\(Int(self.settings.glucoseLow))")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * self.settings.glucoseLow))
-                    }.font(.footnote).foregroundColor(.gray)
-                }
+            GeometryReader { geometry in
+                ZStack {
+                    Text("\(Int(self.settings.glucoseHigh))")
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0) * self.settings.glucoseHigh))
+                    Text("\(Int(self.settings.glucoseLow))")
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0) * self.settings.glucoseLow))
+                }.font(.footnote).foregroundColor(.gray)
             }
 
-            // Raw values
+            // History raw values
             GeometryReader { geometry in
                 Path() { path in
                     let width  = Double(geometry.size.width) - 60.0
@@ -245,7 +241,7 @@ struct Graph: View {
                 }.stroke(Color.yellow).opacity(0.6)
             }
 
-            // Values scaled the same as the raw values
+            // History values scaled the same as the raw ones
             GeometryReader { geometry in
                 Path() { path in
                     let width  = Double(geometry.size.width) - 60.0
@@ -398,11 +394,12 @@ struct SettingsView: View {
 
                 Spacer()
 
-                // A unified alider including alarms
+                // A unified slider including alarms
                 VStack(spacing: 0) {
                     Text("\(Int(settings.glucoseLow))  -  \(Int(settings.glucoseHigh))")
+                        .foregroundColor(.green)
+                    Slider(value: $settings.glucoseLow,  in: 30 ... 200, step: 1)
                     Slider(value: $settings.glucoseHigh, in: 30 ... 200, step: 1)
-                    Slider(value: $settings.glucoseLow, in: 30 ... 200, step: 1)
                 }.padding(.horizontal, 80)
                     .accentColor(.green)
 
