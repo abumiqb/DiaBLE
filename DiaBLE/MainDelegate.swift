@@ -1,5 +1,6 @@
 import SwiftUI
 import CoreBluetooth
+import AVFoundation
 
 class App: ObservableObject {
 
@@ -68,6 +69,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     var centralManager: CBCentralManager
     var nfcReader: NFCReader
+    var audioPlayer = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "alarm_high", ofType: "mp3")!))
 
     override init() {
         app = App()
@@ -111,6 +113,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
     }
 
+    public func playAlarm() {
+        audioPlayer.play()
+    }
 
     func parseSensorData(_ sensor: Sensor) {
         let fram = sensor.fram
@@ -196,6 +201,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             UIApplication.shared.applicationIconBadgeNumber = realTimeGlucose
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.oopAlarm = oopData.alarm
+                            if self.app.currentGlucose > 0 && (self.app.currentGlucose > Int(self.settings.alarmHigh) || self.app.currentGlucose < Int(self.settings.alarmLow)) {
+                                self.playAlarm()
+                            }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.oopTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())

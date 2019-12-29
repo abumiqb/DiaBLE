@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		C513933123B8EB7600CB245F /* alarm_high.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C513933023B8EB7600CB245F /* alarm_high.mp3 */; };
 		C51A2F4823AD4BA9003D6519 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C51A2F4723AD4BA9003D6519 /* README.md */; };
 		C566341323B14D55001EB5F3 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C566341223B14D55001EB5F3 /* Extensions.swift */; };
 		C597AF6B23AB9E3E0012926C /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597AF6A23AB9E3E0012926C /* NFCReader.swift */; };
@@ -44,6 +45,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		C513933023B8EB7600CB245F /* alarm_high.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = alarm_high.mp3; sourceTree = "<group>"; };
 		C51A2F4723AD4BA9003D6519 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		C566341223B14D55001EB5F3 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		C597AF6A23AB9E3E0012926C /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
@@ -129,6 +131,7 @@
 				C5A5797123A2CF2C00945F72 /* LibreOOP.swift */,
 				C5E1013923A2774C00678DF6 /* AppDelegate.swift */,
 				C5E1013B23A2774C00678DF6 /* SceneDelegate.swift */,
+				C513933023B8EB7600CB245F /* alarm_high.mp3 */,
 				C5E1014223A2774D00678DF6 /* Assets.xcassets */,
 				C5E1014723A2774D00678DF6 /* LaunchScreen.storyboard */,
 				C5E1014A23A2774D00678DF6 /* Info.plist */,
@@ -271,6 +274,7 @@
 			files = (
 				C5E1014923A2774D00678DF6 /* LaunchScreen.storyboard in Resources */,
 				C5E1014623A2774D00678DF6 /* Preview Assets.xcassets in Resources */,
+				C513933123B8EB7600CB245F /* alarm_high.mp3 in Resources */,
 				C51A2F4823AD4BA9003D6519 /* README.md in Resources */,
 				C5E1014323A2774D00678DF6 /* Assets.xcassets in Resources */,
 				C5EA857723B28861004A4128 /* TODO.md in Resources */,
