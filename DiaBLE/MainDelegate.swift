@@ -42,6 +42,7 @@ class History: ObservableObject {
 
 class Settings: ObservableObject {
     @Published var readingInterval: Int  = 5
+    @Published var glucoseRange = 70 ... 180
 
     @Published var logging: Bool = true
     @Published var reversedLog: Bool = true
@@ -49,8 +50,6 @@ class Settings: ObservableObject {
     @Published var numberFormatter = NumberFormatter()
     @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
-    @Published var lowGlucose: Int = 70
-    @Published var highGlucose: Int = 170
 }
 
 public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {

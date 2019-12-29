@@ -206,7 +206,7 @@ struct Graph: View {
                         let width  = Double(geometry.size.width) - 60.0
                         let height = Double(geometry.size.height)
                         let yScale = (height - 30.0) / Double(self.history.rawValues.max()!)
-                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.highGlucose) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.highGlucose - self.settings.lowGlucose ) * yScale - 1.0))
+                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.glucoseRange.lowerBound) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.glucoseRange.upperBound - self.settings.glucoseRange.lowerBound ) * yScale - 1.0))
                     }.fill(Color.green).opacity(0.15)
                 }
             }
@@ -215,10 +215,10 @@ struct Graph: View {
             if self.history.rawValues.count > 0 {
                 GeometryReader { geometry in
                     ZStack {
-                        Text("\(self.settings.highGlucose)")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.highGlucose)))
-                        Text("\(self.settings.lowGlucose)")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.lowGlucose)))
+                        Text("\(self.settings.glucoseRange.upperBound)")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.glucoseRange.upperBound)))
+                        Text("\(self.settings.glucoseRange.lowerBound)")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.glucoseRange.lowerBound)))
                     }.font(.footnote).foregroundColor(.gray)
                 }
             }
