@@ -416,10 +416,10 @@ struct SettingsView: View {
                     Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))")
                         .foregroundColor(.green)
                     HStack {
-                        Slider(value: $settings.glucoseLow,  in: 30 ... 100, step: 1)
-                        Slider(value: $settings.glucoseHigh, in: 100 ... 200, step: 1)
+                        Slider(value: $settings.glucoseLow,  in: 20 ... 100, step: 1)
+                        Slider(value: $settings.glucoseHigh, in: 140 ... 400, step: 1)
                     }
-                }.padding(.horizontal, 70)
+                }.padding(.horizontal, 50)
                     .accentColor(.green)
 
                 // TODO:
@@ -427,10 +427,10 @@ struct SettingsView: View {
                     Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))")
                         .foregroundColor(.red)
                     HStack {
-                        Slider(value: $settings.alarmLow,  in: 20 ... 70, step: 1)
-                        Slider(value: $settings.alarmHigh, in: 70 ... 400, step: 1)
+                        Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
+                        Slider(value: $settings.alarmHigh, in: 140 ... 400, step: 1)
                     }
-                }.padding(.horizontal, 70)
+                }.padding(.horizontal, 50)
                     .accentColor(.red)
 
                 Spacer()
