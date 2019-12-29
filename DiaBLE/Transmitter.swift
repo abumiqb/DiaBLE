@@ -150,7 +150,6 @@ class Bubble: Transmitter {
                     // let footer = buffer.suffix(8)
                     sensor!.fram = Data(fram)
                     main.info("\n\n \(sensor!.type)  +  \(name)")
-                    buffer = Data()
                 }
             }
         }
@@ -306,12 +305,13 @@ class MiaoMiao: Transmitter {
                 }
             }
         } else {
-            sensor = Sensor(transmitter: self)
+            if sensor == nil {
+                sensor = Sensor(transmitter: self)
+            }
             buffer.append(data)
             main.log("\(name): partial buffer count: \(buffer.count)")
             if buffer.count >= 363 {
-                main.log("\(name) buffer data count: \(buffer.count)")
-                main.log("\(name): \(Int(buffer[1]) << 8 + Int(buffer[2]))")
+                main.log("\(name) data count: \(Int(buffer[1]) << 8 + Int(buffer[2]))")
                 sensor!.age = Int(buffer[3]) << 8 + Int(buffer[4])
                 main.log("\(name): sensor age: \(sensor!.age), days: \(String(format: "%.1f", Double(sensor!.age)/60/24))")
 
@@ -336,7 +336,6 @@ class MiaoMiao: Transmitter {
 
                 sensor!.fram = Data(buffer[18 ..< 362])
                 main.info("\n\n \(sensor!.type)  +  \(name)")
-                buffer = Data()
             }
         }
     }

@@ -119,6 +119,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     func parseSensorData(_ sensor: Sensor) {
+
         let fram = sensor.fram
 
         log("Sensor: header CRC16: \(fram[0...1].hex), computed: \(String(format: "%04x", crc16(fram[2...23])))")
@@ -203,6 +204,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.oopAlarm = oopData.alarm
                             if self.app.currentGlucose > 0 && (self.app.currentGlucose > Int(self.settings.alarmHigh) || self.app.currentGlucose < Int(self.settings.alarmLow)) {
+                                self.log("Alarm: current: \(self.app.currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
                                 self.playAlarm()
                             }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
@@ -510,8 +512,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             app.transmitterHardware = app.transmitter.hardware
 
             if app.transmitter.type == .bubble || app.transmitter.type == .miaomiao {
-                if let sensor = app.transmitter.sensor, sensor.fram.count > 0 {
+                if let sensor = app.transmitter.sensor, sensor.fram.count > 0, app.transmitter.buffer.count >=  sensor.fram.count  {
                     parseSensorData(sensor)
+                    app.transmitter.buffer = Data()
                 }
             } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
                 app.currentGlucose = app.transmitter.sensor!.currentGlucose

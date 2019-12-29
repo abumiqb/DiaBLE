@@ -417,9 +417,9 @@ struct SettingsView: View {
                         .foregroundColor(.green)
                     HStack {
                         Slider(value: $settings.glucoseLow,  in: 20 ... 100, step: 1)
-                        Slider(value: $settings.glucoseHigh, in: 140 ... 400, step: 1)
+                        Slider(value: $settings.glucoseHigh, in: 140 ... 350, step: 1)
                     }
-                }.padding(.horizontal, 50)
+                }.padding(.horizontal, 40)
                     .accentColor(.green)
 
                 // TODO:
@@ -428,9 +428,9 @@ struct SettingsView: View {
                         .foregroundColor(.red)
                     HStack {
                         Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
-                        Slider(value: $settings.alarmHigh, in: 140 ... 400, step: 1)
+                        Slider(value: $settings.alarmHigh, in: 140 ... 350, step: 1)
                     }
-                }.padding(.horizontal, 50)
+                }.padding(.horizontal, 40)
                     .accentColor(.red)
 
                 Spacer()
