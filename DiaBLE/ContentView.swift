@@ -60,7 +60,7 @@ struct Monitor: View {
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
-                        .background(Color.blue)
+                        .background(app.currentGlucose > Int(settings.alarmHigh) || app.currentGlucose < Int(settings.alarmLow) ? Color.red : Color.blue)
                         .fixedSize()
 
                     Text("\(app.glucoseAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.glucoseTrend)")
