@@ -317,7 +317,7 @@ struct LogView: View {
                     }
                 }
 
-                Button(action: { self.log.text = "" }) {
+                Button(action: { self.log.text = "Log cleared \(Date())" }) {
                     VStack {
                         Image(systemName: "clear")
                             .resizable()

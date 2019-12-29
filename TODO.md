@@ -1,7 +1,6 @@
 FIXME
 -----
 
-* clearing the log shrinks it
 * Bubble:
    - Mac Catalyst stops receiving data from the read characteristic
 
