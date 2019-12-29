@@ -45,6 +45,9 @@ class Settings: ObservableObject {
     // TODO: a GlucoseRange struct
     @Published var glucoseLow: Double = 70.0
     @Published var glucoseHigh: Double = 180.0
+    @Published var alarmLow: Double = 70.0
+    @Published var alarmHigh: Double = 220.0
+
 
     @Published var logging: Bool = true
     @Published var reversedLog: Bool = true

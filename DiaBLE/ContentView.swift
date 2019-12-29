@@ -394,7 +394,7 @@ struct SettingsView: View {
 
                 Spacer()
 
-                // A unified slider including alarms
+                // TODO: a unified slider
                 VStack(spacing: 0) {
                     Text("\(Int(settings.glucoseLow))  -  \(Int(settings.glucoseHigh))")
                         .foregroundColor(.green)
@@ -402,6 +402,15 @@ struct SettingsView: View {
                     Slider(value: $settings.glucoseHigh, in: 30 ... 200, step: 1)
                 }.padding(.horizontal, 80)
                     .accentColor(.green)
+
+                // TODO:
+                VStack(spacing: 0) {
+                    Text("\(Int(settings.alarmLow))  -  \(Int(settings.alarmHigh))")
+                        .foregroundColor(.red)
+                    Slider(value: $settings.alarmLow,  in: 30 ... 300, step: 1)
+                    Slider(value: $settings.alarmHigh, in: 30 ... 300, step: 1)
+                }.padding(.horizontal, 80)
+                    .accentColor(.red)
 
                 Spacer()
 
