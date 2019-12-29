@@ -206,7 +206,7 @@ struct Graph: View {
                         let width  = Double(geometry.size.width) - 60.0
                         let height = Double(geometry.size.height)
                         let yScale = (height - 30.0) / Double(self.history.rawValues.max()!)
-                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - Double(self.settings.glucoseRange.lowerBound) * yScale + 1.0, width: width - 2.0, height: Double(self.settings.glucoseRange.upperBound - self.settings.glucoseRange.lowerBound ) * yScale - 1.0))
+                        path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.glucoseHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.glucoseHigh - self.settings.glucoseLow) * yScale - 1.0))
                     }.fill(Color.green).opacity(0.15)
                 }
             }
@@ -215,10 +215,10 @@ struct Graph: View {
             if self.history.rawValues.count > 0 {
                 GeometryReader { geometry in
                     ZStack {
-                        Text("\(self.settings.glucoseRange.upperBound)")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.glucoseRange.upperBound)))
-                        Text("\(self.settings.glucoseRange.lowerBound)")
-                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * Double(self.settings.glucoseRange.lowerBound)))
+                        Text("\(Int(self.settings.glucoseHigh))")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * self.settings.glucoseHigh))
+                        Text("\(Int(self.settings.glucoseLow))")
+                            .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / Double(self.history.rawValues.max()!) * self.settings.glucoseLow))
                     }.font(.footnote).foregroundColor(.gray)
                 }
             }
@@ -386,13 +386,27 @@ struct SettingsView: View {
                     }.pickerStyle(SegmentedPickerStyle())
                 }
 
+                Spacer()
+
                 HStack {
                     Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
                         Image(systemName: "timer")
                         Text("\(settings.readingInterval) m") })
                 }
                 .foregroundColor(.orange)
-                .padding(100)
+                .padding(.horizontal, 100)
+
+                Spacer()
+
+                // A unified alider including alarms
+                VStack(spacing: 0) {
+                    Text("\(Int(settings.glucoseLow))  -  \(Int(settings.glucoseHigh))")
+                    Slider(value: $settings.glucoseHigh, in: 30 ... 200, step: 1)
+                    Slider(value: $settings.glucoseLow, in: 30 ... 200, step: 1)
+                }.padding(.horizontal, 80)
+                    .accentColor(.green)
+
+                Spacer()
 
                 Button(action: {
                     let transmitter = self.app.transmitter

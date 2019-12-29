@@ -21,7 +21,6 @@ class App: ObservableObject {
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
 
-    @Published var readingCount: Int = 0
     @Published var readingTimer: Int = -1
     @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
 }
@@ -41,13 +40,17 @@ class History: ObservableObject {
 }
 
 class Settings: ObservableObject {
-    @Published var readingInterval: Int  = 5
-    @Published var glucoseRange = 70 ... 180
+    @Published var readingInterval: Int = 5
+
+    // TODO: a GlucoseRange struct
+    @Published var glucoseLow: Double = 70.0
+    @Published var glucoseHigh: Double = 180.0
 
     @Published var logging: Bool = true
     @Published var reversedLog: Bool = true
 
     @Published var numberFormatter = NumberFormatter()
+    
     @Published var oopServerSite: String = "https://www.glucose.space/"
     @Published var oopServerToken: String = "bubble-201907"
 }
