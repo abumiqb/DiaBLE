@@ -12,8 +12,8 @@ class App: ObservableObject {
     // TODO: use directly app.transmitter and app.sensor in ContentView
     @Published var battery: Int = 0
     @Published var currentGlucose: Int = 0
-    @Published var glucoseAlarm: String = ""
-    @Published var glucoseTrend: String = ""
+    @Published var oopAlarm: String = ""
+    @Published var oopTrend: String = ""
     @Published var sensorSerial: String = ""
     @Published var sensorAge: Int = 0
     @Published var sensorState: String = "Scanning..."
@@ -195,9 +195,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             self.app.currentGlucose = realTimeGlucose
                             UIApplication.shared.applicationIconBadgeNumber = realTimeGlucose
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
-                            self.app.glucoseAlarm = oopData.alarm
+                            self.app.oopAlarm = oopData.alarm
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
-                            self.app.glucoseTrend = oopData.trendArrow
+                            self.app.oopTrend = oopData.trendArrow
                             let (_, history) = oopData.glucoseData(date: Date())
                             let oopHistory = history.map { $0.glucose }
                             if oopHistory.count > 0 {

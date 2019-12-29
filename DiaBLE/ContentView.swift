@@ -63,7 +63,7 @@ struct Monitor: View {
                         .background(app.currentGlucose > Int(settings.alarmHigh) || app.currentGlucose < Int(settings.alarmLow) ? Color.red : Color.blue)
                         .fixedSize()
 
-                    Text("\(app.glucoseAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.glucoseTrend)")
+                    Text("\(app.oopAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.oopTrend)")
                         .foregroundColor(.blue)
 
                     HStack {
