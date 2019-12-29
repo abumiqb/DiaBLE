@@ -63,7 +63,7 @@ struct Monitor: View {
                         .background(app.currentGlucose > Int(settings.alarmHigh) || app.currentGlucose < Int(settings.alarmLow) ? Color.red : Color.blue)
                         .fixedSize()
 
-                    Text("\(app.oopAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.oopTrend)")
+                    Text("\(app.oopAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.oopTrend.replacingOccurrences(of: "_", with: " "))")
                         .foregroundColor(.blue)
 
                     HStack {
@@ -411,7 +411,7 @@ struct SettingsView: View {
 
                 Spacer()
 
-                // TODO: a unified slider, see https://github.com/SwiftExtensions/SwiftUIExtensions
+                // TODO: a unified slider
                 VStack(spacing: 0) {
                     Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))")
                         .foregroundColor(.green)

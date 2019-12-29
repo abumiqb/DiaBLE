@@ -13,7 +13,7 @@ TODO
 * save the app.settings (simply by using a wrappable property) and the measurements (simply by using HealthKit's bloodGlucose).
 * a global timer for the next reading
 * changing the calibration parameters updates a third curve
-* a single slider for setting the desired glucose range and the alarms
+* a single slider for setting the desired glucose range and the alarms ( see [SwiftExtensions](https://github.com/SwiftExtensions/SwiftUIExtensions))
 
 
 PLANS / WISHES
