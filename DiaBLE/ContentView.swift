@@ -60,11 +60,11 @@ struct Monitor: View {
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
-                        .background(Color.yellow)
+                        .background(Color.blue)
                         .fixedSize()
 
-                    Text("\(app.glucoseAlarm)  \(app.glucoseTrend)")
-                        .foregroundColor(.yellow)
+                    Text("\(app.glucoseAlarm.replacingOccurrences(of: "_", with: " "))  \(app.glucoseTrend)")
+                        .foregroundColor(.blue)
 
                     HStack {
                         Text(app.transmitterState)
@@ -394,9 +394,9 @@ struct SettingsView: View {
 
                 Spacer()
 
-                // TODO: a unified slider
+                // TODO: a unified slider, see https://github.com/SwiftExtensions/SwiftUIExtensions
                 VStack(spacing: 0) {
-                    Text("\(Int(settings.glucoseLow))  -  \(Int(settings.glucoseHigh))")
+                    Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))")
                         .foregroundColor(.green)
                     Slider(value: $settings.glucoseLow,  in: 30 ... 200, step: 1)
                     Slider(value: $settings.glucoseHigh, in: 30 ... 200, step: 1)
@@ -405,7 +405,7 @@ struct SettingsView: View {
 
                 // TODO:
                 VStack(spacing: 0) {
-                    Text("\(Int(settings.alarmLow))  -  \(Int(settings.alarmHigh))")
+                    Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))")
                         .foregroundColor(.red)
                     Slider(value: $settings.alarmLow,  in: 30 ... 300, step: 1)
                     Slider(value: $settings.alarmHigh, in: 30 ... 300, step: 1)
