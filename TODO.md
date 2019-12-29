@@ -8,14 +8,14 @@ FIXME
 TODO
 ----
 
-* Background mode and notifications
+* background mode and notifications
 * MiaoMiao:
    - varying the frequency (normal: [0xD1, 0x03], short:  [0xD1, 0x01], startup: [0xD1, 0x05])
 * save the app.settings (simply by using a wrappable property) and the OOP measurements (simply by using HealthKit's bloodGlucose)
 * a global timer for the next reading
 * changing the calibration parameters updates a third curve
-* a single slider for setting the desired glucose range and the alarms ( see [SwiftExtensions](https://github.com/SwiftExtensions/SwiftUIExtensions))
-* log: add the time when passing "\t"; add a search field; save to a file.
+* a single slider for setting the desired glucose range and the alarms (see [SwiftExtensions](https://github.com/SwiftExtensions/SwiftUIExtensions))
+* log: add the time when passing "\t"; add a search field; save to a file
 
 
 PLANS / WISHES
