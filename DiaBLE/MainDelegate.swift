@@ -69,7 +69,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     var centralManager: CBCentralManager
     var nfcReader: NFCReader
-    var audioPlayer = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "alarm_high", ofType: "mp3")!))
+    var audioPlayer = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "alarm_high", ofType: "mp3")!), fileTypeHint: "mp3")
 
     override init() {
         app = App()
@@ -114,6 +114,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func playAlarm() {
+        audioPlayer.currentTime = 25.0
         audioPlayer.play()
     }
 

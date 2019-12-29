@@ -424,8 +424,8 @@ struct SettingsView: View {
                 VStack(spacing: 0) {
                     Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))")
                         .foregroundColor(.red)
-                    Slider(value: $settings.alarmLow,  in: 30 ... 300, step: 1)
-                    Slider(value: $settings.alarmHigh, in: 30 ... 300, step: 1)
+                    Slider(value: $settings.alarmLow,  in: 30 ... 400, step: 1)
+                    Slider(value: $settings.alarmHigh, in: 30 ... 400, step: 1)
                 }.padding(.horizontal, 80)
                     .accentColor(.red)
 
