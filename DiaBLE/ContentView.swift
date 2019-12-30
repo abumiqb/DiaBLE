@@ -421,7 +421,7 @@ struct SettingsView: View {
 
                 // TODO: a unified slider
                 VStack(spacing: 0) {
-                    Text("Target:").foregroundColor(.green)
+                    Image(systemName: "hand.thumbsup.fill").foregroundColor(.green).padding(4)
                     Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))").foregroundColor(.green)
                     HStack {
                         Slider(value: $settings.glucoseLow,  in: 20 ... 100, step: 1)
@@ -432,7 +432,7 @@ struct SettingsView: View {
 
                 // TODO:
                 VStack(spacing: 0) {
-                    Text("Alarm:").foregroundColor(.red)
+                    Image(systemName: "bell.fill").foregroundColor(.red).padding(4)
                     Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))").foregroundColor(.red)
                     HStack {
                         Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
