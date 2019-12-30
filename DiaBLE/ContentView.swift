@@ -218,7 +218,7 @@ struct Graph: View {
                 Path() { path in
                     let width  = Double(geometry.size.width) - 60.0
                     let height = Double(geometry.size.height)
-                    let yScale = (height - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0)
+                    let yScale = (height - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0)
                     path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.glucoseHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.glucoseHigh - self.settings.glucoseLow) * yScale - 1.0))
                 }.fill(Color.green).opacity(0.15)
             }
@@ -227,9 +227,9 @@ struct Graph: View {
             GeometryReader { geometry in
                 ZStack {
                     Text("\(Int(self.settings.glucoseHigh))")
-                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0) * self.settings.glucoseHigh))
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.glucoseHigh))
                     Text("\(Int(self.settings.glucoseLow))")
-                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 300.0) * self.settings.glucoseLow))
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.glucoseLow))
                 }.font(.footnote).foregroundColor(.gray)
             }
 
@@ -461,5 +461,6 @@ struct ContentView_Previews: PreviewProvider {
 
     static var previews: some View {
         ContentView().environmentObject(App()).environmentObject(Info()).environmentObject(Log()).environmentObject(History()).environmentObject(Settings())
+            .environment(\.colorScheme, .dark)
     }
 }
