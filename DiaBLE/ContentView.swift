@@ -61,6 +61,7 @@ struct Monitor: View {
                         .foregroundColor(.black)
                         .padding(10)
                         .background(app.currentGlucose > 0 && (app.currentGlucose > Int(settings.alarmHigh) || app.currentGlucose < Int(settings.alarmLow)) ? Color.red : Color.blue)
+                        .cornerRadius(5)
                         .fixedSize()
 
                     Text("\(app.oopAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.oopTrend.replacingOccurrences(of: "_", with: " "))")
@@ -165,7 +166,18 @@ struct Monitor: View {
                     .font(.footnote)
                 }
 
-                Text(" ")
+                Button(action: {
+                    let transmitter = self.app.transmitter
+                    let centralManager = self.app.main.centralManager
+                    if transmitter != nil {
+                        centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
+                    }
+                    if centralManager.state == .poweredOn {
+                        centralManager.scanForPeripherals(withServices: nil, options: nil)
+                    }
+                }
+                ) { Text(" Rescan ").padding(2).overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.accentColor, lineWidth: 1)) }
+
             }
             .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
             .navigationBarItems(trailing:
@@ -350,7 +362,7 @@ struct LogView: View {
                         .resizable()
                         .frame(width: 32, height: 32)
                     }
-                }.foregroundColor(.accentColor)
+                }.foregroundColor(self.settings.logging ? .red : .green)
 
                 Spacer()
 
@@ -365,8 +377,6 @@ struct SettingsView: View {
 
     @Binding var selectedTab: Tab
 
-    @State var preferredTransmitter: TransmitterType = .none
-
     var body: some View {
 
         NavigationView {
@@ -375,7 +385,7 @@ struct SettingsView: View {
 
                 HStack {
                     Image(systemName: "heart.fill").foregroundColor(.red)
-                    Picker(selection: $preferredTransmitter, label: Text("Preferred")) {
+                    Picker(selection: $settings.preferredTransmitter, label: Text("Preferred")) {
                         ForEach(TransmitterType.allCases) { t in
                             Text(t.rawValue).tag(t)
                         }
@@ -396,25 +406,23 @@ struct SettingsView: View {
 
                 Button(action: {
                     let transmitter = self.app.transmitter
-
                     self.selectedTab = .monitor
                     let centralManager = self.app.main.centralManager
                     if transmitter != nil {
                         centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
                     }
-                    self.app.preferredTransmitter = self.preferredTransmitter
                     if centralManager.state == .poweredOn {
                         centralManager.scanForPeripherals(withServices: nil, options: nil)
                     }
                 }
-                ) { Text("Rescan").bold() }
+                ) { Text(" Rescan ").bold().padding(2).overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.accentColor, lineWidth: 2)) }
 
                 Spacer()
 
                 // TODO: a unified slider
                 VStack(spacing: 0) {
-                    Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))")
-                        .foregroundColor(.green)
+                    Text("Target:").foregroundColor(.green)
+                    Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))").foregroundColor(.green)
                     HStack {
                         Slider(value: $settings.glucoseLow,  in: 20 ... 100, step: 1)
                         Slider(value: $settings.glucoseHigh, in: 140 ... 350, step: 1)
@@ -424,8 +432,8 @@ struct SettingsView: View {
 
                 // TODO:
                 VStack(spacing: 0) {
-                    Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))")
-                        .foregroundColor(.red)
+                    Text("Alarm:").foregroundColor(.red)
+                    Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))").foregroundColor(.red)
                     HStack {
                         Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
                         Slider(value: $settings.alarmHigh, in: 140 ... 350, step: 1)

@@ -4,7 +4,6 @@ import AVFoundation
 
 class App: ObservableObject {
 
-    @Published var preferredTransmitter = TransmitterType.none
     @Published var transmitter: Transmitter!
     @Published var sensor: Sensor!
 
@@ -41,6 +40,7 @@ class History: ObservableObject {
 }
 
 class Settings: ObservableObject {
+    @Published var preferredTransmitter = TransmitterType.none
     @Published var readingInterval: Int = 5
 
     // TODO: a GlucoseRange struct
@@ -268,7 +268,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         for transmitterType in TransmitterType.allCases {
             if name.lowercased().contains(transmitterType.rawValue) {
                 found = true
-                if app.preferredTransmitter != .none && transmitterType != app.preferredTransmitter {
+                if settings.preferredTransmitter != .none && transmitterType != settings.preferredTransmitter {
                     found = false
                 }
             }
@@ -429,7 +429,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         if error != nil {
             let errorCode = CBError.Code(rawValue: (error! as NSError).code)! // 6 = timed out when out of range
             log("Bluetooth error type \(errorCode.rawValue): \(error!.localizedDescription)")
-            if app.transmitter != nil && (app.preferredTransmitter == .none || app.preferredTransmitter == app.transmitter.type) {
+            if app.transmitter != nil && (settings.preferredTransmitter == .none || settings.preferredTransmitter == app.transmitter.type) {
                 centralManager.connect(peripheral, options: nil)
             }
         }
