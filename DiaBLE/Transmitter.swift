@@ -112,11 +112,12 @@ class Bubble: Transmitter {
 
         } else if response == .dataInfo {
             // keep the manufacturer data advertised via Bluetooth (MAC address in the second line)
+            // firmware and advertised hardware versions are different: V 2.0 and 1.0
             let firmwareHardware = "\(data[2]).0"
             let hardwareLines = hardware.split(separator: "\n")
             if hardwareLines.count == 2 {
                 if !(hardwareLines[0].hasSuffix(")")) {
-                hardware = "\(hardwareLines[0]) (\(firmwareHardware))\n\(hardwareLines[1])"
+                    hardware = "\(hardwareLines[0]) (\(firmwareHardware))\n\(hardwareLines[1])"
                 }
             } else {
                 hardware = firmwareHardware
@@ -278,6 +279,14 @@ class MiaoMiao: Transmitter {
         }
     }
 
+    // TODO: test
+    override func readCommand(interval: Int = 5) -> [UInt8] {
+        var command = [UInt8(0xF0)]
+        if [1, 3, 5].contains(interval) {
+            command.insert(contentsOf: [0xD3, UInt8(interval)], at: 0)
+        }
+        return command
+    }
 
     override func read(_ data: Data) {
         

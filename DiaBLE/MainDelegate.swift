@@ -10,18 +10,20 @@ class App: ObservableObject {
     var main: MainDelegate!
 
     // TODO: use directly app.transmitter and app.sensor in ContentView
-    @Published var battery: Int = 0
     @Published var currentGlucose: Int = 0
     @Published var oopAlarm: String = ""
     @Published var oopTrend: String = ""
+    @Published var transmitterState: String = ""
+    @Published var readingTimer: Int = -1
+
+    @Published var sensorState: String = "Scanning..."
     @Published var sensorSerial: String = ""
     @Published var sensorAge: Int = 0
-    @Published var sensorState: String = "Scanning..."
-    @Published var transmitterState: String = ""
+
+    @Published var battery: Int = 0
     @Published var transmitterFirmware: String = ""
     @Published var transmitterHardware: String = "Scanning..."
 
-    @Published var readingTimer: Int = -1
     @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
 }
 
@@ -70,6 +72,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     var centralManager: CBCentralManager
     var nfcReader: NFCReader
     var audioPlayer = try! AVAudioPlayer(contentsOf: URL(fileURLWithPath: Bundle.main.path(forResource: "alarm_high", ofType: "mp3")!), fileTypeHint: "mp3")
+
 
     override init() {
         app = App()
@@ -125,6 +128,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         audioPlayer.play()
     }
 
+    // TODO: reimplement in the Sensor class
     func parseSensorData(_ sensor: Sensor) {
 
         let fram = sensor.fram
@@ -253,10 +257,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .poweredOn:
             log("Bluetooth: Powered on")
             centralManager.scanForPeripherals(withServices: nil, options: nil)
-        case .resetting: log("Bluetooth: Resetting")
+        case .resetting:    log("Bluetooth: Resetting")
         case .unauthorized: log("Bluetooth: Unauthorized")
-        case .unknown: log("Bluetooth: Unknown")
-        case .unsupported: log("Bluetooth: Unsupported")
+        case .unknown:      log("Bluetooth: Unknown")
+        case .unsupported:  log("Bluetooth: Unsupported")
         @unknown default:
             log("Bluetooth: Unknown state")
         }
