@@ -15,7 +15,7 @@ TODO
 * a global timer for the next reading
 * changing the calibration parameters updates a third curve
 * a single slider for setting the desired glucose range and the alarms (see [SwiftExtensions](https://github.com/SwiftExtensions/SwiftUIExtensions))
-* log: limit the number of readings: add the time when prepending "\t"; add a search field; save to a file
+* log: limit the number of readings; add the time when prepending "\t"; add a search field; save to a file
 
 
 PLANS / WISHES

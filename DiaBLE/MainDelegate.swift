@@ -87,6 +87,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         self.centralManager.delegate = self
         self.nfcReader.main = self
 
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            self.log("Audio Session error: \(error)")
+        }
+
         let numberFormatter = NumberFormatter()
         numberFormatter.minimumFractionDigits = 6
         self.settings.numberFormatter = numberFormatter
@@ -204,7 +211,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.oopAlarm = oopData.alarm
                             if self.app.currentGlucose > 0 && (self.app.currentGlucose > Int(self.settings.alarmHigh) || self.app.currentGlucose < Int(self.settings.alarmLow)) {
-                                self.log("Alarm: current: \(self.app.currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
+                                self.log("ALARM: current glucose: \(self.app.currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
                                 self.playAlarm()
                             }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
