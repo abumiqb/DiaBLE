@@ -178,7 +178,7 @@ struct Monitor: View {
                         centralManager.scanForPeripherals(withServices: nil, options: nil)
                     }
                 }
-                ) { Image(systemName: "arrow.clockwise.circle").resizable().frame(width: 24, height: 24).padding(2).foregroundColor(.accentColor) }
+                ) { Image(systemName: "arrow.clockwise.circle").resizable().frame(width: 32, height: 32).padding(2).foregroundColor(.accentColor) }
 
             }
             .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
@@ -398,7 +398,7 @@ struct SettingsView: View {
 
                 HStack {
                     Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
-                        Image(systemName: "timer")
+                        Image(systemName: "timer").resizable().frame(width: 32, height: 32)
                         Text("\(settings.readingInterval) m") })
                 }
                 .foregroundColor(.orange)
@@ -450,9 +450,16 @@ struct SettingsView: View {
     }
 }
 
+
 // TODO
 struct ContentView_Previews: PreviewProvider {
+    @EnvironmentObject var app: App
+    @EnvironmentObject var info: Info
+    @EnvironmentObject var log: Log
+    @EnvironmentObject var history: History
+    @EnvironmentObject var settings: Settings
+
     static var previews: some View {
-        ContentView()
+        ContentView().environmentObject(App()).environmentObject(Info()).environmentObject(Log()).environmentObject(History()).environmentObject(Settings())
     }
 }
