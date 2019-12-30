@@ -166,6 +166,8 @@ struct Monitor: View {
                     .font(.footnote)
                 }
 
+
+                // Same as Rescan
                 Button(action: {
                     let transmitter = self.app.transmitter
                     let centralManager = self.app.main.centralManager
@@ -176,7 +178,7 @@ struct Monitor: View {
                         centralManager.scanForPeripherals(withServices: nil, options: nil)
                     }
                 }
-                ) { Text(" Rescan ").padding(2).overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.accentColor, lineWidth: 1)) }
+                ) { Image(systemName: "arrow.clockwise.circle").resizable().frame(width: 24, height: 24).padding(2).foregroundColor(.accentColor) }
 
             }
             .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
