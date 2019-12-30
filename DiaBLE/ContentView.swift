@@ -13,11 +13,9 @@ struct ContentView: View {
     @EnvironmentObject var history: History
     @EnvironmentObject var settings: Settings
 
-    @State var selectedTab: Tab = .monitor
-
     var body: some View {
 
-        TabView(selection: $selectedTab) {
+        TabView(selection: $app.selectedTab) {
             Monitor().environmentObject(app).environmentObject(info).environmentObject(history).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gauge")
@@ -30,7 +28,7 @@ struct ContentView: View {
                     Text("Log")
             }.tag(Tab.log)
 
-            SettingsView(selectedTab: $selectedTab).environmentObject(app).environmentObject(settings)
+            SettingsView().environmentObject(app).environmentObject(settings)
                 .tabItem {
                     Image(systemName: "gear")
                     Text("Settings")
@@ -377,8 +375,6 @@ struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
 
-    @Binding var selectedTab: Tab
-
     var body: some View {
 
         NavigationView {
@@ -408,7 +404,7 @@ struct SettingsView: View {
 
                 Button(action: {
                     let transmitter = self.app.transmitter
-                    self.selectedTab = .monitor
+                    self.app.selectedTab = .monitor
                     let centralManager = self.app.main.centralManager
                     if transmitter != nil {
                         centralManager.cancelPeripheralConnection(transmitter!.peripheral!)
@@ -460,7 +456,28 @@ struct ContentView_Previews: PreviewProvider {
     @EnvironmentObject var settings: Settings
 
     static var previews: some View {
-        ContentView().environmentObject(App()).environmentObject(Info()).environmentObject(Log()).environmentObject(History()).environmentObject(Settings())
-            .environment(\.colorScheme, .dark)
+
+        Group {
+
+            ContentView()
+                .environmentObject(App())
+                .environmentObject(Info())
+                .environmentObject(Log())
+                .environmentObject(History())
+                .environmentObject(Settings())
+                .environment(\.colorScheme, .dark)
+
+            LogView()
+                .environmentObject(App())
+                .environmentObject(Log())
+                .environmentObject(Settings())
+                .environment(\.colorScheme, .dark)
+
+            SettingsView()
+                .environmentObject(App())
+                .environmentObject(Settings())
+                .environment(\.colorScheme, .dark)
+
+        }
     }
 }

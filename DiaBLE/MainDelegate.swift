@@ -9,6 +9,8 @@ class App: ObservableObject {
 
     var main: MainDelegate!
 
+    @Published var selectedTab: Tab = .monitor
+
     // TODO: use directly app.transmitter and app.sensor in ContentView
     @Published var currentGlucose: Int = 0
     @Published var oopAlarm: String = ""
