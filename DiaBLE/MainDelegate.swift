@@ -133,16 +133,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     // TODO: reimplement in the Sensor class
     func parseSensorData(_ sensor: Sensor) {
 
-        let fram = sensor.fram
-
-        log("Sensor: header CRC16: \(fram[0...1].hex), computed: \(String(format: "%04x", crc16(fram[2...23])))")
-        log("Sensor: body CRC16: \(fram[24...25].hex), computed: \(String(format: "%04x", crc16(fram[26...319])))")
-        log("Sensor: footer CRC16: \(fram[320...321].hex), computed: \(String(format: "%04x", crc16(fram[322...343])))")
-
+        log(sensor.crcReport)
         log("Sensor state: \(sensor.state)")
         app.sensorState = sensor.state.description
         log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
         app.sensorAge = sensor.age
+
+        let fram = sensor.fram
 
         var trend = [GlucoseMeasurement]()
         var history = [GlucoseMeasurement]()

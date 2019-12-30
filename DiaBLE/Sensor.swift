@@ -39,6 +39,7 @@ enum SensorState: UInt8, CustomStringConvertible {
     }
 }
 
+
 class Sensor {
 
     var type: SensorType = .libre1
@@ -70,8 +71,12 @@ class Sensor {
     init(transmitter: Transmitter) {
         self.transmitter = transmitter
     }
-    
-    func checkCRC() -> (headerCRC: String, computedHeaderCRC: String, bodyCRC: String, computedBodyCRC: String, footerCRC: String,  computedFooterCRC: String) {
+
+
+    var crcReport: String {
+
+        if fram.count != 344 { return "No FRAM read: can't verify CRC" }
+
         let headerCRC = fram[0...1].hex
         let bodyCRC   = fram[24...25].hex
         let footerCRC = fram[320...321].hex
@@ -79,7 +84,10 @@ class Sensor {
         let computedBodyCRC   = String(format: "%04x", crc16(fram[26...319]))
         let computedFooterCRC = String(format: "%04x", crc16(fram[322...343]))
 
-        return (headerCRC, computedHeaderCRC, bodyCRC, computedBodyCRC, footerCRC, computedFooterCRC)
+        var report = "Sensor header CRC: \(headerCRC), computed: \(computedHeaderCRC) -> \(headerCRC == computedHeaderCRC ? "OK" : "FAILED")"
+        report += "\nSensor body CRC16: \(bodyCRC), computed: \(computedBodyCRC) -> \(bodyCRC == computedBodyCRC ? "OK" : "FAILED")"
+        report += "\nSensor footer CRC16: \(footerCRC), computed: \(computedFooterCRC) -> \(footerCRC == computedFooterCRC ? "OK" : "FAILED")"
+        return report
     }
 }
 
