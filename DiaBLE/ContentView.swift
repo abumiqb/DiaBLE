@@ -232,12 +232,18 @@ struct Graph: View {
                         let max = v.max()!
                         let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
-                        path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
+                        var startingVoid = false
+                        if v[count - 1] < 1 { startingVoid = true }
+                        if startingVoid == false { path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale)) }
                         for i in 1 ..< count {
-                            path.addLine(to: .init(
-                                x: Double(i) * xScale + 30.0,
-                                y: height - Double(v[count - i - 1]) * yScale)
-                            )
+                            if v[count - i - 1] > 0 {
+                                if startingVoid == false {
+                                    path.addLine(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                } else {
+                                    startingVoid = false
+                                    path.move(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                }
+                            }
                         }
                     }
                 }.stroke(Color.yellow).opacity(0.6)
@@ -256,13 +262,17 @@ struct Graph: View {
                         let max = r.max()!
                         let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
-                        path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
+                        var startingVoid = false
+                        if v[count - 1] < 1 { startingVoid = true }
+                        if startingVoid == false { path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale)) }
                         for i in 1 ..< count {
                             if v[count - i - 1] > 0 {
-                                path.addLine(to: .init(
-                                    x: Double(i) * xScale + 30.0,
-                                    y: height - Double(v[count - i - 1]) * yScale)
-                                )
+                                if startingVoid == false {
+                                    path.addLine(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                } else {
+                                    startingVoid = false
+                                    path.move(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                }
                             }
                         }
                     }
@@ -271,6 +281,7 @@ struct Graph: View {
         }
     }
 }
+
 
 struct LogView: View {
     @EnvironmentObject var app: App

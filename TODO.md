@@ -8,8 +8,7 @@ FIXME
 TODO
 ----
 
-* background mode and notifications
-* with a new sensor and less than 32 values, show "NO" instead of OOP history "-1" and raw zeroes; don't draw bogus lines. 
+* notifications beside the beeps
 * MiaoMiao:
    - varying the frequency (normal: [0xD1, 0x03], short:  [0xD1, 0x01], startup: [0xD1, 0x05])
 * save the app.settings (simply by using a property wrapper) and the OOP measurements (simply by using HealthKit's bloodGlucose)
