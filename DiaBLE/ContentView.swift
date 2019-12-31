@@ -81,7 +81,6 @@ struct Monitor: View {
                         }
                     }
                 }
-
                 Graph().environmentObject(history).environmentObject(settings).frame(width: 31 * 7 + 60, height: 150)
 
                 HStack {
@@ -127,9 +126,10 @@ struct Monitor: View {
                     }
                 }
                 .font(.footnote)
+                .layoutPriority(1.0)
 
                 if app.params.offsetOffset != 0.0 {
-                    VStack {
+                    VStack(spacing: 8) {
                         HStack {
                             Text("Slope slope:")
                             TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
@@ -450,10 +450,26 @@ struct ContentView_Previews: PreviewProvider {
 
         Group {
             ContentView()
-                .environmentObject(App())
-                .environmentObject(Info())
+                .environmentObject(App(
+                    currentGlucose: 234,
+                    oopAlarm: "HIGH_GLUCOSE",
+                    oopTrend: "FALLING_QUICKLY",
+                    transmitterState: "Connected",
+                    readingTimer: 567,
+                    sensorState: "Ready",
+                    sensorSerial: "0M0008B8CSR",
+                    sensorAge: 3407,
+                    battery: 54,
+                    transmitterFirmware: "4.56",
+                    transmitterHardware: "Version 1.23\nAA:BB:CC:DD:EE:FF",
+                    params: CalibrationParameters(slopeSlope: 0.123456, slopeOffset: 0.123456, offsetOffset: -15.123456, offsetSlope: 0.123456)))
+                .environmentObject(Info("Sensor + Transmitter\nError Line 1\nError Line 2"))
                 .environmentObject(Log())
-                .environmentObject(History())
+                .environmentObject(History(
+                    values: [101, 122, 133, 144, 155, 166, 177, 178, 169, 150, 101, 122, 133, 144, 155, 166, 177, 178, 169, 150, 101, 122, 133, 144, 155, 166, 177, 178, 169, 150, 141, 132],
+                    rawValues: [121, 132, 133, 154, 165, 186, 187, 138, 159, 160, 121, 132, 133, 154, 165, 186, 187, 138, 159, 160, 161, 152, 153, 164, 165, 176, 177, 188, 189, 180, 182],
+                    rawTrend:  [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115]
+                ))
                 .environmentObject(Settings())
                 .environment(\.colorScheme, .dark)
 

@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		C513933123B8EB7600CB245F /* alarm_high.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = C513933023B8EB7600CB245F /* alarm_high.mp3 */; };
 		C51A2F4823AD4BA9003D6519 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C51A2F4723AD4BA9003D6519 /* README.md */; };
+		C5521C8223BB5D5A00826CFB /* Observables.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5521C8123BB5D5A00826CFB /* Observables.swift */; };
 		C566341323B14D55001EB5F3 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = C566341223B14D55001EB5F3 /* Extensions.swift */; };
 		C597AF6B23AB9E3E0012926C /* NFCReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C597AF6A23AB9E3E0012926C /* NFCReader.swift */; };
 		C5A5796E23A2CEE800945F72 /* Transmitter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5A5796D23A2CEE800945F72 /* Transmitter.swift */; };
@@ -47,6 +48,7 @@
 /* Begin PBXFileReference section */
 		C513933023B8EB7600CB245F /* alarm_high.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = alarm_high.mp3; sourceTree = "<group>"; };
 		C51A2F4723AD4BA9003D6519 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
+		C5521C8123BB5D5A00826CFB /* Observables.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observables.swift; sourceTree = "<group>"; };
 		C566341223B14D55001EB5F3 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
 		C597AF6A23AB9E3E0012926C /* NFCReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFCReader.swift; sourceTree = "<group>"; };
 		C5A5796D23A2CEE800945F72 /* Transmitter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Transmitter.swift; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				C566341223B14D55001EB5F3 /* Extensions.swift */,
+				C5521C8123BB5D5A00826CFB /* Observables.swift */,
 				C5FB2EF223A2794D0046F4F9 /* MainDelegate.swift */,
 				C5E1014023A2774C00678DF6 /* ContentView.swift */,
 				C5A5796F23A2CF0700945F72 /* Sensor.swift */,
@@ -304,6 +307,7 @@
 			files = (
 				C597AF6B23AB9E3E0012926C /* NFCReader.swift in Sources */,
 				C5E1013A23A2774C00678DF6 /* AppDelegate.swift in Sources */,
+				C5521C8223BB5D5A00826CFB /* Observables.swift in Sources */,
 				C5E1013F23A2774C00678DF6 /* DiaBLE.xcdatamodeld in Sources */,
 				C5E1014123A2774C00678DF6 /* ContentView.swift in Sources */,
 				C5A5796E23A2CEE800945F72 /* Transmitter.swift in Sources */,

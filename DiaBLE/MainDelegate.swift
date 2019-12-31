@@ -2,66 +2,6 @@ import SwiftUI
 import CoreBluetooth
 import AVFoundation
 
-class App: ObservableObject {
-
-    @Published var transmitter: Transmitter!
-    @Published var sensor: Sensor!
-
-    var main: MainDelegate!
-
-    @Published var selectedTab: Tab = .monitor
-
-    // TODO: use directly app.transmitter and app.sensor in ContentView
-    @Published var currentGlucose: Int = 0
-    @Published var oopAlarm: String = ""
-    @Published var oopTrend: String = ""
-    @Published var transmitterState: String = ""
-    @Published var readingTimer: Int = -1
-
-    @Published var sensorState: String = "Scanning..."
-    @Published var sensorSerial: String = ""
-    @Published var sensorAge: Int = 0
-
-    @Published var battery: Int = 0
-    @Published var transmitterFirmware: String = ""
-    @Published var transmitterHardware: String = "Scanning..."
-
-    @Published var params: CalibrationParameters = CalibrationParameters(slopeSlope: 0.0, slopeOffset: 0.0, offsetOffset: 0.0, offsetSlope: 0.0)
-}
-
-class Log: ObservableObject {
-    @Published var text: String = "Log \(Date())\n"
-}
-
-class Info: ObservableObject {
-    @Published var text: String = "Info"
-}
-
-class History: ObservableObject {
-    @Published var values: [Int] = []
-    @Published var rawValues: [Int] = []
-    @Published var rawTrend: [Int] = []
-}
-
-class Settings: ObservableObject {
-    @Published var preferredTransmitter = TransmitterType.none
-    @Published var readingInterval: Int = 5
-
-    // TODO: a GlucoseRange struct
-    @Published var glucoseLow: Double = 70.0
-    @Published var glucoseHigh: Double = 180.0
-    @Published var alarmLow: Double = 70.0
-    @Published var alarmHigh: Double = 220.0
-
-
-    @Published var logging: Bool = true
-    @Published var reversedLog: Bool = true
-
-    @Published var numberFormatter = NumberFormatter()
-    
-    @Published var oopServerSite: String = "https://www.glucose.space/"
-    @Published var oopServerToken: String = "bubble-201907"
-}
 
 public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
