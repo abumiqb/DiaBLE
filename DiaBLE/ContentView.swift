@@ -52,7 +52,7 @@ struct Monitor: View {
         NavigationView {
             
             VStack {
-
+                Spacer()
                 VStack {
                     Text(app.currentGlucose > 0 ? " \(app.currentGlucose) " : " --- ")
                         .fontWeight(.black)
@@ -81,51 +81,41 @@ struct Monitor: View {
                         }
                     }
                 }
-
                 Graph().environmentObject(history).environmentObject(settings).frame(width: 31 * 7 + 60, height: 150)
 
                 HStack {
-                    Spacer()
+                    VStack {
+                        Text(app.sensorState)
+                            .foregroundColor(app.sensorState == "Ready" ? .green : .red)
 
-                    HStack {
-                        VStack {
-                            Text(app.sensorState)
-                                .foregroundColor(app.sensorState == "Ready" ? .green : .red)
-
-                            if app.sensorAge > 0 {
-                                Text("\(app.sensorSerial)")
-                                Text("\(String(format: "%.1f", Double(app.sensorAge)/60/24)) days")
-                            }
-                        }
-
-                        VStack {
-                            if app.battery > -1 {
-                                Text("Battery: \(app.battery)%")
-                            }
-                            if app.transmitterFirmware.count > 0 {
-                                Text("Firmware: \(app.transmitterFirmware)")
-                            }
-                            if app.transmitterHardware.count > 0 {
-                                Text("Hardware:\n\(app.transmitterHardware)")
-                            }
+                        if app.sensorAge > 0 {
+                            Text("\(app.sensorSerial)")
+                            Text("\(String(format: "%.1f", Double(app.sensorAge)/60/24)) days")
                         }
                     }
-                    .font(.footnote)
-                    .foregroundColor(.yellow)
-                    .multilineTextAlignment(.center)
 
-                    Spacer()
+                    VStack {
+                        if app.battery > -1 {
+                            Text("Battery: \(app.battery)%")
+                        }
+                        if app.transmitterFirmware.count > 0 {
+                            Text("Firmware: \(app.transmitterFirmware)")
+                        }
+                        if app.transmitterHardware.count > 0 {
+                            Text("Hardware:\n\(app.transmitterHardware)")
+                        }
+                    }
                 }
+                .font(.footnote)
+                .foregroundColor(.yellow)
+                .multilineTextAlignment(.center)
 
-                Text(" ")
+                Text(info.text)
+                    .multilineTextAlignment(.center)
+                    .font(.footnote)
+                    .padding(.vertical, 5)
 
-                VStack {
-
-                    Text(info.text)
-                        .layoutPriority(2)
-
-                    Text(" ")
-
+                VStack(spacing: 1) {
                     if history.values.count > 0 {
                         Text("OOP history: [\(history.values.map{ String($0) }.joined(separator: " "))]")
                             .foregroundColor(.blue)
@@ -136,7 +126,6 @@ struct Monitor: View {
                         Text("Raw trend: [\(history.rawTrend.map{ String($0) }.joined(separator: " "))]")
                             .foregroundColor(.yellow)
                     }
-
                 }
                 .font(.footnote)
                 .multilineTextAlignment(.center)
@@ -164,6 +153,7 @@ struct Monitor: View {
                     .font(.footnote)
                 }
 
+                Spacer()
 
                 // Same as Rescan
                 Button(action: {
@@ -176,7 +166,8 @@ struct Monitor: View {
                         centralManager.scanForPeripherals(withServices: nil, options: nil)
                     }
                 }
-                ) { Image(systemName: "arrow.clockwise.circle").resizable().frame(width: 32, height: 32).padding(2).foregroundColor(.accentColor) }
+                ) { Image(systemName: "arrow.clockwise.circle").resizable().frame(width: 32, height: 32).padding(.bottom, 8
+                ).foregroundColor(.accentColor) }
 
             }
             .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
