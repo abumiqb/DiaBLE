@@ -43,40 +43,67 @@ enum SensorState: UInt8, CustomStringConvertible {
 class Sensor {
 
     var type: SensorType = .libre1
+    var state: SensorState = SensorState.unknown
     weak var transmitter: Transmitter?
+
+    var age: Int = 0
+    var serial: String = ""
+
+    var currentGlucose: Int = 0
+
+    var patchInfo: Data = Data() {
+        willSet(info) {
+            type = sensorType(patchInfo: info)
+        }
+    }
 
     var uid: Data = Data() {
         willSet(uid) {
             serial = serialNumber(uid: uid)
         }
     }
-    var serial: String = ""
 
-    var patchInfo: Data = Data()
+    var trend = [GlucoseMeasurement]()
+    var history = [GlucoseMeasurement]()
 
     var fram: Data = Data() {
         willSet(fram) {
             state = SensorState(rawValue: fram[4])!
             age = Int(fram[317]) << 8 + Int(fram[316])
+
+            let trendIndex = Int(fram[26])
+            let historyIndex = Int(fram[27])
+
+            for i in 0 ... 15 {
+                var j = trendIndex - 1 - i
+                if j < 0 { j += 16 }
+                let rawGlucose = (Int(fram[29+j*6]) & 0x1F) << 8 + Int(fram[28+j*6])
+                let rawTemperature = (Int(fram[32+j*6]) & 0x3F) << 8 + Int(fram[31+j*6])
+                trend.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
+            }
+
+            for i in 0 ... 31 {
+                var j = historyIndex - 1 - i
+                if j < 0 { j += 32 }
+                let rawGlucose = (Int(fram[125+j*6]) & 0x1F) << 8 + Int(fram[124+j*6])
+                let rawTemperature = (Int(fram[128+j*6]) & 0x3F) << 8 + Int(fram[127+j*6])
+                history.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
+            }
+
         }
     }
 
-    var state: SensorState = SensorState.unknown
-    var age: Int = 0
-    var currentGlucose: Int = 0
 
     init() {
     }
-    
+
     init(transmitter: Transmitter) {
         self.transmitter = transmitter
     }
 
 
     var crcReport: String {
-
         if fram.count != 344 { return "No FRAM read: can't verify CRC" }
-
         let headerCRC = fram[0...1].hex
         let bodyCRC   = fram[24...25].hex
         let footerCRC = fram[320...321].hex
@@ -87,6 +114,7 @@ class Sensor {
         var report = "Sensor header CRC: \(headerCRC), computed: \(computedHeaderCRC) -> \(headerCRC == computedHeaderCRC ? "OK" : "FAILED")"
         report += "\nSensor body CRC16: \(bodyCRC), computed: \(computedBodyCRC) -> \(bodyCRC == computedBodyCRC ? "OK" : "FAILED")"
         report += "\nSensor footer CRC16: \(footerCRC), computed: \(computedFooterCRC) -> \(footerCRC == computedFooterCRC ? "OK" : "FAILED")"
+
         return report
     }
 }
@@ -113,6 +141,7 @@ func sensorType(patchInfo: Data) -> SensorType {
 
     return type
 }
+
 
 // https://github.com/UPetersen/LibreMonitor/blob/Swift4/LibreMonitor/Model/SensorSerialNumber.swift
 
@@ -149,6 +178,7 @@ func crc16(_ data: Data) -> UInt16 {
     }
     return reverseCrc.byteSwapped
 }
+
 
 // https://github.com/bubbledevteam/xdripswift/blob/master/xdrip/Transmitter/CGMBluetoothTransmitter/Libre/Utilities/LibreMeasurement.swift
 

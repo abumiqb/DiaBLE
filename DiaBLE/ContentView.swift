@@ -82,7 +82,7 @@ struct Monitor: View {
                     }
                 }
 
-                Graph().environmentObject(history).environmentObject(settings).frame(width: 30 * 7 + 60, height: 150)
+                Graph().environmentObject(history).environmentObject(settings).frame(width: 32 * 7 + 60, height: 150)
 
                 HStack {
                     Spacer()

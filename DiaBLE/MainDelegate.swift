@@ -139,51 +139,27 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
         app.sensorAge = sensor.age
 
-        let fram = sensor.fram
-
-        var trend = [GlucoseMeasurement]()
-        var history = [GlucoseMeasurement]()
-        let trendIndex = Int(fram[26])
-        let historyIndex = Int(fram[27])
-
-        for i in 0 ... 15 {
-            var j = trendIndex - 1 - i
-            if j < 0 { j += 16 }
-            let rawGlucose = (Int(fram[29+j*6]) & 0x1F) << 8 + Int(fram[28+j*6])
-            let rawTemperature = (Int(fram[32+j*6]) & 0x3F) << 8 + Int(fram[31+j*6])
-            trend.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
-        }
-        log("Raw trend: \(trend.map{ $0.rawGlucose })")
-
-        for i in 0 ... 31 {
-            var j = historyIndex - 1 - i
-            if j < 0 { j += 32 }
-            let rawGlucose = (Int(fram[125+j*6]) & 0x1F) << 8 + Int(fram[124+j*6])
-            let rawTemperature = (Int(fram[128+j*6]) & 0x3F) << 8 + Int(fram[127+j*6])
-            history.append(GlucoseMeasurement(rawGlucose: rawGlucose, rawTemperature: rawTemperature))
-        }
-        log("Raw history: \(history.map{ $0.rawGlucose })")
-
-        self.history.rawValues = history.map{ $0.glucose }
-        self.history.rawTrend  = trend.map{ $0.glucose }
-
+        self.history.rawTrend = sensor.trend.map{ $0.glucose }
+        log("Raw trend: \(sensor.trend.map{ $0.rawGlucose })")
+        self.history.rawValues = sensor.history.map{ $0.glucose }
+        log("Raw history: \(sensor.history.map{ $0.rawGlucose })")
 
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
-        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram) { data, errorDescription in
+        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram) { data, errorDescription in
             if let data = data {
                 let json = String(decoding: data, as: UTF8.self)
                 self.log("LibreOOP Server calibration response: \(json))")
                 let decoder = JSONDecoder.init()
                 if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
                     let params = oopCalibration.parameters
-                    for measurement in history {
+                    for measurement in sensor.history {
                         measurement.calibrationParameters = params
                     }
-                    for measurement in trend {
+                    for measurement in sensor.trend {
                         measurement.calibrationParameters = params
                     }
                     self.app.params = params
-                    // TODO: store new app.history.calibratedValues and display a blue curve
+                    // TODO: store new app.history.calibratedValues and display a third curve
                 }
 
             } else {
@@ -196,7 +172,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         if sensor.patchInfo.count > 0 {
             log("Sending FRAM to \(settings.oopServerSite) for measurements...")
 
-            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: fram, patchUid: sensor.uid, patchInfo: sensor.patchInfo) { data, errorDescription in
+            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram, patchUid: sensor.uid, patchInfo: sensor.patchInfo) { data, errorDescription in
                 if let data = data {
                     let json = String(decoding: data, as: UTF8.self)
                     self.log("LibreOOP Server measurements response: \(json)")
@@ -219,8 +195,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.oopTrend = oopData.trendArrow
-                            let (_, history) = oopData.glucoseData(date: Date())
-                            let oopHistory = history.map { $0.glucose }
+                            let oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
                             if oopHistory.count > 0 {
                                 self.history.values = oopHistory
                             } else {

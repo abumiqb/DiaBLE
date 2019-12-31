@@ -114,9 +114,10 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
                                 let patchInfo = customResponse
                                 sensor.patchInfo = Data(patchInfo)
                                 self.main.log("NFC: patch info: \(patchInfo.hex)")
-                                self.main.log("NFC: Libre type: \(sensorType(patchInfo: patchInfo).rawValue)")
+                                self.main.log("NFC: Libre type: \(sensor.type.rawValue)")
 
                                 sensor.fram = Data(fram)
+                                self.main.info("\n\n\(sensor.type) + NFC")
                                 self.main.parseSensorData(sensor)
                             }
                         }
