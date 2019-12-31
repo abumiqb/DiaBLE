@@ -395,10 +395,10 @@ struct SettingsView: View {
                 HStack {
                     Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
                         Image(systemName: "timer").resizable().frame(width: 32, height: 32)
-                        Text("\(settings.readingInterval) m") })
+                        Text(" \(settings.readingInterval) m") })
                 }
                 .foregroundColor(.orange)
-                .padding(.horizontal, 100)
+                .padding(.horizontal, 90)
 
                 Spacer()
 
