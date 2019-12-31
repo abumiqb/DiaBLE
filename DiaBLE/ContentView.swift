@@ -207,17 +207,17 @@ struct Graph: View {
                     let width  = Double(geometry.size.width) - 60.0
                     let height = Double(geometry.size.height)
                     let yScale = (height - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0)
-                    path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.glucoseHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.glucoseHigh - self.settings.glucoseLow) * yScale - 1.0))
+                    path.addRect(CGRect(x: 1.0 + 30.0, y: height - self.settings.targetHigh * yScale + 1.0, width: width - 2.0, height: (self.settings.targetHigh - self.settings.targetLow) * yScale - 1.0))
                 }.fill(Color.green).opacity(0.15)
             }
 
             // Glucose low and high labels at the right
             GeometryReader { geometry in
                 ZStack {
-                    Text("\(Int(self.settings.glucoseHigh))")
-                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.glucoseHigh))
-                    Text("\(Int(self.settings.glucoseLow))")
-                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.glucoseLow))
+                    Text("\(Int(self.settings.targetHigh))")
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.targetHigh))
+                    Text("\(Int(self.settings.targetLow))")
+                        .position(x: CGFloat(Double(geometry.size.width) - 15.0), y: CGFloat(Double(geometry.size.height) - (Double(geometry.size.height) - 30.0) / (self.history.rawValues.count > 0 ? Double(self.history.rawValues.max()!) : 250.0) * self.settings.targetLow))
                 }.font(.footnote).foregroundColor(.gray)
             }
 
@@ -412,10 +412,10 @@ struct SettingsView: View {
                 // TODO: a unified slider
                 VStack(spacing: 0) {
                     Image(systemName: "hand.thumbsup.fill").foregroundColor(.green).padding(4)
-                    Text("\(Int(settings.glucoseLow)) - \(Int(settings.glucoseHigh))").foregroundColor(.green)
+                    Text("\(Int(settings.targetLow)) - \(Int(settings.targetHigh))").foregroundColor(.green)
                     HStack {
-                        Slider(value: $settings.glucoseLow,  in: 20 ... 100, step: 1)
-                        Slider(value: $settings.glucoseHigh, in: 140 ... 350, step: 1)
+                        Slider(value: $settings.targetLow,  in: 20 ... 100, step: 1)
+                        Slider(value: $settings.targetHigh, in: 140 ... 350, step: 1)
                     }
                 }.padding(.horizontal, 40)
                     .accentColor(.green)

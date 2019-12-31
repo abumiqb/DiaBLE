@@ -105,8 +105,8 @@ class Settings: ObservableObject {
     @Published var readingInterval: Int
 
     // TODO: a GlucoseRange struct
-    @Published var glucoseLow: Double
-    @Published var glucoseHigh: Double
+    @Published var targetLow: Double
+    @Published var targetHigh: Double
     @Published var alarmLow: Double
     @Published var alarmHigh: Double
 
@@ -122,8 +122,8 @@ class Settings: ObservableObject {
         preferredTransmitter: TransmitterType = TransmitterType.none,
         readingInterval: Int = 5,
 
-        glucoseLow: Double = 70.0,
-        glucoseHigh: Double = 180.0,
+        targetLow: Double = 70.0,
+        targetHigh: Double = 180.0,
         alarmLow: Double = 70.0,
         alarmHigh: Double = 220.0,
 
@@ -138,8 +138,8 @@ class Settings: ObservableObject {
         self.preferredTransmitter = preferredTransmitter
         self.readingInterval = readingInterval
 
-        self.glucoseLow = glucoseLow
-        self.glucoseHigh = glucoseHigh
+        self.targetLow = targetLow
+        self.targetHigh = targetHigh
         self.alarmLow = alarmLow
         self.alarmHigh = alarmHigh
 
