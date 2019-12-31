@@ -68,6 +68,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     public func playAlarm() {
         audioPlayer.currentTime = 25.0
         audioPlayer.play()
+        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     }
 
     // TODO: reimplement in the Sensor class
@@ -135,8 +136,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.oopTrend = oopData.trendArrow
-                            let oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
-                            if oopHistory.count > 0 {
+                            var oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
+                            let oopHistoryCount = oopHistory.count
+                            if oopHistoryCount > 0 {
+                                if oopHistoryCount < 32 { // new sensor
+                                    oopHistory.append(contentsOf: Array(repeating: -1, count: 32 - oopHistoryCount))
+                                    //TODO: display "NO" instead of -1 (and raw 0s) and don't graph bogus lines
+                                }
                                 self.history.values = oopHistory
                             } else {
                                 self.history.values = []

@@ -42,7 +42,7 @@ class App: ObservableObject {
         sensorSerial: String = "",
         sensorAge: Int = 0,
 
-        battery: Int = 0,
+        battery: Int = -1,
         transmitterFirmware: String = "",
         transmitterHardware: String = "Scanning...",
 
@@ -71,6 +71,7 @@ class App: ObservableObject {
     }
 }
 
+
 class Log: ObservableObject {
     @Published var text: String
     init(_ text: String = "Log \(Date())\n") {
@@ -86,6 +87,7 @@ class Info: ObservableObject {
     }
 }
 
+
 class History: ObservableObject {
     @Published var values:    [Int]
     @Published var rawValues: [Int]
@@ -99,6 +101,7 @@ class History: ObservableObject {
         self.rawTrend  = rawTrend
     }
 }
+
 
 class Settings: ObservableObject {
     @Published var preferredTransmitter: TransmitterType
@@ -130,7 +133,7 @@ class Settings: ObservableObject {
         logging: Bool = true,
         reversedLog: Bool = true,
 
-        numberFormatter:NumberFormatter = NumberFormatter(),
+        numberFormatter: NumberFormatter = NumberFormatter(),
 
         oopServerSite: String = "https://www.glucose.space/",
         oopServerToken: String = "bubble-201907") {
@@ -152,5 +155,4 @@ class Settings: ObservableObject {
         self.oopServerSite = oopServerSite
         self.oopServerToken = oopServerToken
     }
-
 }
