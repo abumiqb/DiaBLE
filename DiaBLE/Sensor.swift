@@ -63,14 +63,16 @@ class Sensor {
         }
     }
 
-    var trend = [GlucoseMeasurement]()
-    var history = [GlucoseMeasurement]()
+    var trend: [GlucoseMeasurement] = []
+    var history: [GlucoseMeasurement] = []
 
     var fram: Data = Data() {
         willSet(fram) {
             state = SensorState(rawValue: fram[4])!
             age = Int(fram[317]) << 8 + Int(fram[316])
 
+            trend = []
+            history = []
             let trendIndex = Int(fram[26])
             let historyIndex = Int(fram[27])
 
