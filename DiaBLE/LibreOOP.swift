@@ -17,8 +17,9 @@ struct OOPHistoryData: Codable {
     var realTimeGlucose: HistoricGlucose
     var trendArrow: String
 
-    // NOTE: bubbledevteam's version returns a tuple (current, array)
+    /// NOTE: bubbledevteam's version returns the tuple (current, array) but doesn't use the realTimeGlucose minutes counter
     func glucoseData(date: Date) -> [GlucoseMeasurement] {
+        // let current = GlucoseMeasurement(rawGlucose: realTimeGlucose.value * 10, date: date)
         var array = [GlucoseMeasurement]()
         let gap: TimeInterval = 60 * 15
         var date = date
