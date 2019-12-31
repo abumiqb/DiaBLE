@@ -268,10 +268,12 @@ struct Graph: View {
                         let xScale = width / Double(count - 1)
                         path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale))
                         for i in 1 ..< count {
-                            path.addLine(to: .init(
-                                x: Double(i) * xScale + 30.0,
-                                y: height - Double(v[count - i - 1]) * yScale)
-                            )
+                            if v[count - i - 1] > 0 {
+                                path.addLine(to: .init(
+                                    x: Double(i) * xScale + 30.0,
+                                    y: height - Double(v[count - i - 1]) * yScale)
+                                )
+                            }
                         }
                     }
                 }.stroke(Color.blue)

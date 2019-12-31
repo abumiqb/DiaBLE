@@ -29,7 +29,7 @@ struct OOPHistoryData: Codable {
         }
         for g in history {
             date = date.addingTimeInterval(-gap)
-            if g.dataQuality != 0 { continue }
+            // if g.dataQuality != 0 { continue }
             let glucose = GlucoseMeasurement(rawGlucose: g.value * 10, minutesCounter: g.id, date: date)
             array.append(glucose)
         }
