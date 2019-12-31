@@ -232,16 +232,16 @@ struct Graph: View {
                         let max = v.max()!
                         let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
-                        var startingVoid = false
-                        if v[count - 1] < 1 { startingVoid = true }
+                        var startingVoid = v[count - 1] < 1 ? true : false
                         if startingVoid == false { path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale)) }
                         for i in 1 ..< count {
                             if v[count - i - 1] > 0 {
+                                let point = CGPoint(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale)
                                 if startingVoid == false {
-                                    path.addLine(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                    path.addLine(to: point)
                                 } else {
                                     startingVoid = false
-                                    path.move(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                    path.move(to: point)
                                 }
                             }
                         }
@@ -262,16 +262,16 @@ struct Graph: View {
                         let max = r.max()!
                         let yScale = (height - 30.0) / Double(max)
                         let xScale = width / Double(count - 1)
-                        var startingVoid = false
-                        if v[count - 1] < 1 { startingVoid = true }
+                        var startingVoid = v[count - 1] < 1 ? true : false
                         if startingVoid == false { path.move(to: .init(x: 0.0 + 30.0, y: height - Double(v[count - 1]) * yScale)) }
                         for i in 1 ..< count {
                             if v[count - i - 1] > 0 {
+                                let point = CGPoint(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale)
                                 if startingVoid == false {
-                                    path.addLine(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                    path.addLine(to: point)
                                 } else {
                                     startingVoid = false
-                                    path.move(to: .init(x: Double(i) * xScale + 30.0, y: height - Double(v[count - i - 1]) * yScale))
+                                    path.move(to: point)
                                 }
                             }
                         }
