@@ -81,6 +81,7 @@ struct Monitor: View {
                         }
                     }
                 }
+
                 Graph().environmentObject(history).environmentObject(settings).frame(width: 31 * 7 + 60, height: 150)
 
                 HStack {
@@ -108,14 +109,12 @@ struct Monitor: View {
                 }
                 .font(.footnote)
                 .foregroundColor(.yellow)
-                .multilineTextAlignment(.center)
 
                 Text(info.text)
-                    .multilineTextAlignment(.center)
                     .font(.footnote)
                     .padding(.vertical, 5)
 
-                VStack(spacing: 1) {
+                VStack(spacing: 2) {
                     if history.values.count > 0 {
                         Text("OOP history: [\(history.values.map{ String($0) }.joined(separator: " "))]")
                             .foregroundColor(.blue)
@@ -128,7 +127,6 @@ struct Monitor: View {
                     }
                 }
                 .font(.footnote)
-                .multilineTextAlignment(.center)
 
                 if app.params.offsetOffset != 0.0 {
                     VStack {
@@ -170,6 +168,7 @@ struct Monitor: View {
                 ).foregroundColor(.accentColor) }
 
             }
+            .multilineTextAlignment(.center)
             .navigationBarTitle("DiaBLE  \(Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String)", displayMode: .inline)
             .navigationBarItems(trailing:
                 Button(action: {
@@ -244,7 +243,7 @@ struct Graph: View {
                 }.stroke(Color.yellow).opacity(0.6)
             }
 
-            // History values scaled the same as the raw ones
+            // History (OOP) values
             GeometryReader { geometry in
                 Path() { path in
                     let width  = Double(geometry.size.width) - 60.0
@@ -421,7 +420,6 @@ struct SettingsView: View {
                 }.padding(.horizontal, 40)
                     .accentColor(.green)
 
-                // TODO:
                 VStack(spacing: 0) {
                     Image(systemName: "bell.fill").foregroundColor(.red).padding(4)
                     Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))").foregroundColor(.red)
@@ -451,7 +449,6 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
 
         Group {
-
             ContentView()
                 .environmentObject(App())
                 .environmentObject(Info())
@@ -470,7 +467,6 @@ struct ContentView_Previews: PreviewProvider {
                 .environmentObject(App())
                 .environmentObject(Settings())
                 .environment(\.colorScheme, .dark)
-
         }
     }
 }
