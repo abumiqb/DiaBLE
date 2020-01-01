@@ -71,97 +71,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     }
 
-    func parseSensorData(_ sensor: Sensor) {
-
-        log(sensor.crcReport)
-        log("Sensor state: \(sensor.state)")
-        app.sensorState = sensor.state.description
-        log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
-        app.sensorAge = sensor.age
-
-        self.history.rawTrend = sensor.trend.map{ $0.glucose }
-        log("Raw trend: \(sensor.trend.map{ $0.rawGlucose })")
-        self.history.rawValues = sensor.history.map{ $0.glucose }
-        log("Raw history: \(sensor.history.map{ $0.rawGlucose })")
-
-        sensor.currentGlucose = -self.history.rawTrend[0]
-
-        log("Sending FRAM to \(settings.oopServerSite) for calibration...")
-        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram) { data, errorDescription in
-            if let data = data {
-                let json = String(decoding: data, as: UTF8.self)
-                self.log("LibreOOP Server calibration response: \(json))")
-                let decoder = JSONDecoder.init()
-                if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
-                    let params = oopCalibration.parameters
-                    for measurement in sensor.history {
-                        measurement.calibrationParameters = params
-                    }
-                    for measurement in sensor.trend {
-                        measurement.calibrationParameters = params
-                    }
-                    self.app.params = params
-                    // TODO: store new app.history.calibratedValues and display a third curve
-                }
-
-            } else {
-                self.log("LibreOOP calibration failed")
-                self.info("\nLibreOOP calibration failed")
-            }
-            if sensor.patchInfo.count == 0 {
-                self.didParseSensor(sensor)
-            }
-            return
-        }
-
-        if sensor.patchInfo.count > 0 {
-            log("Sending FRAM to \(settings.oopServerSite) for measurements...")
-
-            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram, patchUid: sensor.uid, patchInfo: sensor.patchInfo) { data, errorDescription in
-                if let data = data {
-                    let json = String(decoding: data, as: UTF8.self)
-                    self.log("LibreOOP Server measurements response: \(json)")
-                    if json.contains("errcode") {
-                        self.info("\n\(json)")
-                        self.log("LibreOOP measurements failed")
-                        self.info("\nLibreOOP measurements failed")
-                        self.history.values = []
-                    } else {
-                        let decoder = JSONDecoder.init()
-                        if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
-                            let realTimeGlucose = oopData.realTimeGlucose.value
-                            self.app.currentGlucose = realTimeGlucose
-                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
-                            self.app.oopAlarm = oopData.alarm
-                            // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
-                            self.app.oopTrend = oopData.trendArrow
-                            var oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
-                            let oopHistoryCount = oopHistory.count
-                            if oopHistoryCount > 0 {
-                                if oopHistoryCount < 32 { // new sensor
-                                    oopHistory.append(contentsOf: Array(repeating: -1, count: 32 - oopHistoryCount))
-                                }
-                                self.history.values = oopHistory
-                            } else {
-                                self.history.values = []
-                            }
-                            self.log("OOP history: \(oopHistory)")
-                        } else {
-                            self.log("Missing LibreOOP Data")
-                            self.info("\nMissing LibreOOP data")
-                        }
-                    }
-                } else {
-                    self.history.values = []
-                    self.log("LibreOOP connection failed")
-                    self.info("\nLibreOOP connection failed")
-                }
-                self.didParseSensor(sensor)
-                return
-            }
-        }
-    }
-
 
     public func centralManagerDidUpdateState(_ manager: CBCentralManager) {
         switch manager.state {
@@ -452,11 +361,107 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
     }
 
+
+    func parseSensorData(_ sensor: Sensor) {
+
+        log(sensor.crcReport)
+        log("Sensor state: \(sensor.state)")
+        app.sensorState = sensor.state.description
+        log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
+        app.sensorAge = sensor.age
+
+        self.history.rawTrend = sensor.trend.map{ $0.glucose }
+        log("Raw trend: \(sensor.trend.map{ $0.rawGlucose })")
+        self.history.rawValues = sensor.history.map{ $0.glucose }
+        log("Raw history: \(sensor.history.map{ $0.rawGlucose })")
+
+        sensor.currentGlucose = -self.history.rawTrend[0]
+
+        log("Sending FRAM to \(settings.oopServerSite) for calibration...")
+        postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram) { data, errorDescription in
+            if let data = data {
+                let json = String(decoding: data, as: UTF8.self)
+                self.log("LibreOOP Server calibration response: \(json))")
+                let decoder = JSONDecoder.init()
+                if let oopCalibration = try? decoder.decode(OOPCalibrationResponse.self, from: data) {
+                    let params = oopCalibration.parameters
+                    for measurement in sensor.history {
+                        measurement.calibrationParameters = params
+                    }
+                    for measurement in sensor.trend {
+                        measurement.calibrationParameters = params
+                    }
+                    self.app.params = params
+                    // TODO: store new app.history.calibratedValues and display a third curve
+                }
+
+            } else {
+                self.log("LibreOOP calibration failed")
+                self.info("\nLibreOOP calibration failed")
+            }
+            if sensor.patchInfo.count == 0 {
+                self.didParseSensor(sensor)
+            }
+            return
+        }
+
+        if sensor.patchInfo.count > 0 {
+            log("Sending FRAM to \(settings.oopServerSite) for measurements...")
+
+            postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram, patchUid: sensor.uid, patchInfo: sensor.patchInfo) { data, errorDescription in
+                if let data = data {
+                    let json = String(decoding: data, as: UTF8.self)
+                    self.log("LibreOOP Server measurements response: \(json)")
+                    if json.contains("errcode") {
+                        self.info("\n\(json)")
+                        self.log("LibreOOP measurements failed")
+                        self.info("\nLibreOOP measurements failed")
+                        self.history.values = []
+                    } else {
+                        let decoder = JSONDecoder.init()
+                        if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
+                            let realTimeGlucose = oopData.realTimeGlucose.value
+                            if realTimeGlucose > 0 {
+                                sensor.currentGlucose = realTimeGlucose
+                            }
+                            // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
+                            self.app.oopAlarm = oopData.alarm
+                            // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
+                            self.app.oopTrend = oopData.trendArrow
+                            var oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
+                            let oopHistoryCount = oopHistory.count
+                            if oopHistoryCount > 0 {
+                                if oopHistoryCount < 32 { // new sensor
+                                    oopHistory.append(contentsOf: Array(repeating: -1, count: 32 - oopHistoryCount))
+                                }
+                                self.history.values = oopHistory
+                            } else {
+                                self.history.values = []
+                            }
+                            self.log("OOP history: \(oopHistory)")
+                        } else {
+                            self.log("Missing LibreOOP Data")
+                            self.info("\nMissing LibreOOP data")
+                        }
+                    }
+                } else {
+                    self.history.values = []
+                    self.log("LibreOOP connection failed")
+                    self.info("\nLibreOOP connection failed")
+                }
+                self.didParseSensor(sensor)
+                return
+            }
+        }
+    }
+
+
     /// sensor.currentGlucose is negative if set to the last raw trend value
     func didParseSensor(_ sensor: Sensor) {
 
         var currentGlucose = sensor.currentGlucose
 
+        // Display a negative value in parenthesis
         self.app.currentGlucose = currentGlucose
 
         currentGlucose = abs(currentGlucose)
