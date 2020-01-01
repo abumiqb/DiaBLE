@@ -82,7 +82,13 @@ class NFCReader: NSObject, NFCTagReaderSessionDelegate {
 
                                 session.invalidate()
 
-                                let sensor = self.main.app.sensor != nil ? self.main.app.sensor! : Sensor()
+                                var sensor: Sensor
+                                if  self.main.app.sensor != nil {
+                                    sensor = self.main.app.sensor
+                                } else {
+                                    sensor = Sensor()
+                                    self.main.app.sensor = sensor
+                                }
 
                                 var fram = Data()
 

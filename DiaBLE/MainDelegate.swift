@@ -70,9 +70,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             audioPlayer.currentTime = 25.0
             audioPlayer.play()
         }
-        for _ in 1...3 {
-            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
-            sleep(1)
+        for s in 0...2 {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(s)) {
+                AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            }
         }
     }
 
