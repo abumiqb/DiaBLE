@@ -24,31 +24,31 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         settings = Settings()
 
         // TODO: option CBCentralManagerOptionRestoreIdentifierKey
-        self.centralManager = CBCentralManager(delegate: nil, queue: nil)
-        self.nfcReader = NFCReader()
+        centralManager = CBCentralManager(delegate: nil, queue: nil)
+        nfcReader = NFCReader()
 
         super.init()
 
-        self.centralManager.delegate = self
-        self.nfcReader.main = self
+        centralManager.delegate = self
+        nfcReader.main = self
 
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.duckOthers])
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            self.log("Audio Session error: \(error)")
+            log("Audio Session error: \(error)")
         }
 
         let numberFormatter = NumberFormatter()
         numberFormatter.minimumFractionDigits = 6
-        self.settings.numberFormatter = numberFormatter
+        settings.numberFormatter = numberFormatter
 
     }
 
 
     public func log(_ text: String) {
-        if self.settings.logging || text.hasPrefix("Log") {
-            if self.settings.reversedLog {
+        if settings.logging || text.hasPrefix("Log") {
+            if settings.reversedLog {
                 log.text = "\(text)\n\(log.text)"
             } else {
                 log.text.append("\(text)\n")
@@ -219,8 +219,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if app.transmitter.type == .bubble && service.uuid.uuidString == Bubble.dataServiceUUID {
-            app.transmitter.write(app.transmitter.readCommand(interval: self.settings.readingInterval))
-            log("Bubble: writing start reading command 0x0000\(self.settings.readingInterval)")
+            app.transmitter.write(app.transmitter.readCommand(interval: settings.readingInterval))
+            log("Bubble: writing start reading command 0x0000\(settings.readingInterval)")
             // bubble!.write([0x00, 0x01, 0x05])
             // log("Bubble: writing reset and send data every 5 minutes command 0x000105")
         }
@@ -342,7 +342,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
-            self.app.readingTimer = self.settings.readingInterval * 60 - 4
+            app.readingTimer = settings.readingInterval * 60 - 4
 
             app.transmitter.read(data)
 
@@ -361,7 +361,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     app.transmitter.buffer = Data()
                 }
             } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
-                self.didParseSensor(app.transmitter.sensor!)
+                didParseSensor(app.transmitter.sensor!)
             }
         }
     }
@@ -375,12 +375,12 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Sensor age \(sensor.age), days: \(String(format: "%.2f", Double(sensor.age)/60/24))")
         app.sensorAge = sensor.age
 
-        self.history.rawTrend = sensor.trend.map{ $0.glucose }
+        history.rawTrend = sensor.trend.map{ $0.glucose }
         log("Raw trend: \(sensor.trend.map{ $0.rawGlucose })")
-        self.history.rawValues = sensor.history.map{ $0.glucose }
+        history.rawValues = sensor.history.map{ $0.glucose }
         log("Raw history: \(sensor.history.map{ $0.rawGlucose })")
 
-        sensor.currentGlucose = -self.history.rawTrend[0]
+        sensor.currentGlucose = -history.rawTrend[0]
 
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
         postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram) { data, errorDescription in
@@ -467,13 +467,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         var currentGlucose = sensor.currentGlucose
 
         // Display a negative value in parenthesis
-        self.app.currentGlucose = currentGlucose
+        app.currentGlucose = currentGlucose
 
         currentGlucose = abs(currentGlucose)
 
-        if currentGlucose > Int(self.settings.alarmHigh) || currentGlucose < Int(self.settings.alarmLow) {
-            self.log("ALARM: current glucose: \(currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
-            self.playAlarm()
+        if currentGlucose > Int(settings.alarmHigh) || currentGlucose < Int(settings.alarmLow) {
+            log("ALARM: current glucose: \(currentGlucose), high: \(Int(settings.alarmHigh)), low: \(Int(settings.alarmLow))")
+            playAlarm()
         }
 
         UIApplication.shared.applicationIconBadgeNumber = currentGlucose
