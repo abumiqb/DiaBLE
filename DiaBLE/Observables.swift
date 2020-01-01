@@ -112,6 +112,7 @@ class Settings: ObservableObject {
     @Published var targetHigh: Double
     @Published var alarmLow: Double
     @Published var alarmHigh: Double
+    @Published var mutedAudio: Bool
 
     @Published var logging: Bool
     @Published var reversedLog: Bool
@@ -129,6 +130,7 @@ class Settings: ObservableObject {
         targetHigh: Double = 180.0,
         alarmLow: Double = 70.0,
         alarmHigh: Double = 220.0,
+        mutedAudio: Bool = false,
 
         logging: Bool = true,
         reversedLog: Bool = true,
@@ -145,6 +147,7 @@ class Settings: ObservableObject {
         self.targetHigh = targetHigh
         self.alarmLow = alarmLow
         self.alarmHigh = alarmHigh
+        self.mutedAudio = mutedAudio
 
         self.logging = logging
         self.reversedLog = reversedLog

@@ -54,8 +54,9 @@ struct Monitor: View {
             VStack {
                 Spacer()
                 VStack {
+                    // Trailing blank to center perfectly (SwiftUI bug?)
                     Text(app.currentGlucose > 0 ? "\(app.currentGlucose) " :
-                        (app.currentGlucose < 0 ? "(\(-app.currentGlucose))" : "--- "))
+                        (app.currentGlucose < 0 ? "(\(-app.currentGlucose)) " : "--- "))
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
@@ -426,25 +427,32 @@ struct SettingsView: View {
                 Spacer()
 
                 // TODO: a unified slider
-                VStack(spacing: 0) {
-                    Image(systemName: "hand.thumbsup.fill").foregroundColor(.green).padding(4)
-                    Text("\(Int(settings.targetLow)) - \(Int(settings.targetHigh))").foregroundColor(.green)
-                    HStack {
-                        Slider(value: $settings.targetLow,  in: 20 ... 100, step: 1)
-                        Slider(value: $settings.targetHigh, in: 140 ... 350, step: 1)
-                    }
-                }.padding(.horizontal, 40)
-                    .accentColor(.green)
+                VStack {
+                    VStack(spacing: 0) {
+                        Image(systemName: "hand.thumbsup.fill").foregroundColor(.green).padding(4)
+                        Text("\(Int(settings.targetLow)) - \(Int(settings.targetHigh))").foregroundColor(.green)
+                        HStack {
+                            Slider(value: $settings.targetLow,  in: 20 ... 100, step: 1)
+                            Slider(value: $settings.targetHigh, in: 140 ... 350, step: 1)
+                        }
+                    }.accentColor(.green)
 
-                VStack(spacing: 0) {
-                    Image(systemName: "bell.fill").foregroundColor(.red).padding(4)
-                    Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))").foregroundColor(.red)
-                    HStack {
-                        Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
-                        Slider(value: $settings.alarmHigh, in: 140 ... 350, step: 1)
-                    }
+                    VStack(spacing: 0) {
+                        Image(systemName: "bell.fill").foregroundColor(.red).padding(4)
+                        Text("<\(Int(settings.alarmLow))   >\(Int(settings.alarmHigh))").foregroundColor(.red)
+                        HStack {
+                            Slider(value: $settings.alarmLow,  in: 20 ... 100, step: 1)
+                            Slider(value: $settings.alarmHigh, in: 140 ... 350, step: 1)
+                        }
+                    }.accentColor(.red)
                 }.padding(.horizontal, 40)
-                    .accentColor(.red)
+
+                Button(action: {
+                    self.settings.mutedAudio.toggle()
+                }) {
+                    Image(systemName: settings.mutedAudio ? "speaker.slash.fill" : "speaker.2.fill").resizable().frame(width: 24, height: 24).padding(.bottom, 8
+                    ).foregroundColor(.accentColor)
+                }
 
                 Spacer()
 

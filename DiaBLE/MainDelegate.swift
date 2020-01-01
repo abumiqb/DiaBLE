@@ -66,9 +66,14 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
 
     public func playAlarm() {
-        audioPlayer.currentTime = 25.0
-        audioPlayer.play()
-        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+        if !settings.mutedAudio {
+            audioPlayer.currentTime = 25.0
+            audioPlayer.play()
+        }
+        for _ in 1...3 {
+            AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
+            sleep(1)
+        }
     }
 
 
