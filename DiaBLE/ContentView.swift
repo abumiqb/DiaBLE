@@ -73,8 +73,8 @@ struct Monitor: View {
                             .foregroundColor(app.transmitterState == "Connected" ? .green : .red)
                             .fixedSize()
 
-                        if self.app.readingTimer > -1 {
-                            Text("\(self.app.readingTimer) s")
+                        if app.readingTimer > -1 {
+                            Text("\(app.readingTimer) s")
                                 .fixedSize()
                                 .onReceive(timer) { _ in
                                     if self.app.readingTimer > 0 {
@@ -300,7 +300,7 @@ struct LogView: View {
     var body: some View {
         HStack {
             ScrollView(showsIndicators: true) {
-                Text(self.log.text)
+                Text(log.text)
                     .font(.system(.footnote, design: .monospaced))
                     .frame(idealWidth: 640, alignment: .topLeading)
                     .background(Color.blue)
@@ -358,21 +358,21 @@ struct LogView: View {
                         .frame(width: 12, height: 12).offset(y: 5)
                     Text(" REV ").offset(y: -2)
                     }
-                }.background(self.settings.reversedLog ? Color.accentColor : Color.clear)
+                }.background(settings.reversedLog ? Color.accentColor : Color.clear)
                     .border(Color.accentColor, width: 3)
                     .cornerRadius(5)
-                    .foregroundColor(self.settings.reversedLog ? .black : .accentColor)
+                    .foregroundColor(settings.reversedLog ? .black : .accentColor)
 
                 
                 Button(action: {
                     self.settings.logging.toggle()
                     self.app.main.log("\(self.settings.logging ? "Log started" : "Log stopped") \(Date())")
                 }) { VStack {
-                    Image(systemName: self.settings.logging ? "stop.circle" : "play.circle")
+                    Image(systemName: settings.logging ? "stop.circle" : "play.circle")
                         .resizable()
                         .frame(width: 32, height: 32)
                     }
-                }.foregroundColor(self.settings.logging ? .red : .green)
+                }.foregroundColor(settings.logging ? .red : .green)
 
                 Spacer()
 
