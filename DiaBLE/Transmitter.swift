@@ -133,6 +133,7 @@ class Bubble: Transmitter {
         } else {
             if sensor == nil {
                 sensor = Sensor(transmitter: self)
+                main.app.sensor = sensor
             }
             if response == .serialNumber {
                 sensor!.uid = Data(data[2...9])
@@ -188,6 +189,7 @@ class Droplet: Transmitter {
     override func read(_ data: Data) {
         if sensor == nil {
             sensor = Sensor(transmitter: self)
+            main.app.sensor = sensor
         }
         if data.count == 8 {
             sensor!.uid = Data(data)
@@ -316,6 +318,7 @@ class MiaoMiao: Transmitter {
         } else {
             if sensor == nil {
                 sensor = Sensor(transmitter: self)
+                main.app.sensor = sensor
             }
             buffer.append(data)
             main.log("\(name): partial buffer count: \(buffer.count)")

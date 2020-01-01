@@ -141,7 +141,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                             if oopHistoryCount > 0 {
                                 if oopHistoryCount < 32 { // new sensor
                                     oopHistory.append(contentsOf: Array(repeating: -1, count: 32 - oopHistoryCount))
-                                    //TODO: display "NO" instead of -1 (and raw 0s) and don't graph bogus lines
                                 }
                                 self.history.values = oopHistory
                             } else {
