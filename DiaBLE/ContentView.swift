@@ -54,12 +54,13 @@ struct Monitor: View {
             VStack {
                 Spacer()
                 VStack {
-                    Text(app.currentGlucose > 0 ? " \(app.currentGlucose) " :
+                    Text(app.currentGlucose > 0 ? "\(app.currentGlucose) " :
                         (app.currentGlucose < 0 ? "(\(-app.currentGlucose))" : " --- "))
                         .fontWeight(.black)
                         .foregroundColor(.black)
                         .padding(10)
-                        .background(abs(app.currentGlucose) > 0 && (abs(app.currentGlucose) > Int(settings.alarmHigh) || abs(app.currentGlucose) < Int(settings.alarmLow)) ? Color.red : Color.blue)
+                        .background(abs(app.currentGlucose) > 0 && (abs(app.currentGlucose) > Int(settings.alarmHigh) || abs(app.currentGlucose) < Int(settings.alarmLow)) ? Color.red :
+                            (app.currentGlucose < 0 ? Color.yellow : Color.blue))
                         .cornerRadius(5)
                         .fixedSize()
 
@@ -82,7 +83,10 @@ struct Monitor: View {
                         }
                     }
                 }
+
+
                 Graph().environmentObject(history).environmentObject(settings).frame(width: 31 * 7 + 60, height: 150)
+
 
                 HStack {
                     VStack {
