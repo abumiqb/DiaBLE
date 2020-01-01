@@ -155,6 +155,7 @@ struct Monitor: View {
                         }
                     }
                     .font(.footnote)
+                    .keyboardType(.numbersAndPunctuation)
                 }
 
                 Spacer()
@@ -450,8 +451,7 @@ struct SettingsView: View {
                 Button(action: {
                     self.settings.mutedAudio.toggle()
                 }) {
-                    Image(systemName: settings.mutedAudio ? "speaker.slash.fill" : "speaker.2.fill").resizable().frame(width: 24, height: 24).padding(.bottom, 8
-                    ).foregroundColor(.accentColor)
+                    Image(systemName: settings.mutedAudio ? "speaker.slash.fill" : "speaker.2.fill").resizable().frame(width: 24, height: 24).foregroundColor(.accentColor)
                 }
 
                 Spacer()
