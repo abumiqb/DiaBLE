@@ -3,7 +3,7 @@ import CoreBluetooth
 import AVFoundation
 
 
-public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
+public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate, UNUserNotificationCenterDelegate {
 
     var app: App
     var log: Log
@@ -32,12 +32,10 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         centralManager.delegate = self
         nfcReader.main = self
 
-        do {
-            try AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            log("Audio Session error: \(error)")
-        }
+        UNUserNotificationCenter.current().delegate = self
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _,_ in } // TODO
+        try! AVAudioSession.sharedInstance().setCategory(AVAudioSession.Category.playback, options: [.duckOthers])
+        try! AVAudioSession.sharedInstance().setActive(true)
 
         let numberFormatter = NumberFormatter()
         numberFormatter.minimumFractionDigits = 6
@@ -235,13 +233,13 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             // app.transmitter.write([0x34, 0x35, 0x36]); log("Droplet: writing old read command")
             // app.transmitter.write([0x50, 0x00, 0x00]); log("Droplet: writing ping command P00")
             // app.transmitter.write([0x54, 0x00, 0x01]); log("Droplet: writing timer command T01")
-            // TODO: T05 = 5 minutes, T00 = quiet mode
+            // T05 = 5 minutes, T00 = quiet mode
             app.transmitter.write([0x53, 0x00, 0x00]); log("Droplet: writing sensor identification command S00")
             app.transmitter.write([0x43, 0x00, 0x01]); log("Droplet: writing FRAM reading command C01")
             // app.transmitter.write([0x43, 0x00, 0x02]); log("Droplet: writing FRAM reading command C02")
             // app.transmitter.write([0x42, 0x00, 0x01]); log("Droplet: writing RAM reading command B01")
             // app.transmitter.write([0x42, 0x00, 0x02]); log("Droplet: writing RAM reading command B02")
-            // TODO: "A0xyz...z” sensor activation where: x=1 for Libre 1, 2 for Libre 2 and US 14-day, 3 for Libre Pro/H; y = length of activation bytes, z...z = activation bytes
+            // "A0xyz...z” sensor activation where: x=1 for Libre 1, 2 for Libre 2 and US 14-day, 3 for Libre Pro/H; y = length of activation bytes, z...z = activation bytes
         }
 
         if app.transmitter.type == .limitter && service.uuid.uuidString == Limitter.dataServiceUUID {
