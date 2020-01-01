@@ -71,7 +71,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         AudioServicesPlaySystemSound(kSystemSoundID_Vibrate)
     }
 
-    // TODO: reimplement in the Sensor class
     func parseSensorData(_ sensor: Sensor) {
 
         log(sensor.crcReport)
@@ -84,6 +83,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         log("Raw trend: \(sensor.trend.map{ $0.rawGlucose })")
         self.history.rawValues = sensor.history.map{ $0.glucose }
         log("Raw history: \(sensor.history.map{ $0.rawGlucose })")
+
+        sensor.currentGlucose = -self.history.rawTrend[0]
 
         log("Sending FRAM to \(settings.oopServerSite) for calibration...")
         postToLibreOOP(site: settings.oopServerSite, token: settings.oopServerToken, bytes: sensor.fram) { data, errorDescription in
@@ -107,6 +108,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 self.log("LibreOOP calibration failed")
                 self.info("\nLibreOOP calibration failed")
             }
+            if sensor.patchInfo.count == 0 {
+                self.didParseSensor(sensor)
+            }
             return
         }
 
@@ -127,13 +131,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                         if let oopData = try? decoder.decode(OOPHistoryData.self, from: data) {
                             let realTimeGlucose = oopData.realTimeGlucose.value
                             self.app.currentGlucose = realTimeGlucose
-                            UIApplication.shared.applicationIconBadgeNumber = realTimeGlucose
                             // PROJECTED_HIGH_GLUCOSE | HIGH_GLUCOSE | GLUCOSE_OK | LOW_GLUCOSE | PROJECTED_LOW_GLUCOSE | NOT_DETERMINED
                             self.app.oopAlarm = oopData.alarm
-                            if self.app.currentGlucose > 0 && (self.app.currentGlucose > Int(self.settings.alarmHigh) || self.app.currentGlucose < Int(self.settings.alarmLow)) {
-                                self.log("ALARM: current glucose: \(self.app.currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
-                                self.playAlarm()
-                            }
                             // FALLING_QUICKLY | FALLING | STABLE | RISING | RISING_QUICKLY | NOT_DETERMINED
                             self.app.oopTrend = oopData.trendArrow
                             var oopHistory = oopData.glucoseData(date: Date()).map { $0.glucose }
@@ -157,6 +156,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     self.log("LibreOOP connection failed")
                     self.info("\nLibreOOP connection failed")
                 }
+                self.didParseSensor(sensor)
                 return
             }
         }
@@ -447,8 +447,25 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     app.transmitter.buffer = Data()
                 }
             } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
-                app.currentGlucose = app.transmitter.sensor!.currentGlucose
+                self.didParseSensor(app.transmitter.sensor!)
             }
         }
+    }
+
+    /// sensor.currentGlucose is negative if set to the last raw trend value
+    func didParseSensor(_ sensor: Sensor) {
+
+        var currentGlucose = sensor.currentGlucose
+
+        self.app.currentGlucose = currentGlucose
+
+        currentGlucose = abs(currentGlucose)
+
+        if currentGlucose > Int(self.settings.alarmHigh) || currentGlucose < Int(self.settings.alarmLow) {
+            self.log("ALARM: current glucose: \(currentGlucose), high: \(Int(self.settings.alarmHigh)), low: \(Int(self.settings.alarmLow))")
+            self.playAlarm()
+        }
+
+        UIApplication.shared.applicationIconBadgeNumber = currentGlucose
     }
 }
