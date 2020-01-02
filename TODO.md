@@ -8,14 +8,12 @@ FIXME
 TODO
 ----
 
-* notifications beside the beeps
-* MiaoMiao:
-   - varying the frequency (normal: [0xD1, 0x03], short:  [0xD1, 0x01], startup: [0xD1, 0x05])
+* UNUserNotificationCenterDelegate methods
 * save the app.settings (simply by using a property wrapper) and the OOP measurements (simply by using HealthKit's bloodGlucose)
 * a global timer for the next reading
-* changing the calibration parameters updates a third curve
+* changing the calibration parameters updates a third purple curve
 * a single slider for setting the desired glucose range and the alarms (see [SwiftExtensions](https://github.com/SwiftExtensions/SwiftUIExtensions))
-* log: limit the number of readings; add the time when prepending "\t"; add a search field; save to a file
+* log: limit to a number of readings; add the time when prepending "\t"; add a search field; record to a file
 
 
 PLANS / WISHES

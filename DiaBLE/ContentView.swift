@@ -37,6 +37,7 @@ struct ContentView: View {
     }
 }
 
+
 struct Monitor: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info
@@ -200,6 +201,7 @@ struct Monitor: View {
         }.navigationViewStyle(StackNavigationViewStyle())
     }
 }
+
 
 struct Graph: View {
     @EnvironmentObject var history: History
@@ -381,6 +383,7 @@ struct LogView: View {
     }
 }
 
+
 struct SettingsView: View {
     @EnvironmentObject var app: App
     @EnvironmentObject var settings: Settings
@@ -465,7 +468,6 @@ struct SettingsView: View {
 }
 
 
-// TODO
 struct ContentView_Previews: PreviewProvider {
     @EnvironmentObject var app: App
     @EnvironmentObject var info: Info

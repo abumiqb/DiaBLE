@@ -104,7 +104,16 @@ class History: ObservableObject {
 
 
 class Settings: ObservableObject {
-    @Published var preferredTransmitter: TransmitterType
+
+    @Published var preferredTransmitter: TransmitterType {
+
+        willSet(type) {
+            if type == .miaomiao && readingInterval > 5 {
+                readingInterval = 5
+            }
+        }
+    }
+    
     @Published var readingInterval: Int
 
     // TODO: a GlucoseRange struct
