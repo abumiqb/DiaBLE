@@ -246,10 +246,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         if app.transmitter.type == .limitter && service.uuid.uuidString == Limitter.dataServiceUUID {
             // app.transmitter.write([0x31, 0x32, 0x33]); log("Limitter: writing old ping command")
             // app.transmitter.write([0x34, 0x35, 0x36]); log("Limitter: writing old read command")
-            app.transmitter.write([0x21]); log("LimiTTer: writing old timer (1 minute) command")
-            // TODO: varying frequency: 0x2X
+            let readCommand = app.transmitter.readCommand(interval: settings.readingInterval)
+            app.transmitter.write(readCommand)
+            log("Droplet (LimiTTer): writing start reading command 0x\(Data(readCommand).hex)")
             app.transmitter.peripheral?.readValue(for: app.transmitter.readCharacteristic!)
-            log("LimiTTer: reading data")
+            log("Droplet (LimiTTer): reading data")
         }
 
         if app.transmitter.type == .miaomiao && service.uuid.uuidString == MiaoMiao.dataServiceUUID {

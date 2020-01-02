@@ -205,6 +205,11 @@ class Droplet: Transmitter {
 
 class Limitter: Droplet {
     override var type: TransmitterType { TransmitterType.limitter }
+    override var name: String { "Droplet (LimiTTer)" }
+
+    override func readCommand(interval: Int = 5) -> [UInt8] {
+        return [UInt8(32 + interval)] // 0x2X
+    }
 
     override func read(_ data: Data) {
 
@@ -224,7 +229,7 @@ class Limitter: Droplet {
         let firstField = fields[0]
         guard !firstField.hasPrefix("000") else {
             main.log("\(name): no sensor data")
-            main.info("\n\\(name): no sensor data")
+            main.info("\n\n\(name): no sensor data")
             if firstField.hasSuffix("999") {
                 let err = fields[1]
                 main.log("\(name): error \(err)\n(0001 = low battery, 0002 = badly positioned)")
@@ -233,12 +238,12 @@ class Limitter: Droplet {
         }
 
         let rawValue = Int(firstField.dropLast(2))!
-        main.log("\(name): Glucose raw value: \(rawValue)")
-        main.info("\n\nDroplet raw glucose: \(rawValue)")
+        main.log("\(name): glucose raw value: \(rawValue)")
+        main.info("\n\n\(name) raw glucose: \(rawValue)")
         sensor!.currentGlucose = rawValue / 10
 
         let sensorType = LibreType(rawValue: String(firstField.suffix(2)))!.description
-        main.log("\name): sensor type = \(sensorType)")
+        main.log("\(name): sensor type = \(sensorType)")
 
         sensor!.age = Int(fields[3])! * 10
         main.log("\(name): sensor age: \(Int(sensor!.age)) (\(String(format: "%.1f", Double(sensor!.age)/60/24)) days)")
