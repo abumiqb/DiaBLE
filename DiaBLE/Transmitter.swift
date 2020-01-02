@@ -218,6 +218,7 @@ class Limitter: Droplet {
 
         if sensor == nil {
             sensor = Sensor(transmitter: self)
+            main.app.sensor = sensor
         }
 
         let fields = String(decoding: data, as: UTF8.self).split(separator: " ")
@@ -246,7 +247,13 @@ class Limitter: Droplet {
         main.log("\(name): sensor type = \(sensorType)")
 
         sensor!.age = Int(fields[3])! * 10
+        if Double(sensor!.age)/60/24 < 14.5 {
+            sensor!.state = .ready
+        } else {
+            sensor!.state = .expired
+        }
         main.log("\(name): sensor age: \(Int(sensor!.age)) (\(String(format: "%.1f", Double(sensor!.age)/60/24)) days)")
+        main.info("\n\n \(sensorType)  +  \(name)")
     }
 }
 

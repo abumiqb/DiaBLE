@@ -361,6 +361,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     app.transmitter.buffer = Data()
                 }
             } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
+                app.sensorState = app.transmitter.sensor!.state.description
                 didParseSensor(app.transmitter.sensor!)
             }
         }
@@ -471,7 +472,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         currentGlucose = abs(currentGlucose)
 
-        if currentGlucose > Int(settings.alarmHigh) || currentGlucose < Int(settings.alarmLow) {
+        if currentGlucose > 0 && (currentGlucose > Int(settings.alarmHigh) || currentGlucose < Int(settings.alarmLow)) {
             log("ALARM: current glucose: \(currentGlucose), high: \(Int(settings.alarmHigh)), low: \(Int(settings.alarmLow))")
             playAlarm()
         }
