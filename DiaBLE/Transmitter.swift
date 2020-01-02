@@ -284,8 +284,8 @@ class MiaoMiao: Transmitter {
     // TODO: test
     override func readCommand(interval: Int = 5) -> [UInt8] {
         var command = [UInt8(0xF0)]
-        if [1, 3, 5].contains(interval) {
-            command.insert(contentsOf: [0xD3, UInt8(interval)], at: 0)
+        if [1, 3].contains(interval) {
+            command.insert(contentsOf: [0xD1, UInt8(interval)], at: 0)
         }
         return command
     }

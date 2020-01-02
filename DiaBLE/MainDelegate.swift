@@ -218,8 +218,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if app.transmitter.type == .bubble && service.uuid.uuidString == Bubble.dataServiceUUID {
-            app.transmitter.write(app.transmitter.readCommand(interval: settings.readingInterval))
-            log("Bubble: writing start reading command 0x0000\(settings.readingInterval)")
+            let readCommand = app.transmitter.readCommand(interval: settings.readingInterval)
+            app.transmitter.write(readCommand)
+            log("Bubble: writing start reading command 0x\(Data(readCommand).hex)")
             // bubble!.write([0x00, 0x01, 0x05])
             // log("Bubble: writing reset and send data every 5 minutes command 0x000105")
         }
@@ -252,10 +253,11 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if app.transmitter.type == .miaomiao && service.uuid.uuidString == MiaoMiao.dataServiceUUID {
-            app.transmitter.write([0xF0])
-            log("MiaoMiao: writing start reading command F0")
+            //app.transmitter.write([0xF0])
+            let readCommand = app.transmitter.readCommand(interval: settings.readingInterval)
+            app.transmitter.write(readCommand)
+            log("MiaoMiao: writing start reading command 0x\(Data(readCommand).hex)")
             // app.transmitter.write([0xD3, 0x01]); log("MiaoMiao writing start new sensor command D301")
-            // TODO: normalFrequency: [0xD1, 0x03], shortFrequency: [0xD1, 0x01], startupFrequency: [0xD1, 0x05]
         }
     }
 
@@ -341,7 +343,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
-            app.readingTimer = settings.readingInterval * 60 - 4
+            app.readingTimer = settings.readingInterval * 60
 
             app.transmitter.read(data)
 

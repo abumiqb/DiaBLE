@@ -139,19 +139,19 @@ struct Monitor: View {
                         HStack {
                             Text("Slope slope:")
                             TextField("Slope slope", value: $app.params.slopeSlope, formatter: settings.numberFormatter)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.purple)
                             Text("Slope offset:")
                             TextField("Slope offset", value: $app.params.offsetSlope, formatter: settings.numberFormatter)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.purple)
                         }
 
                         HStack {
                             Text("Offset slope:")
                             TextField("Offset slope", value: $app.params.slopeOffset, formatter: settings.numberFormatter)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.purple)
                             Text("Offset offset:")
                             TextField("Offset offset", value: $app.params.offsetOffset, formatter: settings.numberFormatter)
-                                .foregroundColor(.blue)
+                                .foregroundColor(.purple)
                         }
                     }
                     .font(.footnote)
@@ -403,9 +403,12 @@ struct SettingsView: View {
                 Spacer()
 
                 HStack {
-                    Stepper(value: $settings.readingInterval, in: 1 ... 15, label: {
-                        Image(systemName: "timer").resizable().frame(width: 32, height: 32)
-                        Text(" \(settings.readingInterval) m") })
+                    Stepper(value: $settings.readingInterval,
+                            in:   settings.preferredTransmitter == .miaomiao ? 1 ... 5 : 1 ... 15,
+                            step: settings.preferredTransmitter == .miaomiao ? 2 : 1,
+                            label: {
+                                Image(systemName: "timer").resizable().frame(width: 32, height: 32)
+                                Text(" \(settings.readingInterval) m") })
                 }
                 .foregroundColor(.orange)
                 .padding(.horizontal, 90)
