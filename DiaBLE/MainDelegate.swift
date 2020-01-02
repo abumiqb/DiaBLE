@@ -313,7 +313,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case Transmitter.modelCharacteristicUUID:
             let model = String(decoding: data, as: UTF8.self)
             log("Model Number: \(model)")
-            app.transmitterHardware += "\n\(model)"
+            app.transmitter.hardware += "\n\(model)"
+            app.transmitterHardware = app.transmitter.hardware
+
 
         case Transmitter.serialCharacteristicUUID:
             let serial = String(decoding: data, as: UTF8.self)
@@ -329,7 +331,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case Transmitter.hardwareCharacteristicUUID:
             let hardware = String(decoding: data, as: UTF8.self)
             log("Hardware version: \(hardware)")
-            app.transmitterHardware += "\nV\(hardware)"
+            app.transmitter.hardware += "\nV\(hardware)"
+            app.transmitterHardware = app.transmitter.hardware
 
         case Transmitter.softwareCharacteristicUUID:
             let software = String(decoding: data, as: UTF8.self)
@@ -338,7 +341,8 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case Transmitter.manufacturerCharacteristicUUID:
             let manufacturer = String(decoding: data, as: UTF8.self)
             log("Manufacturer: \(manufacturer)")
-            app.transmitterHardware = manufacturer
+            app.transmitter.hardware = manufacturer
+            app.transmitterHardware = app.transmitter.hardware
 
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
@@ -361,7 +365,9 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                     app.transmitter.buffer = Data()
                 }
             } else if app.transmitter.type == .limitter && app.transmitter.sensor != nil {
-                app.sensorState = app.transmitter.sensor!.state.description
+                if app.transmitter.sensor!.state != .unknown {
+                    app.sensorState = app.transmitter.sensor!.state.description
+                }
                 didParseSensor(app.transmitter.sensor!)
             }
         }

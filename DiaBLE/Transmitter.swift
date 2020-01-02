@@ -253,7 +253,7 @@ class Limitter: Droplet {
             sensor!.state = .expired
         }
         main.log("\(name): sensor age: \(Int(sensor!.age)) (\(String(format: "%.1f", Double(sensor!.age)/60/24)) days)")
-        main.info("\n\n \(sensorType)  +  \(name)")
+        main.info("\n\n\(sensorType)  +  \(name)")
     }
 }
 
