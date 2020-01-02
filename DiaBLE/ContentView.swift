@@ -95,10 +95,14 @@ struct Monitor: View {
                         Text(app.sensorState)
                             .foregroundColor(app.sensorState == "Ready" ? .green : .red)
 
-                        if app.sensorAge > 0 {
+                        if app.sensorSerial != "" {
                             Text("\(app.sensorSerial)")
+                        }
+
+                        if app.sensorAge > 0 {
                             Text("\(String(format: "%.1f", Double(app.sensorAge)/60/24)) days")
                         }
+
                     }
 
                     VStack {

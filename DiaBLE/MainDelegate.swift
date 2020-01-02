@@ -244,8 +244,6 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
 
         if app.transmitter.type == .limitter && service.uuid.uuidString == Limitter.dataServiceUUID {
-            // app.transmitter.write([0x31, 0x32, 0x33]); log("Limitter: writing old ping command")
-            // app.transmitter.write([0x34, 0x35, 0x36]); log("Limitter: writing old read command")
             let readCommand = app.transmitter.readCommand(interval: settings.readingInterval)
             app.transmitter.write(readCommand)
             log("Droplet (LimiTTer): writing start reading command 0x\(Data(readCommand).hex)")
