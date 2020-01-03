@@ -151,7 +151,7 @@ class Bubble: Transmitter {
                     let fram = buffer[..<344]
                     // let footer = buffer.suffix(8)
                     sensor!.fram = Data(fram)
-                    main.info("\n\n \(sensor!.type)  +  \(name)")
+                    main.info("\n\n\(sensor!.type)  +  \(name)")
                 }
             }
         }
@@ -359,7 +359,7 @@ class MiaoMiao: Transmitter {
                 }
 
                 sensor!.fram = Data(buffer[18 ..< 362])
-                main.info("\n\n \(sensor!.type)  +  \(name)")
+                main.info("\n\n\(sensor!.type)  +  \(name)")
             }
         }
     }

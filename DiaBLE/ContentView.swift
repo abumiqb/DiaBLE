@@ -55,17 +55,21 @@ struct Monitor: View {
             VStack {
                 Spacer()
                 VStack {
-                    // Trailing blank to center perfectly (SwiftUI bug?)
-                    Text(app.currentGlucose > 0 ? "\(app.currentGlucose) " :
-                        (app.currentGlucose < 0 ? "(\(-app.currentGlucose)) " : "--- "))
-                        .fontWeight(.black)
-                        .foregroundColor(.black)
-                        .padding(10)
-                        .background(abs(app.currentGlucose) > 0 && (abs(app.currentGlucose) > Int(settings.alarmHigh) || abs(app.currentGlucose) < Int(settings.alarmLow)) ? Color.red :
-                            (app.currentGlucose < 0 ? Color.yellow : Color.blue))
-                        .cornerRadius(5)
-                        .fixedSize()
+                    HStack {
+                        Text("\(app.lastReading.shortTime)").frame(maxWidth: .infinity, alignment: .trailing ).padding(.trailing, 10).foregroundColor(.gray)
 
+                        Text(app.currentGlucose > 0 ? "\(app.currentGlucose) " :
+                            (app.currentGlucose < 0 ? "(\(-app.currentGlucose)) " : "--- "))
+                            .fontWeight(.black)
+                            .foregroundColor(.black)
+                            .padding(10)
+                            .background(abs(app.currentGlucose) > 0 && (abs(app.currentGlucose) > Int(settings.alarmHigh) || abs(app.currentGlucose) < Int(settings.alarmLow)) ? Color.red :
+                                (app.currentGlucose < 0 ? Color.yellow : Color.blue))
+                            .cornerRadius(5)
+
+                        // TODO: trend arrow
+                        Text("---").frame(maxWidth: .infinity, alignment: .leading).padding(.leading, 10)
+                    }
                     Text("\(app.oopAlarm.replacingOccurrences(of: "_", with: " ")) - \(app.oopTrend.replacingOccurrences(of: "_", with: " "))")
                         .foregroundColor(.blue)
 

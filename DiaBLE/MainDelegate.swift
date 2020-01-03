@@ -347,6 +347,7 @@ public class MainDelegate: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         default:
             log("(string: \"" + String(decoding: data, as: UTF8.self) + "\", hex: " + data.hex + ")")
             app.readingTimer = settings.readingInterval * 60
+            app.lastReading = Date()
 
             app.transmitter.read(data)
 

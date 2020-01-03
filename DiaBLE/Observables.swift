@@ -11,6 +11,7 @@ class App: ObservableObject {
 
     // TODO: use directly app.transmitter and app.sensor in ContentView
     @Published var currentGlucose: Int
+    @Published var lastReading: Date
     @Published var oopAlarm: String
     @Published var oopTrend: String
     @Published var transmitterState: String
@@ -33,6 +34,7 @@ class App: ObservableObject {
         selectedTab: Tab = .monitor,
 
         currentGlucose: Int = 0,
+        lastReading: Date = Date(),
         oopAlarm: String = "",
         oopTrend: String = "",
         transmitterState: String = "",
@@ -54,6 +56,7 @@ class App: ObservableObject {
         self.selectedTab = selectedTab
 
         self.currentGlucose = currentGlucose
+        self.lastReading = lastReading
         self.oopAlarm = oopAlarm
         self.oopTrend = oopTrend
         self.transmitterState = transmitterState
